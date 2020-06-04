@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../static/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+    <script src="../static/jquery-ui-1.12.1/jquery-ui.js"></script>
+	<script src="../static/jquery-layout-1.4.0/jquery.layout-latest.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // OUTER-LAYOUT
+            $('body').layout({
+                center__paneSelector:	    "#centerWindow",
+                east__paneSelector:		"#instanceWindow",
+                west__size:				125,
+                east__size:				125,
+                spacing_open:			    8,  // ALL panes
+                spacing_closed:			12, // ALL panes
+                north__maxSize:			200,
+                south__maxSize:			200,
+                center__childOptions: {
+                    center__paneSelector: "#textWindow",
+                    south__paneSelector: "#annotationInfoWindow",
+                    south__size: 100,
+                    spacing_open: 8,  // ALL panes
+                    spacing_closed: 12 // ALL panes
+                },
+                east__childOptions: {
+                    center__paneSelector: "#instanceSelectWindow",
+                    south__paneSelector: "#instancInfoWindow",
+                    south__size: 100,
+                    spacing_open: 8,  // ALL panes
+                    spacing_closed: 12,// ALL panes
+                }
+            });
+
+        });
+    </script>
+    <style>
+        /*窗体样式*/
+        .ui-layout-pane {
+            background: #e8e8e8;
+            border:     0px solid #88e3a9;
+            padding:    10px;
+            overflow:   auto;
+        }
+
+        /*拉条样式*/
+        .ui-layout-resizer  {
+            background: #858585;
+            border:         1px solid #BBB;
+            border-width:   0;
+        }
+        .ui-layout-toggler {
+            border: 1px solid #CCCCCC;
+            background-color: #bcd2ef;
+            opacity: .60;
+            filter:  alpha(opacity=60);
+        }
+    </style>
+</head>
+<body>
+    <div id="centerWindow">
+        <div id="textWindow">
+            123
+        </div>
+        <div id="annotationInfoWindow">
+            456
+        </div>
+    </div>
+    <div id="instanceWindow">
+        <div id="instanceSelectWindow">
+            123
+        </div>
+        <div id="instancInfoWindow">
+            456
+        </div>
+    </div>
+</body>
+</html>

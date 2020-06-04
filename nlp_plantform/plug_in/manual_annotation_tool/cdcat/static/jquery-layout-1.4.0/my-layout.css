@@ -1,0 +1,20 @@
+/*窗体样式*/
+.ui-layout-pane {
+    background: #e8e8e8;
+    border:     0px solid #88e3a9;
+    padding:    10px;
+    overflow:   auto;
+}
+
+/*拉条样式*/
+.ui-layout-resizer  {
+    background: #858585;
+    border:         1px solid #BBB;
+    border-width:   0;
+}
+.ui-layout-toggler {
+    border: 1px solid #CCCCCC;
+    background-color: #bcd2ef;
+    opacity: .60;
+    filter:  alpha(opacity=60);
+}
