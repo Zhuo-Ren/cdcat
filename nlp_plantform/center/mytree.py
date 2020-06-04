@@ -696,6 +696,26 @@ class mytree(ParentedTree):
         else:
             old_parent.insert(index, new_parent)
 
+    @staticmethod
+    def is_annotated(root: "mytree", start_nleaf_position: str, end_nleaf_positon: str):
+        # 类型检测
+        pass
+        # 根据position获取nleaf
+        start_nleaf = root[start_nleaf_position]
+        end_nleaf = root[end_nleaf_positon]
+        # 判断：如果是单个节点
+        if start_nleaf == end_nleaf:
+            return start_nleaf
+        # 判断：如果是多个节点
+        cur_parent = start_nleaf
+        while cur_parent != root:
+            cur_parent = cur_parent.get_parent()
+            if cur_parent.left_nleaf() != start_nleaf:
+                return None
+            if cur_parent.right_nleaf() == end_nleaf:
+                return cur_parent
+        return None
+
     # Transforms------------------------------------------------------
     def chomsky_normal_form(self, factor="right", horzMarkov=None, vertMarkov=0, childChar="|", parentChar="^"):
         """

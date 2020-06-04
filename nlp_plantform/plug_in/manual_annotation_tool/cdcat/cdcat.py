@@ -19,8 +19,12 @@ def cdcat(root: mytree):
     @app.route('/selectChars', methods=["POST"])
     def selectChars():
         print(request.form)
-        case = 2
-        if case == 1:
+        start_nleaf_position = request.form.get("start").split("-")
+        start_nleaf_position = [int(i) for i in start_nleaf_position]
+        end_nleaf_position = request.form.get("end").split("-")
+        end_nleaf_position = [int(i) for i in end_nleaf_position]
+        anno_node = mytree.is_annotated(root, start_nleaf_position, end_nleaf_position)
+        if anno_node is not None:
             return jsonify({
                 "path": "1-10-3-2",
                 "entityType": "people",

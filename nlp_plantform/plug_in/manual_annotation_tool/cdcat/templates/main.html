@@ -71,19 +71,19 @@
             <button id="annoInfo-noAnno" style="display: none">the selected text isn't a annotation object, click this button to add a annotation object.</button>
             <p id="annoInfo-edit" style="display: none">double click a annotation to edit.</p>
             <p id="annoInfo-path" style="display: none">
-                <span id="pathKey">path=</span>
+                <span id="pathKey"> > path =</span>
                 <span id="pathValue">XXXXX</span>
             </p>
             <p id="annoInfo-token" style="display: none">
-                <span id="tokenKey">token=</span>
+                <span id="tokenKey"> > token =</span>
                 <span id="tokenValue">True</span>
             </p>
             <p id="annoInfo-ner" style="display: none">
-                <span id="entityTypeKey">ner.entity_type=</span>
+                <span id="entityTypeKey"> > ner.entity_type =</span>
                 <span id="entityTypeValue">XXX.XXX</span>
             </p>
             <p id="annoInfo-coref" style="display: none">
-                <span id="corefKey">coref.instance_id=</span>
+                <span id="corefKey"> > coref.instance_id =</span>
                 <span id="corefValue">XXXXX</span>
             </p>
         </div>
@@ -204,14 +204,35 @@
         {
             var selected = window.getSelection();
             var curRange = selected.getRangeAt(0);
-            // 获取anchor和curve
-            startDiv = curRange.startContainer.parentNode;
-            if (startDiv.id===""){
+            // 获取anchor
+            var startDiv = curRange.startContainer.parentNode;
+            if (startDiv.className.indexOf("ui-layout-content") !== -1){
+                startDiv = startDiv.children[0].children[0]
+            }else if (startDiv.className.indexOf("textTab") !== -1){
+                startDiv = startDiv.childNodes[0]
+            }else if(startDiv.className.indexOf("char") !== -1){
+                //
+            }else if(startDiv.id === ""){
                 startDiv = startDiv.parentNode;
+            }else if(startDiv.id === undefined) {
+                startDiv = startDiv.parentNode.parentNode
+            }else{
+                alert("获取文本选区的anchor元素出错")
             }
-            endDiv = curRange.endContainer.parentNode;
-            if (endDiv.id===""){
+            // 获取curve
+            var endDiv = curRange.endContainer.parentNode;
+            if (endDiv.className.indexOf("ui-layout-content") !== -1){
+                endDiv = endDiv.children[0].children[0]
+            }else if (endDiv.className.indexOf("textTab") !== -1){
+                endDiv = endDiv.childNodes[0]
+            }else if(endDiv.className.indexOf("char") !== -1){
+                //
+            }else if(endDiv.id === ""){
                 endDiv = endDiv.parentNode;
+            }else if(endDiv.id === undefined) {
+                endDiv = endDiv.parentNode.parentNode
+            }else{
+                alert("获取文本选区的curve元素出错")
             }
             // 识别anchor和curve的顺序，得到start和end
             if (startDiv.id > endDiv.id){
@@ -233,11 +254,12 @@
                 }
             }
             // 解决start和end的空选问题
-            if (selected.toString()[0] !== selectedText[0]){
+            s = selected.toString().replace(/[\n\r]/g, "")
+            if (s[0] !== selectedText[0]){
                 selectedElements.shift();
                 selectedText = selectedText.slice(1, selectedText.length);
             }
-            if (selected.toString()[selected.toString().length - 1] !== selectedText[selectedText.length - 1]){
+            if (s[s.length - 1] !== selectedText[selectedText.length - 1]){
                 selectedElements.pop();
                 selectedText = selectedText.slice(0, selectedText.length-1);
             }
