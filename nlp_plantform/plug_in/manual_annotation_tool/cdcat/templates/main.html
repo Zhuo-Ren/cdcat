@@ -121,7 +121,7 @@
                 <div id="resultInstance">
                     <button class="instance">+</button>
                     {% for i in instance_list: %}
-                        <button id={{i["id"]}} class="instance">
+                        <button id={{i["id"]}} class="instance" name={{i["id"]}}>
                             {{i["desc"]}}
                         </button>
                     {% endfor %}
@@ -165,10 +165,10 @@
         $("#annoInfo-instance").css("display", "none");
     }
     function showAnnoInfo(annoInfo) {
-        if(annoInfo["path"]){
-            $("#pathValue").text(annoInfo["path"])
+        if(annoInfo["position"]){
+            $("#pathValue")[0].textContent = annoInfo["position"]
         }else{
-            $("#pathValue").text("")
+            $("#pathValue")[0].textContent = ""
         }
         if(annoInfo["token"]){
             $("#tokenValue").children()[0].checked = true
@@ -177,12 +177,14 @@
         }
         if(annoInfo["semanticType"]){
             $("#semanticTypeValue option[value="+ annoInfo["semanticType"] +"]")[0].selected = true
+        }else{
+            $("#semanticTypeValue option[value='none']")[0].selected = true
         }
         if(annoInfo["instance"]){
-            $("#instanceValue").text(annoInfo["instance"]["desc"])
-            $("#instanceValue").name = annoInfo["instance"]["id"]
+            $("#instanceValue")[0].textContent = annoInfo["instance"]["desc"]
+            $("#instanceValue")[0].name = annoInfo["instance"]["id"]
         }else{
-            $("#instanceValue").text("无")
+            $("#instanceValue").textContent = "无"
             $("#instanceValue").name = -1
         }
         $("#annoInfo-noSelect").css("display", "none");
@@ -299,6 +301,19 @@
                 }
             );
     }
+    function showInstanceInfo(instanceId){
+        $.post(
+                "/getInstanceInfo",
+                {instance_id: instanceId},
+                function (data, status) {
+                    instanceInfo = ""
+                    for(var key in data){ // 输出字典元素，如果字典的key是数字，输出时会自动按序输出
+                        instanceInfo += key + ' : ' + data[key] + '<br>'
+                    }
+                    $("#instanceInfoTab1")[0].innerHTML = instanceInfo
+                }
+            );
+    }
 </script>
 
 <!-- 事件句柄 -->
@@ -311,7 +326,7 @@
         }
     }
     function instanceClick(){
-        console.log(1);
+        showInstanceInfo($("#instanceValue")[0].name);
     }
     function editRef(){
         console.log(2);

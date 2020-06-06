@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 from nlp_plantform.center.mytree import mytree
 from nlp_plantform.center.instance import Instance
+from typing import Dict, List, Tuple, Union  # for type hinting
 
-def cdcat(root: mytree, instance_list: Instance):
+def cdcat(root: mytree):
     app = Flask(__name__)
 
     text_unit_list = []
@@ -19,7 +20,7 @@ def cdcat(root: mytree, instance_list: Instance):
     def fun1():
         return render_template("main.html",
                                text_unit_list=text_unit_list,
-                               instance_list=instance_list)
+                               instance_list=Instance.instance_dict)
 
     @app.route('/selectChars', methods=["POST"])
     def selectChars():
@@ -29,8 +30,19 @@ def cdcat(root: mytree, instance_list: Instance):
         end_nleaf_position = request.form.get("end").split("-")
         end_nleaf_position = [int(i) for i in end_nleaf_position]
         anno_node = mytree.is_annotated(root, start_nleaf_position, end_nleaf_position)
+        anno_info = anno_node.label()
+        anno_info["position"] = "-".join(str(i) for i in anno_node.position())
         if anno_node is not None:
-            return jsonify(anno_node.label())
+            return jsonify(anno_info)
+        else:
+            return ""
+
+    @app.route('/getInstanceInfo', methods=["POST"])
+    def getInstanceInfo():
+        instance_id = request.form.get("instance_id")
+        instance_id = int(instance_id)
+        if instance_id != -1:
+            return jsonify(Instance.instance_dict[instance_id])
         else:
             return ""
 

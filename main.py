@@ -19,14 +19,17 @@ root[3].get_label()["semanticType"] = "addr"
 mytree.add_parent({},[root[2],root[3]])
 root[2].get_label()["semanticType"] = "addr"
 # instance
-instance_list = [
-    Instance(desc="我"), Instance(desc="天安门"), Instance(desc="苹果"),
-    Instance(desc="爱"), Instance(desc="我爱天安门"), Instance(desc="我爱苹果")
-]
-root[0].get_label()["instance"] = instance_list[0]
-root[1].get_label()["instance"] = instance_list[3]
-root[2][1].get_label()["instance"] = instance_list[1]
+i1 = Instance(desc="我")
+i2 = Instance(desc="天安门")
+i3 = Instance(desc="苹果")
+i4 = Instance(desc="爱")
+i5 = Instance(desc="我爱天安门")
+i6 = Instance(desc="我爱苹果")
+
+root[0].get_label()["instance"] = Instance.instance_dict[0]
+root[1].get_label()["instance"] = Instance.instance_dict[3]
+root[2][1].get_label()["instance"] = Instance.instance_dict[1]
 # root.draw()
 # annotation
-cdcat(root, instance_list)
+cdcat(root)
 
