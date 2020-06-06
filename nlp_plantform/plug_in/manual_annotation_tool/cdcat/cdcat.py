@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from nlp_plantform.center.mytree import mytree
+from nlp_plantform.center.instance import Instance
 
-def cdcat(root: mytree):
+def cdcat(root: mytree, instance_list: Instance):
     app = Flask(__name__)
 
     text_unit_list = []
@@ -12,9 +13,13 @@ def cdcat(root: mytree):
             "position": "-".join(p)
         })
 
+    # instance_list["mention_position_list"] = [i.position() for i in instance_list["mention_list"]]
+
     @app.route('/')
     def fun1():
-        return render_template("main.html", text_unit_list=text_unit_list)
+        return render_template("main.html",
+                               text_unit_list=text_unit_list,
+                               instance_list=instance_list)
 
     @app.route('/selectChars', methods=["POST"])
     def selectChars():
@@ -25,11 +30,7 @@ def cdcat(root: mytree):
         end_nleaf_position = [int(i) for i in end_nleaf_position]
         anno_node = mytree.is_annotated(root, start_nleaf_position, end_nleaf_position)
         if anno_node is not None:
-            return jsonify({
-                "path": "1-10-3-2",
-                "entityType": "people",
-                "token": True
-            })
+            return jsonify(anno_node.label())
         else:
             return ""
 

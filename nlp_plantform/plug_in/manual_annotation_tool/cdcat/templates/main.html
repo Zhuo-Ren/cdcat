@@ -20,8 +20,17 @@
             float: left;
         }
         .textTab{
-            height: 100%;
+            height: 90%;
         }
+        #allInstanceTab{
+            padding-left: 3.2px;
+            padding-right: 3.2px;
+        }
+        #commonInstanceTab{
+            padding-left: 3.2px;
+            padding-right: 3.2px;
+        }
+
     </style>
     <script>
         // 全局变量。array of html elements。选中的文本所对应的元素的数组。
@@ -69,23 +78,33 @@
         <div id="annotationInfoWindow">
             <p id="annoInfo-noSelect" style="display: block">select a range of text to show the annotation info.</p>
             <button id="annoInfo-noAnno" style="display: none">the selected text isn't a annotation object, click this button to add a annotation object.</button>
-            <p id="annoInfo-edit" style="display: none">double click a annotation to edit.</p>
-            <p id="annoInfo-path" style="display: none">
+            <div id="annoInfo-path" style="display: none">
                 <span id="pathKey"> > path =</span>
                 <span id="pathValue">XXXXX</span>
-            </p>
-            <p id="annoInfo-token" style="display: none">
+            </div>
+            <div id="annoInfo-token" style="display: none">
                 <span id="tokenKey"> > token =</span>
-                <span id="tokenValue">True</span>
-            </p>
-            <p id="annoInfo-ner" style="display: none">
-                <span id="entityTypeKey"> > ner.entity_type =</span>
-                <span id="entityTypeValue">XXX.XXX</span>
-            </p>
-            <p id="annoInfo-coref" style="display: none">
-                <span id="corefKey"> > coref.instance_id =</span>
-                <span id="corefValue">XXXXX</span>
-            </p>
+                <span id="tokenValue">
+                    <input type = "radio" name = "token" value = "True" />True
+                    <input type = "radio" name = "token" value = "False" checked/>False
+                </span>
+            </div>
+            <div id="annoInfo-semanticType" style="display: none">
+                <span id="semanticTypeKey"> > ner.entity_type =</span>
+                <span id="semanticTypeValue">
+                    <select>
+                        <option value ="none">无</option>
+                        <option value ="peo">人</option>
+                        <option value="org">组织</option>
+                        <option value="addr">地点</option>
+                    </select>
+                </span>
+            </div>
+            <div id="annoInfo-instance" style="display: none">
+                <span id="instanceKey"> > coref.instance_id =</span>
+                <button id="instanceValue" class="instance">XXXXX</button>
+                <span>(单击：显示并编辑实例信息，双击：选择另一个实例)</span>
+            </div>
         </div>
     </div>
     <div id="instanceWindow">
@@ -95,17 +114,21 @@
                 <li><a href="#commonInstanceTab">常用对象</a></li>
             </ul>
             <div id="allInstanceTab">
-                <div id="searchInstance"></div>
+                <div id="searchInstance">
+                    <input style="width: 85%">
+                    <button class="searchInstanceButton" style="padding:0px;">🔍</button>
+                </div>
                 <div id="resultInstance">
-                    <div id="newInstance">
-                        <button>+</button>
-                    </div>
+                    <button class="instance">+</button>
+                    {% for i in instance_list: %}
+                        <button id={{i["id"]}} class="instance">
+                            {{i["desc"]}}
+                        </button>
+                    {% endfor %}
                 </div>
             </div>
             <div id="commonInstanceTab">
-                <div id="newInstance">
-                    <button>+</button>
-                </div>
+                <button class="instance">+</button>
             </div>
         </div>
         <div id="instancInfoWindow">
@@ -114,17 +137,10 @@
                 <li><a href="#instanceInfoTab2">2</a></li>
             </ul>
             <div id="instanceInfoTab1">
-                <div id="searchInstance"></div>
-                <div id="resultInstance">
-                    <div id="newInstance">
-                        +
-                    </div>
-                </div>
+                XXX
             </div>
             <div id="instanceInfoTab2">
-                <div id="newInstance">
-                    +
-                </div>
+                XXX
             </div>
         </div>
     </div>
@@ -135,20 +151,18 @@
     function showNoSelect(){
         $("#annoInfo-noSelect").css("display", "block");
         $("#annoInfo-noAnno").css("display", "none");
-        $("#annoInfo-edit").css("display", "none");
         $("#annoInfo-path").css("display", "none");
         $("#annoInfo-token").css("display", "none");
-        $("#annoInfo-ner").css("display", "none");
-        $("#annoInfo-coref").css("display", "none");
+        $("#annoInfo-semanticType").css("display", "none");
+        $("#annoInfo-instance").css("display", "none");
     }
     function showNoAnnoInfo(){
         $("#annoInfo-noSelect").css("display", "none");
         $("#annoInfo-noAnno").css("display", "block");
-        $("#annoInfo-edit").css("display", "none");
         $("#annoInfo-path").css("display", "none");
         $("#annoInfo-token").css("display", "none");
-        $("#annoInfo-ner").css("display", "none");
-        $("#annoInfo-coref").css("display", "none");
+        $("#annoInfo-semanticType").css("display", "none");
+        $("#annoInfo-instance").css("display", "none");
     }
     function showAnnoInfo(annoInfo) {
         if(annoInfo["path"]){
@@ -157,27 +171,26 @@
             $("#pathValue").text("")
         }
         if(annoInfo["token"]){
-            $("#tokenValue").text(annoInfo["token"])
+            $("#tokenValue").children()[0].checked = true
         }else{
-            $("#tokenValue").text("")
+            $("#tokenValue").children()[1].checked = true
         }
-        if(annoInfo["entityType"]){
-            $("#entityTypeValue").text(annoInfo["entityType"])
-        }else{
-            $("#entityTypeValue").text("")
+        if(annoInfo["semanticType"]){
+            $("#semanticTypeValue option[value="+ annoInfo["semanticType"] +"]")[0].selected = true
         }
-        if(annoInfo["coref"]){
-            $("#corefValue").text(annoInfo["coref"])
+        if(annoInfo["instance"]){
+            $("#instanceValue").text(annoInfo["instance"]["desc"])
+            $("#instanceValue").name = annoInfo["instance"]["id"]
         }else{
-            $("#corefValue").text("")
+            $("#instanceValue").text("无")
+            $("#instanceValue").name = -1
         }
         $("#annoInfo-noSelect").css("display", "none");
         $("#annoInfo-noAnno").css("display", "none");
-        $("#annoInfo-edit").css("display", "block");
         $("#annoInfo-path").css("display", "block");
         $("#annoInfo-token").css("display", "block");
-        $("#annoInfo-ner").css("display", "block");
-        $("#annoInfo-coref").css("display", "block");
+        $("#annoInfo-semanticType").css("display", "block");
+        $("#annoInfo-instance").css("display", "block");
     }
     function unselectChars(){
         //涉及全局变量
@@ -297,12 +310,38 @@
             selectChars();
         }
     }
+    function instanceClick(){
+        console.log(1);
+    }
+    function editRef(){
+        console.log(2);
+    }
 </script>
 
 <!-- 绑定事件 -->
 <script>
     // 选中一段文本
     $(".textTab").mouseup(function(){textMouseup();})
+    // 用于单击和双击的计时器
+    var clickFlag = null;//是否点击标识（定时器编号）
+    // 单击一个实例，显示实例信息
+    $(".instance").click(function(){
+        if(clickFlag) {//取消上次延时未执行的方法
+            clickFlag = clearTimeout(clickFlag);
+        }
+        clickFlag = setTimeout(function() {
+            // click 事件的处理
+            instanceClick();
+        }, 150);//延时300毫秒执行
+    })
+    // 双击实例，选择指向的实例
+    $("#instanceValue").dblclick(function(){
+        if(clickFlag) {//取消上次延时未执行的方法
+            clickFlag = clearTimeout(clickFlag);
+        }
+        // dblclick 事件的处理
+        editRef()
+    })
 </script>
 
 </html>

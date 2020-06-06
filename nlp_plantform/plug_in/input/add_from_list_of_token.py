@@ -31,5 +31,10 @@ def add_from_list_of_token(basetree: mytree, token_list: List[str]):
             else:
                 raise RuntimeError("can not add token")
     for cur_token in token_list:
-        mytree.add_parent("token", [i[1] for i in cur_token])
+        if len(cur_token) == 1:
+            anno = cur_token[0][1].get_label()
+            anno["token"] = True
+            cur_token[0][1].set_label(anno)
+        else:
+            mytree.add_parent({"token": True}, [i[1] for i in cur_token])
 
