@@ -30,6 +30,9 @@
             padding-left: 3.2px;
             padding-right: 3.2px;
         }
+        .curSlot{
+            background: red;
+        }
 
     </style>
     <script>
@@ -93,7 +96,7 @@
                 <span id="semanticTypeKey"> > ner.entity_type =</span>
                 <span id="semanticTypeValue">
                     <select>
-                        <option value ="none">无</option>
+                        <option value ="none" selected>无</option>
                         <option value ="peo">人</option>
                         <option value="org">组织</option>
                         <option value="addr">地点</option>
@@ -120,9 +123,9 @@
                 </div>
                 <div id="resultInstance">
                     <button class="instance">+</button>
-                    {% for i in instance_list: %}
-                        <button id={{i["id"]}} class="instance" name={{i["id"]}}>
-                            {{i["desc"]}}
+                    {% for i in instance_dict: %}
+                        <button id={{instance_dict[i]["id"]}} class="instance" name={{instance_dict[i]["id"]}}>
+                            {{instance_dict[i]["desc"]}}
                         </button>
                     {% endfor %}
                 </div>
@@ -132,15 +135,51 @@
             </div>
         </div>
         <div id="instancInfoWindow">
-            <ul>
-                <li><a href="#instanceInfoTab1">1</a></li>
-                <li><a href="#instanceInfoTab2">2</a></li>
-            </ul>
-            <div id="instanceInfoTab1">
-                XXX
+            <p id="instanceInfo-noSelect" style="display: block">select a instance to show the instance info.</p>
+            <div id="instanceInfo-id" style="display:block">
+                <span id="idKey">id=</span>
+                <span id="idValue"> </span>
             </div>
-            <div id="instanceInfoTab2">
-                XXX
+            <hr/>
+            <div id="instanceInfo-desc" style="display: block">
+                <span id="descKey">desc=</span>
+                <input id="descValue" type="text" value="123" />
+            </div>
+            <hr/>
+            <div id="instanceInfo-kg" style="display: block">
+                <span id="kgKey">kg=</span>
+                <input id="kgValue" type="text" value="none"/>
+            </div>
+            <hr/>
+            <div id="instanceInfo-mentionList" style="display: block">
+                <span id="mentionListKey">mentionList=</span>
+                <span id="mentionListValue">
+                    <button >123</button>
+                    <button >123</button>
+                    <button >123</button>
+                </span>
+            </div>
+            <hr/>
+            <div id="instanceInfo-explain1" style="display: block;">
+                <span id="explain1Key">
+                    explain1:
+                </span>
+                <span id="explain1Value">
+                    123
+                    123
+                    123
+                </span>
+            </div>
+            <hr/>
+            <div id="instanceInfo-explain2" style="display: block;">
+                <span id="explain2Key">
+                    explain1:
+                </span>
+                <span id="explain2Value">
+                    123
+                    123
+                    123
+                </span>
             </div>
         </div>
     </div>
@@ -303,21 +342,44 @@
     }
     function showInstanceInfo(instanceId){
         $.post(
-                "/getInstanceInfo",
-                {instance_id: instanceId},
-                function (data, status) {
-                    instanceInfo = ""
-                    for(var key in data){ // 输出字典元素，如果字典的key是数字，输出时会自动按序输出
-                        instanceInfo += key + ' : ' + data[key] + '<br>'
-                    }
-                    $("#instanceInfoTab1")[0].innerHTML = instanceInfo
+            "/getInstanceInfo",
+            {instance_id: instanceId},
+            function (data, status) {
+                var instanceInfo = "";
+                for(var key in data){ // 输出字典元素，如果字典的key是数字，输出时会自动按序输出
+                    instanceInfo += key + ' : ' + data[key] + '<br>';
                 }
-            );
+                $("#instanceInfoTab1")[0].innerHTML = instanceInfo
+            }
+        );
+    }
+    function startOfInstanceSlotFilling(){
+        // 标红当前槽元素
+        curTriggerElement.classList.add("curSlot");
+        document.body.style.cursor = "help";
+    }
+    function endOfInstanceSlotFilling(instanceId){
+        curTriggerElement.classList.remove("curSlot");
+        curTriggerElement.name = instanceId
+        $.post(
+            "/setInstanceInfo",
+            {instance_id: instanceId},
+            function (data, status) {
+                var instanceInfo = "";
+                for(var key in data){ // 输出字典元素，如果字典的key是数字，输出时会自动按序输出
+                    instanceInfo += key + ' : ' + data[key] + '<br>';
+                }
+                $("#instanceInfoTab1")[0].innerHTML = instanceInfo
+            }
+        );
+        curTriggerElement.innerText = "newIns"
+        curTriggerElement = undefined
     }
 </script>
 
 <!-- 事件句柄 -->
 <script>
+    // 选中一段文本
     function textMouseup(){
         if (window.getSelection().toString() === ""){
             unselectChars();
@@ -325,11 +387,27 @@
             selectChars();
         }
     }
-    function instanceClick(){
-        showInstanceInfo($("#instanceValue")[0].name);
+    // 单击实例
+    function instanceClick(instanceId){
+        if (curTriggerElement === undefined){
+            // 显示实例信息
+            showInstanceInfo(instanceId);
+        }
+        else{
+            // 选择此实例填充当前槽
+            endOfInstanceSlotFilling(instanceId);
+        }
     }
-    function editRef(){
-        console.log(2);
+    // 双击实例
+    var curTriggerElement = undefined;
+    function instanceDblclick(triggerElement){
+        // 如果当前处于其他槽的写入状态，那么产生冲突，放弃操作。
+        if (curTriggerElement !== undefined){
+            return
+        }else{
+            curTriggerElement = triggerElement
+            startOfInstanceSlotFilling()
+        }
     }
 </script>
 
@@ -344,19 +422,21 @@
         if(clickFlag) {//取消上次延时未执行的方法
             clickFlag = clearTimeout(clickFlag);
         }
-        clickFlag = setTimeout(function() {
-            // click 事件的处理
-            instanceClick();
-        }, 150);//延时300毫秒执行
+        clickFlag = setTimeout("instanceClick(" + this.name + ");", 150);//延时300毫秒执行
     })
-    // 双击实例，选择指向的实例
+    // 双击实例
     $("#instanceValue").dblclick(function(){
         if(clickFlag) {//取消上次延时未执行的方法
             clickFlag = clearTimeout(clickFlag);
         }
         // dblclick 事件的处理
-        editRef()
+        instanceDblclick(this)
     })
+    // 修改标注信息（token）
+    $("#tokenValue input").change(function(){alert(111)})
+    // 修改标注信息（semanticType）
+    $("#semanticTypeValue select").change(function(){alert(111)})
 </script>
 
 </html>
+

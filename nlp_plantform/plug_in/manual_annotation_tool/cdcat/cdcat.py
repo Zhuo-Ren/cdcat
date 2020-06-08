@@ -20,7 +20,7 @@ def cdcat(root: mytree):
     def fun1():
         return render_template("main.html",
                                text_unit_list=text_unit_list,
-                               instance_list=Instance.instance_dict)
+                               instance_dict=Instance.instance_dict)
 
     @app.route('/selectChars', methods=["POST"])
     def selectChars():

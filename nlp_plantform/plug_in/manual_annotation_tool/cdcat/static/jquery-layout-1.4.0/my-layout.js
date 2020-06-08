@@ -3,7 +3,7 @@ $(document).ready(function () {
     $('body').layout({
         center__paneSelector:	    "#centerWindow",
         east__paneSelector:		"#instanceWindow",
-        east__size:				300,
+        east__size:				450,
         spacing_open:			    8,  // ALL panes
         spacing_closed:			12, // ALL panes
         north__maxSize:			200,
@@ -18,7 +18,7 @@ $(document).ready(function () {
         east__childOptions: {
             center__paneSelector: "#instanceSelectWindow",
             south__paneSelector: "#instancInfoWindow",
-            south__size: 200,
+            south__size: 330,
             spacing_open: 8,  // ALL panes
             spacing_closed: 12,// ALL panes
         }
