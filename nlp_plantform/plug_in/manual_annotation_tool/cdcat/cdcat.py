@@ -31,7 +31,7 @@ def cdcat(root: mytree):
         end_nleaf_position = [int(i) for i in end_nleaf_position]
         anno_node = mytree.is_annotated(root, start_nleaf_position, end_nleaf_position)
         anno_info = anno_node.label()
-        anno_info["position"] = "-".join(str(i) for i in anno_node.position())
+        anno_info["position"] = anno_node.position(output_type="string")
         if anno_node is not None:
             return jsonify(anno_info)
         else:
@@ -40,9 +40,8 @@ def cdcat(root: mytree):
     @app.route('/getInstanceInfo', methods=["POST"])
     def getInstanceInfo():
         instance_id = request.form.get("instance_id")
-        instance_id = int(instance_id)
         if instance_id != -1:
-            return jsonify(Instance.instance_dict[instance_id])
+            return jsonify(Instance.getInstanceById(instance_id).output_to_dict())
         else:
             return ""
 

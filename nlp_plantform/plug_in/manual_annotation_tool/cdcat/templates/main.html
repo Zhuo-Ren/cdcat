@@ -104,8 +104,8 @@
                 </span>
             </div>
             <div id="annoInfo-instance" style="display: none">
-                <span id="instanceKey"> > coref.instance_id =</span>
-                <button id="instanceValue" class="instance">XXXXX</button>
+                <span id="instanceKey"> > coref.instance =</span>
+                <button id="instanceValue" class="instance">none</button>
                 <span>(单击：显示并编辑实例信息，双击：选择另一个实例)</span>
             </div>
         </div>
@@ -135,52 +135,29 @@
             </div>
         </div>
         <div id="instancInfoWindow">
-            <p id="instanceInfo-noSelect" style="display: block">select a instance to show the instance info.</p>
-            <div id="instanceInfo-id" style="display:block">
+            <div id="instanceInfo-id" >
                 <span id="idKey">id=</span>
                 <span id="idValue"> </span>
+                <hr/>
             </div>
-            <hr/>
-            <div id="instanceInfo-desc" style="display: block">
-                <span id="descKey">desc=</span>
-                <input id="descValue" type="text" value="123" />
+            <div id="instanceInfo-desc" >
+                <span id="descKey">desc= </span>
+                <input id="descValue" type="text" value="" />
+                <hr/>
             </div>
-            <hr/>
-            <div id="instanceInfo-kg" style="display: block">
+            <div id="instanceInfo-kg" >
                 <span id="kgKey">kg=</span>
                 <input id="kgValue" type="text" value="none"/>
+                <hr/>
             </div>
-            <hr/>
-            <div id="instanceInfo-mentionList" style="display: block">
+            <div id="instanceInfo-mentionList" >
                 <span id="mentionListKey">mentionList=</span>
-                <span id="mentionListValue">
-                    <button >123</button>
-                    <button >123</button>
-                    <button >123</button>
-                </span>
+                <div id="mentionListValue">
+
+                </div>
+                <hr/>
             </div>
-            <hr/>
-            <div id="instanceInfo-explain1" style="display: block;">
-                <span id="explain1Key">
-                    explain1:
-                </span>
-                <span id="explain1Value">
-                    123
-                    123
-                    123
-                </span>
-            </div>
-            <hr/>
-            <div id="instanceInfo-explain2" style="display: block;">
-                <span id="explain2Key">
-                    explain1:
-                </span>
-                <span id="explain2Value">
-                    123
-                    123
-                    123
-                </span>
-            </div>
+
         </div>
     </div>
 </body>
@@ -345,11 +322,30 @@
             "/getInstanceInfo",
             {instance_id: instanceId},
             function (data, status) {
-                var instanceInfo = "";
-                for(var key in data){ // 输出字典元素，如果字典的key是数字，输出时会自动按序输出
-                    instanceInfo += key + ' : ' + data[key] + '<br>';
+                $("#idValue").text(data["id"]);
+                $("#descValue").val(data["desc"])
+                if(data["kg"] !== undefined){
+                    $("#kgValue").val(data["kg"])
                 }
-                $("#instanceInfoTab1")[0].innerHTML = instanceInfo
+                var mentionListValue = $("#mentionListValue");
+                mentionListValue.empty();
+                for(var i=0;i<data["mention_list"].length;i++){
+                    var curMention = data["mention_list"][i];
+                    var curMentionLine = $("<div></div>");
+                    curMentionLine.append($("<span>[</span>"));
+                    for (var j=0; j<curMention.length; j++){
+                        var curPart = curMention[j];
+                        curMentionLine.append($(
+                            "<button" +
+                                " name=\"" + curPart["position"]+ "\"" +
+                            ">" +
+                                curPart["text"] +
+                            "</button>"
+                        ))
+                    }
+                    curMentionLine.append($("<span>]</span>"));
+                    mentionListValue.append(curMentionLine)
+                }
             }
         );
     }
@@ -374,6 +370,7 @@
         );
         curTriggerElement.innerText = "newIns"
         curTriggerElement = undefined
+        document.body.style.cursor = "default";
     }
 </script>
 

@@ -7,7 +7,7 @@ from nltk.compat import python_2_unicode_compatible, unicode_repr
 from nltk.tree import ParentedTree
 
 class mytree(ParentedTree):
-    def __init__(self, lable, children=None):
+    def __init__(self, label_dict, children=None):
         # 静态成员
         self._label = None
         self._parent = None
@@ -34,7 +34,7 @@ class mytree(ParentedTree):
 
         # 初始化自己
         list.__init__(self, children)
-        self._label = lable
+        self._label = label_dict
         # 修改孩子
         for child in self:
             if isinstance(child, mytree):
@@ -68,6 +68,9 @@ class mytree(ParentedTree):
         """
         self._label = label
 
+    def add_label(self, label):
+        self._label.update(label)
+
     def get_parent(self) -> Union[None, "mytree"]:
         return self._parent
     parent = get_parent
@@ -82,8 +85,7 @@ class mytree(ParentedTree):
 
     # obj operations-------------------------------------------
     def __eq__(self, other):
-        return (self.__class__ is other.__class__ and
-                (self._label, list(self)) == (other._label, list(other)))
+        return (id(self) == id(other))
 
     def __lt__(self, other):
         if not isinstance(other, mytree):
@@ -272,8 +274,11 @@ class mytree(ParentedTree):
         return child
 
     def remove(self, child):
-        list.remove(self, child)
-        child._parent = None
+        for i in range(0, len(self)):
+            if self[i] == child:
+                del self[i]
+                child._parent = None
+                return
 
     if hasattr(list, '__getslice__'):
         def __getslice__(self, start, stop):
@@ -299,17 +304,25 @@ class mytree(ParentedTree):
             if child is self: return i
         assert False, 'expected to find self in self._parent!'
 
-    def position(self) -> Tuple[int]:
+    def position(self, output_type="tuple") -> Tuple[int]:
         """获取路径。
         example::
             (1, 1, 0)
         The tree position of this tree, relative to the root of the
         tree.  I.e., ``ptree.root[ptree.treeposition] is ptree``.
         """
-        if self.parent() is None:
-            return ()
-        else:
-            return self.parent().treeposition() + (self.parent_index(),)
+        if output_type == "tuple":
+            if self.parent() is None:
+                return ()
+            else:
+                return self.parent().treeposition() + (self.parent_index(),)
+        elif output_type == "string":
+            if self.parent() is None:
+                return ""
+            else:
+                position_tuple = self.parent().treeposition() + (self.parent_index(),)
+                position_string = "-".join(str(i) for i in position_tuple)
+                return position_string
     treeposition = position
 
     def left_sibling(self):
@@ -808,6 +821,14 @@ class mytree(ParentedTree):
     def copy(self, deep=False):
         if not deep: return type(self)(self._label, self)
         else: return type(self).convert(self)
+
+    def output_to_dict(self):
+        output_dict = {}
+        output_dict.update(self.get_label())
+        output_dict["parent"] = self.get_parent().position(output_type="string")
+        output_dict["position"] = self.position(output_type="string")
+        output_dict["text"] = "".join(self.all_leaves())
+        return output_dict
 
     # Parsing-------------------------------------------------------
     @classmethod
