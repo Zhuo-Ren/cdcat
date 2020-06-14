@@ -10,7 +10,7 @@ $(document).ready(function () {
         south__maxSize:			200,
         center__childOptions: {
             center__paneSelector: "#textWindow",
-            south__paneSelector: "#annotationInfoWindow",
+            south__paneSelector: "#nodeInfoWindow",
             south__size: 200,
             spacing_open: 8,  // ALL panes
             spacing_closed: 12 // ALL panes

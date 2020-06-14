@@ -3,7 +3,19 @@ from nlp_plantform.plug_in.input.add_from_list_of_token import add_from_list_of_
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 from nlp_plantform.center.mytree import mytree
 from nlp_plantform.center.instance import Instance
+import logging
+import sys
+import os
 
+rootLogger = logging.getLogger()  # 如果getLogger函数没有参数，就返回root logger
+rootLogger.setLevel(logging.DEBUG)
+streamHandler = logging.StreamHandler(stream=sys.stdout)  # sys.stderr
+streamHandler.setLevel(logging.DEBUG)
+formatter = logging.Formatter(
+    fmt='%(message)s', datefmt=None, style='%'
+)  # %(levelname)s
+streamHandler.setFormatter(formatter)
+rootLogger.addHandler(streamHandler)
 
 # init
 pass
@@ -21,12 +33,12 @@ root[0].get_label()["semanticType"] = "peo"
 root[1].get_label()["semanticType"] = "act"
 root[2].get_label()["semanticType"] = "org"
 root[3].get_label()["semanticType"] = "addr"
-root[5].get_label()["sementicType"] = "peo"
-root[7].get_label()["sementicType"] = "act"
-root[9].get_label()["sementicType"] = "sub"
-root[12].get_label()["sementicType"] = "addr"
-root[14].get_label()["sementicType"] = "act"
-root[16].get_label()["sementicType"] = "peo"
+root[5].get_label()["semanticType"] = "peo"
+root[7].get_label()["semanticType"] = "act"
+root[9].get_label()["semanticType"] = "sub"
+root[12].get_label()["semanticType"] = "addr"
+root[14].get_label()["semanticType"] = "act"
+root[16].get_label()["semanticType"] = "peo"
 mytree.add_parent({"semanticType": "addr"},[root[2],root[3]])
 mytree.add_parent({}, [root[15], root[16], root[17]])
 # instance

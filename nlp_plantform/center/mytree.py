@@ -10,6 +10,10 @@ class mytree(ParentedTree):
     def __init__(self, label_dict, children=None):
         # 静态成员
         self._label = None
+        """
+        token semanticType instance pos
+        
+        """
         self._parent = None
 
         # 类型检测
@@ -334,14 +338,24 @@ class mytree(ParentedTree):
             return self._parent[parent_index - 1]
         return None  # no left sibling
 
-    def right_sibling(self):
+    def right_sibling(self, acceptCousin=False) -> "mytree":
         """获取右边那个兄弟。
         The right sibling of this tree, or None if it has none.
         """
         parent_index = self.parent_index()
         if self._parent and parent_index < (len(self._parent) - 1):
             return self._parent[parent_index + 1]
-        return None  # no right sibling
+        else:
+            if acceptCousin == False:
+                return None  # no right sibling
+            else:
+                cur_node = self.get_parent()
+                while cur_node:
+                    if cur_node.right_sibling():
+                        return cur_node.right_sibling()
+                    else:
+                         cur_node = cur_node.get_parent()
+                return None
 
     def root(self):
         """获取根。
@@ -477,12 +491,12 @@ class mytree(ParentedTree):
         p_path = self.treeposition()
         c_path = child.treeposition()
         if len(p_path) < len(c_path):
-            if p_path == c_path[:len(c_path)] :
+            if p_path == c_path[:len(p_path)]:
                 return True
         return False
 
     @staticmethod
-    def is_order(node_list: List):
+    def is_order(node_list: List, acceptParentChid=False, acceptSameNode=False):
         if not isinstance(node_list, list):
             raise TypeError("1th param should be list")
         if len(node_list) < 2:
@@ -495,9 +509,18 @@ class mytree(ParentedTree):
             # 俩节点逆序
             if last_node.treeposition() > cur_node.treeposition():
                 return False
+            # 俩节点是同一个
+            if last_node.treeposition() == cur_node.treeposition():
+                if acceptSameNode == True:
+                    pass
+                else:
+                    return False
             # 俩节点是父子
             if last_node.is_parent_of(cur_node):
-                return False
+                if acceptParentChid == True:
+                    pass
+                else:
+                    return False
         return True
 
     # leaves --------------------------------------------------
@@ -522,6 +545,16 @@ class mytree(ParentedTree):
                 leaves.append(child)
         return leaves
     leaves = all_leaves
+
+    def text(self):
+        t = ""
+        for i in self:
+            if isinstance(i, mytree):
+                t = t + i.text()
+            else:
+                t = t + str(i)
+        return t
+
 
     def all_leaves_label(self) -> List[Tuple]:
         """返回叶子节点的标签，nltk中叶子节点的标签都是POS标签，所以就是返回POS标签。
@@ -640,6 +673,72 @@ class mytree(ParentedTree):
             cur_node = cur_node[0]
         return cur_node
 
+    @staticmethod
+    def nleaf_in_margin(left_margin: "mytree", right_margin: "mytree", include_margin=1) ->"mytree":
+        """获取两个节点之间的nleaf列表
+        example::
+
+            s{
+                a1{
+                    f1
+                    f2
+                    f3
+                }
+                a2{
+                    f4
+                    f5
+                }
+                a3{
+                    f6
+                    f7
+                    f8
+                }
+            }
+            >>> s.nleaf_in_margin(a1, a3, include_margin=3)
+            [f1, f2, f3, f4, f5, f6, f7, f8]
+            >>> s.nleaf_in_margin(a1, a3, include_margin=2)
+            [f3, f4, f5, f6]
+            >>> s.nleaf_in_margin(a1, a3, include_margin=1)
+            [f4, f5]
+
+        :param left_margin:
+        :param right_margin:
+        :param include_margin:
+        :return:
+        """
+        # 参数检测：参数类型
+        if not isinstance(left_margin, mytree):
+            raise TypeError("margin1 should be mytree")
+        if not isinstance(right_margin, mytree):
+            raise TypeError("margin2 should be mytree")
+        # 参数检测：左右margin是否同树
+        if left_margin.root() != right_margin.root():
+            raise RuntimeError("the 2 margins should be of the same tree.")
+        # 数据准备：获取左右nleaf
+        if include_margin == 1 or include_margin == 2:
+            left_nleaf = left_margin.right_nleaf()
+            right_nleaf = right_margin.left_nleaf()
+        if include_margin == 3:
+            left_nleaf = left_margin.left_nleaf()
+            right_nleaf = right_margin.right_nleaf()
+        left_nleaf_position = left_nleaf.position()
+        right_nleaf_position = right_nleaf.position()
+        # 核心逻辑
+        if mytree.is_order([left_nleaf,right_nleaf], acceptSameNode=True):
+            within_nleaf_list :List["mytree"]= []
+            cur_nleaf = left_nleaf.right_sibling(acceptCousin=True).left_nleaf()
+            while mytree.is_order([left_nleaf, cur_nleaf, right_nleaf], acceptSameNode=False):
+                within_nleaf_list.append(cur_nleaf)
+                cur_nleaf = cur_nleaf.right_sibling(acceptCousin=True).left_nleaf()
+            if include_margin == 3 or include_margin == 2:
+                within_nleaf_list.insert(0, left_nleaf)
+                within_nleaf_list.append(right_nleaf)
+            elif include_margin ==1:
+                pass
+            return within_nleaf_list
+        else:
+            raise RuntimeError("顺序不对")
+
     # 智能操作-----------------------------------------------------------
     @staticmethod
     def add_parent(label, node_list: List["mytree"]):
@@ -682,7 +781,7 @@ class mytree(ParentedTree):
                     # 退出寻祖
                     break
                 # 如果最右兄弟正好是祖宗节点的历代老幺
-                elif node_list[-1].right_nleaf() == cur_parent.right_margin():
+                elif node_list[-1].right_nleaf() == cur_parent.right_nleaf():
                     # cur_parent被认可
                     parent_list.append(cur_parent)
                     if len(parent_list) >= 2:
@@ -708,9 +807,32 @@ class mytree(ParentedTree):
             old_parent.append(new_parent)
         else:
             old_parent.insert(index, new_parent)
+        #
+        return new_parent
 
     @staticmethod
-    def is_annotated(root: "mytree", start_nleaf_position: str, end_nleaf_positon: str):
+    def get_shared_parent(node_list :List["mytree"] = None, node_position_list = None):
+        # 参数检测
+        if node_list is not None:
+            if isinstance(node_list, list):
+                raise TypeError
+        else:
+            if isinstance(node_position_list, list):
+                raise  TypeError
+        # 数据准备
+        if node_list is not None:
+            node_position_list = [i.position() for i in node_list]
+        min_position_lenth = min([len(i) for i in node_position_list])
+        # 核心逻辑
+        for i in range(0, min_position_lenth-1):
+            for cur_node_index in range(0, len(node_position_list)-2):
+                cur_position = node_position_list[cur_node_index]
+                next_position = node_position_list[cur_node_index + 1]
+                if cur_position[i] != next_position[i]:
+                    return node_position_list[0][:i-1]
+
+    @staticmethod
+    def is_annotated(root: "mytree", start_nleaf_position, end_nleaf_positon):
         # 类型检测
         pass
         # 根据position获取nleaf
@@ -825,7 +947,7 @@ class mytree(ParentedTree):
     def output_to_dict(self):
         output_dict = {}
         output_dict.update(self.get_label())
-        output_dict["parent"] = self.get_parent().position(output_type="string")
+        output_dict["parent_position"] = self.get_parent().position(output_type="string")
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())
         return output_dict
