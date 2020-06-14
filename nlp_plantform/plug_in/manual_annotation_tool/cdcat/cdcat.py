@@ -34,9 +34,10 @@ def cdcat(root: mytree):
 
     @app.route('/addNode', methods=["POST"])
     def addNode():
-        selected_nleaf_list = request.form.getlist("selectedElementsIdList[]")
+        selected_nleaf_list = request.form.getlist("childrenNodePositionList[]")
         selected_nleaf_list = [i.split("-") for i in selected_nleaf_list]
         selected_nleaf_list = [[int(j) for j in i] for i in selected_nleaf_list]
+        logging.debug("addNode->：position=" + str(selected_nleaf_list[0]) + "-" + str(selected_nleaf_list[-1]))
         selected_nleaf_list = [root[i] for i in selected_nleaf_list]
         try:
             anno_node = mytree.add_parent({}, selected_nleaf_list)
@@ -46,7 +47,6 @@ def cdcat(root: mytree):
             return ""
         if anno_node is not None:
             anno_info = anno_node.output_to_dict()
-            logging.debug("addNode->：position=" + selected_nleaf_list[0] + "-" + selected_nleaf_list[-1])
             logging.debug("addNode<-：" + "(success)" + "：" + str(anno_info))
             return jsonify(anno_info)
 
