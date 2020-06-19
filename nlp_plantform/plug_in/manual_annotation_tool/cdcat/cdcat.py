@@ -52,63 +52,67 @@ def cdcat(root: mytree):
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
-        start_nleaf_position = request.form.get("start").split("-")
-        start_nleaf_position = [int(i) for i in start_nleaf_position]
-        end_nleaf_position = request.form.get("end").split("-")
-        end_nleaf_position = [int(i) for i in end_nleaf_position]
+        # 获取参数
+        position = mytree.strToPosition(request.form.get("position"))
+        start_position = mytree.strToPosition(request.form.get("start"))
+        end_position = mytree.strToPosition(request.form.get("end"))
         #
-        anno_node = mytree.is_annotated(root, start_nleaf_position, end_nleaf_position)
-        if anno_node is not None:
-            anno_info = anno_node.label()
-            anno_info["position"] = anno_node.position(output_type="string")
-            #
-            logging.debug(
-                "getNode->：position=" +
-                str(start_nleaf_position) + '-' + str(end_nleaf_position) +
-                "：" + anno_node.text()
-            )
-            logging.debug("getNode<-：" + "(success)" + "：" + str(anno_info))
-            #
+        if position:
+            logging.debug("getNode->：position=" + str(position))
+            node = root[position]
+        elif start_position and end_position:
+            logging.debug("getNode->：position=" + str(start_position) + '-' + str(end_position))
+            node = mytree.is_annotated(root, start_position, end_position)
+        #
+        if node is not None:
+            logging.debug("getNode--：get the input node:" + node.text())
+            anno_info = node.label()
+            anno_info["position"] = node.position(output_type="string")
+            logging.debug("getNode<-：" + str(anno_info))
             return jsonify(anno_info)
         else:
-            #
-            logging.debug("getNode->：position=" + str(start_nleaf_position) + '-' + str(end_nleaf_position))
-            logging.debug("getNode<-：" + "(no node)" + "：")
+            logging.debug("getNode--：no such node.")
+            logging.debug("getNode<-：\"\"")
             #
             return ""
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
-        position = request.form.get("position")
-        if position == "":
-            position = ()
-        else:
-            position = position.split("-")
-            position = tuple(int(i) for i in position)
+        position = mytree.strToPosition(request.form.get("position"))
+        logging.debug("setNode->：position=" + str(position))
         node = root[position]
-        logging.debug("setNode->：position=" + str(position) + "：" + node.text())
-        if request.form.get("token"):
-            logging.debug("setNode->：token=" + request.form.get("token"))
-            if request.form.get("token") == 'false':
-                del node.get_label()["token"]
-            elif request.form.get("token") == 'true':
-                node.add_label({"token": True})
-        if request.form.get("semanticType"):
-            logging.debug("setNode->：semanticType=" + request.form.get("semanticType"))
-            if request.form.get("semanticType") == 'none':
-                del node.get_label()["semanticType"]
-            else:
-                node.add_label({"semanticType": request.form.get("semanticType")})
-        if request.form.get("instance"):
-            logging.debug("setNode->：instance=" + request.form.get("instance"))
-            old_instance = node.get_label()["instance"]
-            new_instance = Instance.instance_dict[int(request.form.get("instance"))]
-            node.add_label({"instance": new_instance})
-            new_instance["mention_list"].append([node])
-            old_instance["mention_list"].remove([node])
-        output = node.output_to_dict()
-        logging.debug("setNode<-：(success)" + str(output))
-        return jsonify(output)
+        if node is None:
+            logging.debug("setNode--：no such node")
+            logging.debug("getNode<-：\"\"")
+            return ""
+        elif isinstance(node, mytree):
+            if request.form.get("token"):
+                logging.debug("setNode->：token=" + request.form.get("token"))
+                if request.form.get("token") == 'false':
+                    del node.get_label()["token"]
+                elif request.form.get("token") == 'true':
+                    node.add_label({"token": True})
+            if request.form.get("semanticType"):
+                logging.debug("setNode->：semanticType=" + request.form.get("semanticType"))
+                if request.form.get("semanticType") == 'none':
+                    del node.get_label()["semanticType"]
+                else:
+                    node.add_label({"semanticType": request.form.get("semanticType")})
+            if request.form.get("instance"):
+                logging.debug("setNode->：instance=" + request.form.get("instance"))
+                if "instance" not in node.get_label():
+                    new_instance = Instance.getInstanceById(request.form.get("instance"))
+                    node.add_label({"instance": new_instance})
+                    new_instance["mention_list"].append([node])
+                else:
+                    old_instance = node.get_label()["instance"]
+                    new_instance = Instance.getInstanceById(request.form.get("instance"))
+                    node.add_label({"instance": new_instance})
+                    new_instance["mention_list"].append([node])
+                    old_instance["mention_list"].remove([node])
+            output = node.output_to_dict()
+            logging.debug("setNode<-：(success)" + str(output))
+            return jsonify(output)
 
     @app.route('/getInstance', methods=["POST"])
     def getInstance():
@@ -120,7 +124,46 @@ def cdcat(root: mytree):
 
     @app.route('/setInstance', methods=["POST"])
     def setInstance():
-        return ""
+        # 获取参数
+        id = int(request.form.get("id"))
+        desc = request.form.get("desc")
+        kg = request.form.get("kg")
+        mention_list_action = request.form.get("mention_list[action]")
+        #
+        instance = Instance.getInstanceById(id)
+        logging.debug("setInstance->：id=" + str(id) + "：" + instance["desc"])
+        #
+        if desc:
+            logging.debug("getInstance->：desc=" + desc)
+            instance["desc"] = desc
+        if kg:
+            logging.debug("getInstance->：kg=" + kg)
+            instance["kg"] = kg
+        if mention_list_action:
+            # 扩展某个现有的mention_list
+            if mention_list_action == 'extent':
+                #
+                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+                new_node_position = mytree.strToPosition(request.form.get('mention_list[new_node_position]'))
+                #
+                instance["mention_list"][mention_list_index].append(root[new_node_position])
+            # 添加一个新的mention_list
+            elif mention_list_action == 'add':
+                instance["mention_list"].append([])
+
+        output = instance.output_to_dict()
+        logging.debug("getInstance<-：(success)" + str(output))
+        return jsonify(output)
+
+    @app.route('/addInstance', methods=["POST"])
+    def addInstance():
+        desc = request.form.get("desc")
+        if desc:
+            logging.debug("addInstance->：desc=" + request.form.get("desc"))
+            Instance(desc)
+        else:
+            Instance()
+        mention_list = request.form.getlist("mention_list_new")
 
     app.run()
     print("请在浏览器中打开http://127.0.0.1:5000/ ")

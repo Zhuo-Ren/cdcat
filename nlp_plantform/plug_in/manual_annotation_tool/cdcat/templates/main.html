@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="../static/jquery-layout-1.4.0/layout-default-latest.css">
     <script src="../static/jquery-layout-1.4.0/my-layout.js"></script>
     <link href="../static/jquery-layout-1.4.0/my-layout.css" rel="stylesheet">
+    <!-- main js-->
+    <script src="../static/js/main.js"></script>
     <!-- text stype -->
     <style>
         .char{
@@ -33,16 +35,7 @@
         .curSlot{
             background: red;
         }
-
     </style>
-    <script>
-        // 全局变量。array of html elements。选中的文本所对应的元素的数组。
-        var selectedElements = 0
-        // 全局变量。记录正在填充的实例槽。
-        var curTriggerInstanceSlot = undefined;
-        // 全局变量。记录被选中的实例。
-        var curSelectedInstance = undefined;
-    </script>
 </head>
 <body>
     <div id="centerWindow">
@@ -120,10 +113,11 @@
                     <input style="width: 85%">
                     <button class="searchInstanceButton" style="padding:0px;">🔍</button>
                 </div>
-                <div id="resultInstance">
-                    <button class="instance">+</button>
+                <button class="addInstance" >+</button>
+                <button class="addInstanceBasedOnCurNode" >→</button>
+                <div id="allInstanceDiv">
                     {% for i in instance_dict: %}
-                        <button id={{instance_dict[i]["id"]}} class="instance" name={{instance_dict[i]["id"]}}>
+                        <button class="instance" name={{instance_dict[i]["id"]}}>
                             {{instance_dict[i]["desc"]}}
                         </button>
                     {% endfor %}
@@ -131,6 +125,10 @@
             </div>
             <div id="commonInstanceTab">
                 <button class="instance">+</button>
+                <button class="instance">→</button>
+                <div id="commonInstanceDiv">
+
+                </div>
             </div>
         </div>
         <div id="instancInfoWindow">
@@ -150,9 +148,9 @@
                 <input id="kgValue" type="text" value="none"/>
                 <hr/>
             </div>
-            <div id="instanceInfo-mentionList"  style="display: none">
-                <span id="mentionListKey">mentionList=</span>
-                <div id="mentionListValue">
+            <div id="instanceInfo-mentionLists"  style="display: none">
+                <span id="mentionListsKey">mentionList=</span>
+                <div id="mentionListsValue">
 
                 </div>
                 <hr/>
@@ -160,386 +158,20 @@
         </div>
     </div>
 </body>
+</html>
 
-<!-- 函数定义 -->
+<!-- add event -->
 <script>
-    function showText(tab, data){
-        tab.empty();
-        for (i=0; i<data.length; i++){
-            elementText = "<div " +
-                                "id=" + data[i]["position"] +
-                                " " +
-                                "class='char'" +
-                            ">";
-            if (data[i]["char"] === "\n"){
-                elementText += "<div>\\n<div> <br style='clear:both;'>";
-            }
-            if (data[i]["char"] ==="\r"){
-                elementText += "<div>\\n<div> <br style='clear:both;'>";
-            }
-            if (data[i]["char"] === " "){
-                elementText += "<div>&nbsp; <div>";
-            }
-            else{
-                elementText += "<div>" + data[i]["char"] + "<div>";
-            }
-            elementText += "</div>";
-            //
-            tab.append($(elementText));
-        }
-    }
-    function loadText(tabSelector, textNodeId){
-        var tab = $(tabSelector);
-        $.post(
-            "/getText",
-            {
-                textNodeId: textNodeId
-            },
-            function (data, status) {
-                showText(tab, data)
-            }
-        );
-    }
+    // textWindow: 选中一段文本
+    $(".textTab").mouseup( function(){textMouseup();} );
 
-    function showNoSelect(){
-        $("#nodeInfo-noSelect").css("display", "block");
-        $("#nodeInfo-noNode").css("display", "none");
-        $("#nodeInfo-path").css("display", "none");
-        $("#nodeInfo-token").css("display", "none");
-        $("#nodeInfo-semanticType").css("display", "none");
-        $("#nodeInfo-instance").css("display", "none");
-    }
-    function showNoNodeInfo(){
-        $("#nodeInfo-noSelect").css("display", "none");
-        $("#nodeInfo-noNode").css("display", "block");
-        $("#nodeInfo-path").css("display", "none");
-        $("#nodeInfo-token").css("display", "none");
-        $("#nodeInfo-semanticType").css("display", "none");
-        $("#nodeInfo-instance").css("display", "none");
-    }
-    function showNodeInfo(nodeInfo) {
-        if(nodeInfo["position"]){
-            $("#pathValue")[0].textContent = nodeInfo["position"]
-        }else{
-            $("#pathValue")[0].textContent = ""
-        }
-        if(nodeInfo["token"]){
-            $("#tokenValue").children()[0].checked = true
-        }else{
-            $("#tokenValue").children()[1].checked = true
-        }
-        if(nodeInfo["semanticType"]){
-            $("#semanticTypeValue option[value="+ nodeInfo["semanticType"] +"]")[0].selected = true
-        }else{
-            $("#semanticTypeValue option[value='none']")[0].selected = true
-        }
-        if(nodeInfo["instance"]){
-            $("#instanceValue")[0].textContent = nodeInfo["instance"]["desc"];
-            $("#instanceValue")[0].name = nodeInfo["instance"]["id"];
-        }else{
-            $("#instanceValue").textContent = "无";
-            $("#instanceValue").name = -1;
-        }
-        $("#nodeInfo-noSelect").css("display", "none");
-        $("#nodeInfo-noNode").css("display", "none");
-        $("#nodeInfo-path").css("display", "block");
-        $("#nodeInfo-token").css("display", "block");
-        $("#nodeInfo-semanticType").css("display", "block");
-        $("#nodeInfo-instance").css("display", "block");
-    }
-    function showCannotAddNodeInfo(){
-        alert("不行")
-    }
-    function getNodeByPosition(){}
-    function getNodeByChildren(startNodePosition, endNodePosition){
-        $.post(
-            "/getNode",
-            {
-                start: startNodePosition,
-                end: endNodePosition
-            },
-            function (data, status) {
-                // 区分是否为标注对象
-                if (data === "") {
-                    showNoNodeInfo();
-                } else {
-                    showNodeInfo(data);
-                }
-            }
-        );
-    }
-    function setNode(position, infoDict){
-        infoDict["position"] = position;
-        $.post(
-            "/setNode", infoDict,
-            function (data, status) {
-                showNodeInfo(data);
-            }
-        )
-    }
-    function addNodeByChildren(childrenNodePositionList){
-        $.post(
-            "/addNode",
-            {
-                childrenNodePositionList: childrenNodePositionList
-            },
-            function (data, status) {
-                // 区分是否为标注对象
-                if (data === ""){
-                    showCannotAddNodeInfo();
-                }else{
-                    // 显示标注信息
-                    showNodeInfo(data);
-                    // 重新加载文本
-                    loadText("#textTab1", "")
-                }
-            }
-        );
-    }
+    // nodeInfoWindow: 单击“添加标注对象”按钮
+    $("#nodeInfo-noNode").click(function(){addNodeButtonClick();});
+    // nodeInfoWindow: 标注信息变动（token）
+    $("#tokenValue input").change(function(){nodeTokenChange();});
+    // nodeInfoWindow: 标注信息变动（semanticType）
+    $("#semanticTypeValue select").change(function(){nodeSemanticTypeChange();});
 
-    function showInstanceInfo(data){
-        $("#idValue").text(data["id"]);
-        $("#descValue").val(data["desc"]);
-        if(data["kg"] !== undefined){
-            $("#kgValue").val(data["kg"])
-        }
-        var mentionListValue = $("#mentionListValue");
-        mentionListValue.empty();
-        for(var i=0;i<data["mention_list"].length;i++){
-            var curMention = data["mention_list"][i];
-            var curMentionLine = $("<div></div>");
-            curMentionLine.append($("<span>[</span>"));
-            for (var j=0; j<curMention.length; j++){
-                var curPart = curMention[j];
-                curMentionLine.append($(
-                    "<button" +
-                        " name=\"" + curPart["position"]+ "\"" +
-                    ">" +
-                        curPart["text"] +
-                    "</button>"
-                ))
-            }
-            curMentionLine.append($("<button>+</button>"));
-            curMentionLine.append($("<span>]</span>"));
-            mentionListValue.append(curMentionLine)
-        }
-        mentionListValue.append($("<button>+</button>"));
-        //
-        $("#instanceInfo-noInstance").css("display", "none");
-        $("#instanceInfo-id").css("display", "block");
-        $("#instanceInfo-desc").css("display", "block");
-        $("#instanceInfo-kg").css("display", "block");
-        $("#instanceInfo-mentionList").css("display", "block");
-    }
-    function getInstanceById(id){
-        $.post(
-            "/getInstance",
-            {instance_id: id},
-            function (data, status) {
-                showInstanceInfo(data)
-            }
-        );
-    }
-    function setInstance(id, infoDict){
-        infoDict["id"] = id;
-        $.post(
-            "/setNode", infoDict,
-            function (data, status) {
-                getInstanceById(data);
-            }
-        )
-    }
-    function addInstance(){}
-
-    function startOfInstanceSlotFilling(){
-        // 标红当前槽元素
-        curTriggerInstanceSlot.classList.add("curSlot");
-        document.body.style.cursor = "help";
-    }
-    function endOfInstanceSlotFilling(){
-        // 数据准备
-        var slot = curTriggerInstanceSlot;
-        if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
-            var slotType = "node";
-            var position = $("#pathValue").text();
-        }
-        newInstanceId = curSelectedInstance.name;
-        // 向后台传数据
-        if (slotType === "node"){
-            setNode(position,{"instance":newInstanceId});
-        } else if (slotType === "instance"){
-            setInstance()
-        }
-        // 取消当前solt的待选特效
-        curTriggerInstanceSlot.classList.remove("curSlot");
-        document.body.style.cursor = "";
-        //
-        curTriggerInstanceSlot = undefined
-    }
-
-
-</script>
-
-<!-- 事件句柄 -->
-<script>
-    // 选中一段文本
-    function textMouseup() {
-        // 清除上次的选区效果
-        if (selectedElements !== 0) {
-            for (var i = 0; i < selectedElements.length; i++) {
-                selectedElements[i].style = "color: black";
-            }
-        }
-        // 如果没选中任何内容
-        if (window.getSelection().toString() === "") {
-            showNoSelect()
-        }
-        // 如果选中了某些内容
-        else {
-            // 获取当前选区(如果有多个选取，那只管第一个)
-                var selected = window.getSelection();
-                var curRange = selected.getRangeAt(0);
-                // 获取anchor
-                var startDiv = curRange.startContainer.parentNode;
-                if (startDiv.className.indexOf("ui-layout-content") !== -1) {
-                    startDiv = startDiv.children[0].children[0]
-                } else if (startDiv.className.indexOf("textTab") !== -1) {
-                    startDiv = startDiv.childNodes[0]
-                } else if (startDiv.className.indexOf("char") !== -1) {
-                    //
-                } else if (startDiv.id === "") {
-                    startDiv = startDiv.parentNode;
-                } else if (startDiv.id === undefined) {
-                    startDiv = startDiv.parentNode.parentNode
-                } else {
-                    alert("获取文本选区的anchor元素出错")
-                }
-                // 获取curve
-                var endDiv = curRange.endContainer.parentNode;
-                if (endDiv.className.indexOf("ui-layout-content") !== -1) {
-                    endDiv = endDiv.children[0].children[0]
-                } else if (endDiv.className.indexOf("textTab") !== -1) {
-                    endDiv = endDiv.childNodes[0]
-                } else if (endDiv.className.indexOf("char") !== -1) {
-                    //
-                } else if (endDiv.id === "") {
-                    endDiv = endDiv.parentNode;
-                } else if (endDiv.id === undefined) {
-                    endDiv = endDiv.parentNode.parentNode
-                } else {
-                    alert("获取文本选区的curve元素出错")
-                }
-                // 识别anchor和curve的顺序，得到start和end
-                if (startDiv.id > endDiv.id) {
-                    t = endDiv;
-                    endDiv = startDiv;
-                    startDiv = t;
-                }
-                // 遍历选区，得到element列表
-                selectedElements = new Array(0);
-                var selectedText = "";
-                var curDiv = startDiv;
-                while (true) {
-                    selectedElements.push(curDiv);
-                    selectedText = selectedText + curDiv.childNodes[0].textContent;
-                    if (curDiv !== endDiv) {
-                        curDiv = curDiv.nextElementSibling;
-                    } else {
-                        break;
-                    }
-                }
-                // 解决start和end的空选问题
-                s = selected.toString().replace(/[\n\r]/g, "")
-                if (s[0] !== selectedText[0]) {
-                    selectedElements.shift();
-                    selectedText = selectedText.slice(1, selectedText.length);
-                }
-                if (s[s.length - 1] !== selectedText[selectedText.length - 1]) {
-                    selectedElements.pop();
-                    selectedText = selectedText.slice(0, selectedText.length - 1);
-                }
-            // 选中效果
-                for (var i = 0; i < selectedElements.length; i++) {
-                    selectedElements[i].style = "color: red";
-                }
-                selected.empty();
-            // 请求注释信息，并显示
-                getNodeByChildren(
-                    selectedElements[0].id.toString(),
-                    selectedElements[selectedElements.length - 1].id.toString()
-                )
-        }
-    }
-    // 单击“添加标注对象”按钮
-    function addNodeButtonClick(){
-        if(selectedElements !== 0){
-            // 获取选中的node的position list。
-            var selectedElementsIdList = Array();
-            for (i=0; i<selectedElements.length; i++){
-                selectedElementsIdList[i] = selectedElements[i].id.toString()
-            }
-            // 向后台发送操作请求
-            addNodeByChildren(selectedElementsIdList)
-        }
-    }
-    // 单击实例
-    function instanceClick(){
-        if (curTriggerInstanceSlot === undefined){
-            // 显示实例信息
-            getInstanceById(curSelectedInstance.name);
-        }
-        else{
-            // 选择此实例填充当前槽
-            endOfInstanceSlotFilling();
-        }
-    }
-    // 双击实例
-    function instanceDblclick(triggerElement){
-        startOfInstanceSlotFilling()
-    }
-    // 节点信息变动（token）
-    function nodeTokenChange(){
-        var position = $("#pathValue").text();
-        var tokenValue = $("#tokenValue :checked").attr("value");
-        if (tokenValue === "false"){
-            tokenValue = false;
-        }else if(tokenValue === "true"){
-            tokenValue = true;
-        }else{
-            alert("搞笑")
-        }
-        setNode(position, {"token": tokenValue});
-    }
-    // 节点信息变动（semanticType）
-    function nodeSemanticTypeChange(){
-        var position = $("#pathValue").text();
-        var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
-        setNode(position, {"semanticType": semanticTypeValue});
-    }
-    // 实例信息变动(desc)
-    function instanceDescChange(){
-        var id = $("#idValue").text()
-        var descValue = $("#descValue")[0].value
-        setInstance(id, {"desc": descValue})
-    }
-    // 实例信息变动(kg)
-    function instanceKgChange(){
-        var id = $("#idValue").text()
-        var kgValue = $("#kgValue")[0].value
-        setInstance(id, {"kg": kgValue})
-    }
-</script>
-
-<!-- 绑定事件 -->
-<script>
-    // 加载文本
-    loadText("#textTab1", "")
-    // 选中一段文本
-    $(".textTab").mouseup(function(){textMouseup();})
-    // 单击“添加标注对象”按钮
-    $("#nodeInfo-noNode").click(function(){addNodeButtonClick()})
-    // 用于单击实例和双击实例的计时器
-    var clickFlag = null;
     // 单击实例
     $(".instance").click(function(){
         if(clickFlag) {//取消上次延时未执行的方法
@@ -547,10 +179,10 @@
         }
         curSelectedInstance = this;
         clickFlag = setTimeout(function(){
-            instanceClick()
+            instanceClick();
         }, 150);//延时300毫秒执行
-    })
-    // 双击实例
+    });
+    // 双击实例槽
     $("#instanceValue").dblclick(function(){
         if(clickFlag) {//取消上次延时未执行的方法
             clickFlag = clearTimeout(clickFlag);
@@ -560,16 +192,39 @@
             curTriggerInstanceSlot = this;
             instanceDblclick();
         }
-    })
-    // 标注信息变动（token）
-    $("#tokenValue input").change(function(){nodeTokenChange();})
-    // 标注信息变动（semanticType）
-    $("#semanticTypeValue select").change(function(){nodeSemanticTypeChange();})
-    // 实例信息变动(desc)
-    $("#descValue").change(function(){instanceDescChange();})
-    // 实例信息变动(kg)
-    $("#kgValue").change(function(){instanceKgChange();})
+    });
+
+    // instanceSelectWindow: 单击“添加实例”按钮
+    $("#addInstance").click(function () {
+        addInstanceClick();
+    });
+    // instanceSelectWindow: 单击“添加实例（基于当前节点）”按钮
+    $("#addInstanceBasedOnCurNode").click(function(){
+        addInstanceBasedOnCurNodeClick();
+    });
+
+    // instanceInfoWindow: desc变动
+    $("#descValue").change(function(){instanceDescChange();});
+    // instanceInfoWindow: kg变动
+    $("#kgValue").change(function(){instanceKgChange();});
+    // instanceInfoWindow: 单击mentionList中"→"按钮
+    $(".instance_extentMentionList_button").click(function () {
+        // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
+    });
+    // instanceInfoWindow: 单击mentionLists中"+"按钮
+    $("instance_addMentionList_button").click(function (){
+        // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
+    });
 </script>
 
-</html>
-
+<!--页面初始化-->
+<script>
+    // #textTab1--Load text
+    getText(
+        "",
+        function (data) {
+            majorTextWindow_updateText(data, 0);
+            majorTextWindow_show(data);
+        }
+    );
+</script>
