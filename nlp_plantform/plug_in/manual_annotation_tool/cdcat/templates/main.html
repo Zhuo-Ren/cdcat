@@ -104,31 +104,18 @@
     </div>
     <div id="instanceWindow">
         <div id="instanceSelectWindow">
-            <ul>
-                <li><a href="#allInstanceTab">全部对象</a></li>
-                <li><a href="#commonInstanceTab">常用对象</a></li>
-            </ul>
-            <div id="allInstanceTab">
-                <div id="searchInstance">
-                    <input style="width: 85%">
-                    <button class="searchInstanceButton" style="padding:0px;">🔍</button>
-                </div>
-                <button class="addInstance" >+</button>
-                <button class="addInstanceBasedOnCurNode" >→</button>
-                <div id="allInstanceDiv">
-                    {% for i in instance_dict: %}
-                        <button class="instance" name={{instance_dict[i]["id"]}}>
-                            {{instance_dict[i]["desc"]}}
-                        </button>
-                    {% endfor %}
-                </div>
+            <div id="searchInstance">
+                <input style="width: 85%">
+                <button class="searchInstanceButton" style="padding:0px;">🔍</button>
             </div>
-            <div id="commonInstanceTab">
-                <button class="instance">+</button>
-                <button class="instance">→</button>
-                <div id="commonInstanceDiv">
-
-                </div>
+            <button class="addInstancePlus" >+</button>
+            <button class="addInstanceArrow">→</button>
+            <div id="allInstanceDiv">
+                {% for i in instance_dict: %}
+                    <button class="instance" name={{instance_dict[i]["id"]}}>
+                                                                        {{instance_dict[i]["desc"]}}
+                                                                        </button>
+                {% endfor %}
             </div>
         </div>
         <div id="instancInfoWindow">
@@ -194,13 +181,13 @@
         }
     });
 
-    // instanceSelectWindow: 单击“添加实例”按钮
-    $("#addInstance").click(function () {
-        addInstanceClick();
+    // instanceSelectWindow: 单击“+”按钮
+    $(".addInstancePlus").click(function () {
+        addInstancePlusButtonClick();
     });
-    // instanceSelectWindow: 单击“添加实例（基于当前节点）”按钮
-    $("#addInstanceBasedOnCurNode").click(function(){
-        addInstanceBasedOnCurNodeClick();
+    // instanceSelectWindow: 单击“→”按钮
+    $(".addInstanceArrow").click(function(){
+        addInstanceArrowButtonClick();
     });
 
     // instanceInfoWindow: desc变动

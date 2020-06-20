@@ -157,13 +157,17 @@ def cdcat(root: mytree):
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        desc = request.form.get("desc")
-        if desc:
-            logging.debug("addInstance->：desc=" + request.form.get("desc"))
-            Instance(desc)
+        position = mytree.strToPosition(request.form.get("position"))
+        if position:
+            node = root[position]
+            logging.debug("addInstance_node->：position=" + str(position))
+            instance = Instance(node.text())
+            instance["mention_list"].append([node])
+            node.add_label({"instance": instance})
         else:
-            Instance()
-        mention_list = request.form.getlist("mention_list_new")
+            logging.debug("addInstance_empty->：")
+            instance = Instance()
+        return jsonify(instance.output_to_dict())
 
     app.run()
     print("请在浏览器中打开http://127.0.0.1:5000/ ")

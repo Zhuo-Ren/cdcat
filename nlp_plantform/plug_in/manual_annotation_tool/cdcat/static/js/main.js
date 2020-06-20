@@ -102,12 +102,37 @@ var curSelectedInstance = undefined;
         $("#nodeInfo-semanticType").css("display", "block");
         $("#nodeInfo-instance").css("display", "block");
     }
-
-    function showCommonInstances(){}
-    function showCannotAddNodeInfo(){
+    function nodeInfoWindow_showCannotAddNodeInfo(){
         alert("不行")
     }
-    function showInstanceInfo(data){
+
+    function instanceSelectWindow_updateOneInstance(data){
+        // 删除旧节点
+        oldInstanceButton = $("#allInstanceDiv [name=" + data['id'].toString() + "]")
+        if (oldInstanceButton){oldInstanceButton.remove();}
+        // 创建新节点
+        newInstanceButton = $("<button></button>");
+        newInstanceButton.attr('name', data['id']);
+        newInstanceButton.addClass('instance');
+        if (data['desc'] !== ""){
+            newInstanceButton.text(data['desc']);
+        } else {
+            newInstanceButton.text('　');
+        }
+        newInstanceButton.click(function(){
+            if(clickFlag) {//取消上次延时未执行的方法
+                clickFlag = clearTimeout(clickFlag);
+            }
+            curSelectedInstance = this;
+            clickFlag = setTimeout(function(){
+                instanceClick();
+            }, 150);//延时300毫秒执行
+        });
+        // 添加新节点
+        $("#allInstanceDiv").prepend(newInstanceButton);
+    }
+
+    function instanceInfoWindow_showInstanceInfo(data){
         $("#idValue").text(data["id"]);
         $("#descValue").val(data["desc"]);
         if(data["kg"] !== undefined){
@@ -115,7 +140,7 @@ var curSelectedInstance = undefined;
         }
         var mentionListsValue = $("#mentionListsValue");
         mentionListsValue.empty();
-        for(var i=0;i<data["mention_list"].length;i++){
+        for(var i=0; i<data["mention_list"].length; i++){
             var curMention = data["mention_list"][i];
             var curMentionLine = $("<div class='instanceMentionDiv'></div>");
             curMentionLine.append($("<span>[</span>"));
@@ -141,28 +166,17 @@ var curSelectedInstance = undefined;
         $("#instanceInfo-kg").css("display", "block");
         $("#instanceInfo-mentionLists").css("display", "block");
 
-        // 单击“添加指称列表”按钮
+        // instanceInfoWindow: 单击mentionLists中"+"按钮
         $("#instance_addMentionList_button").click(function(){
-            instanceId = parseInt($("#idValue").text());
+            instanceId = $("#idValue").text();
             addMentionListButtonClick(instanceId);
         });
-        // 单击“扩展指称列表（基于当前节点）”按钮
+        // instanceInfoWindow: 单击mentionList中"→"按钮
         $(".instance_extentMentionList_button").click(function () {
-            instanceId = parseInt($("#idValue").text());
-            mentionListIndex = parseInt(this.name);
+            instanceId = $("#idValue").text();
+            mentionListIndex = this.name;
             extentMentionListButtonClick(instanceId, mentionListIndex);
         });
-    }
-    function updateInstanceButton(data){
-        $("#allInstanceDiv [name=" + data['id'].toString() + "]").text(data['desc'])
-    }
-    function addToCommonInstanceTab(data){
-        $("#commonInstanceDiv [name=" + data['id'].toString() + "]").remove();
-        newInstanceButton = $("<button></button>");
-        newInstanceButton.text(data['desc']);
-        newInstanceButton.attr('name', data['id']);
-        newInstanceButton.addClass('instance');
-        $("#commonInstanceDiv").prepend(newInstanceButton);
     }
 
 // <!-- flask interface -->
@@ -243,7 +257,7 @@ var curSelectedInstance = undefined;
             function (data, status) {
                 // 区分是否为标注对象
                 if (data === ""){
-                    showCannotAddNodeInfo();
+                    nodeInfoWindow_showCannotAddNodeInfo();
                 }else{
                     // 显示标注信息
                     nodeInfoWindow_showNodeInfo(data);
@@ -258,9 +272,8 @@ var curSelectedInstance = undefined;
             "/getInstance",
             {instance_id: id},
             function (data, status) {
-                showInstanceInfo(data);
-                updateInstanceButton(data);
-                addToCommonInstanceTab(data);
+                instanceInfoWindow_showInstanceInfo(data);
+                instanceSelectWindow_updateOneInstance(data);
             }
         );
     }
@@ -274,29 +287,23 @@ var curSelectedInstance = undefined;
             }
         )
     }
-    function addInstance(){
+    function addInstance_empty(callback){
         $.post(
-            "/addInstance", {},
+            "/addInstance",
+            {},
             function (data, status) {
-                showInstanceInfo(data);
+                callback(data);
             }
         )
     }
-    function addInstanceBasedOnCurNode(){
-        selectedText = "";
-        for (var i = 0; i < selectedElements.length; i++){
-            selectedText += selectedElements[i].textContent;
-        }
-        curNodePosition = $("#pathValue").text();
+    function addInstance_node(callback){
         $.post(
             "/addInstance",
             {
-                "desc": selectedText,
-                "mention_list_new": curNodePosition,
+                "position": $("#pathValue").text()
             },
             function (data, status) {
-                showInstanceInfo(data);
-                alert("更新node信息")
+                callback(data);
             }
         )
     }
@@ -328,7 +335,7 @@ var curSelectedInstance = undefined;
         curTriggerInstanceSlot = undefined
     }
 
-    // 选中一段文本
+    // textWindow: 选中一段文本
     function textMouseup() {
         // 清除上次的选区效果
         if (selectedElements !== 0) {
@@ -428,7 +435,8 @@ var curSelectedInstance = undefined;
             )
         }
     }
-    // 单击“添加标注对象”按钮
+
+    // nodeInfoWindow: 单击“添加标注对象”按钮
     function addNodeButtonClick(){
         if(selectedElements !== 0){
             // 获取选中的node的position list。
@@ -440,22 +448,7 @@ var curSelectedInstance = undefined;
             addNodeByChildren(selectedElementsIdList)
         }
     }
-    // 单击实例
-    function instanceClick(){
-        if (curTriggerInstanceSlot === undefined){
-            // 显示实例信息
-            getInstanceById(curSelectedInstance.name);
-        }
-        else{
-            // 选择此实例填充当前槽
-            endOfInstanceSlotFilling();
-        }
-    }
-    // 双击实例
-    function instanceDblclick(){
-        startOfInstanceSlotFilling();
-    }
-    // 节点信息变动（token）
+    // nodeInfoWindow: 标注信息变动（token）
     function nodeTokenChange(){
         var position = $("#pathValue").text();
         var tokenValue = $("#tokenValue :checked").attr("value");
@@ -468,13 +461,57 @@ var curSelectedInstance = undefined;
         }
         setNode(position, {"token": tokenValue});
     }
-    // 节点信息变动（semanticType）
+    // nodeInfoWindow: 标注信息变动（semanticType）
     function nodeSemanticTypeChange(){
         var position = $("#pathValue").text();
         var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
         setNode(position, {"semanticType": semanticTypeValue});
     }
-    // 实例信息变动(desc)
+
+    // 单击实例
+    function instanceClick(){
+        if (curTriggerInstanceSlot === undefined){
+            // 显示实例信息
+            getInstanceById(curSelectedInstance.name);
+        }
+        else{
+            // 选择此实例填充当前槽
+            endOfInstanceSlotFilling();
+        }
+    }
+    // 双击实例槽
+    function instanceDblclick(){
+        startOfInstanceSlotFilling();
+    }
+
+    // instanceSelectWindow: 单击“+”按钮
+    function addInstancePlusButtonClick(){
+        addInstance_empty(
+            function (data) {
+                instanceInfoWindow_showInstanceInfo(data);
+                instanceSelectWindow_updateOneInstance(data)
+            }
+        );
+    }
+    // instanceSelectWindow: 单击“→”按钮
+    function addInstanceArrowButtonClick(){
+        addInstance_node(
+            function (data) {
+                instanceInfoWindow_showInstanceInfo(data);
+                instanceSelectWindow_updateOneInstance(data);
+                //
+                nodeInstance = $("#instanceValue");
+                nodeInstance.attr("name", data["id"]);
+                if (data["desc"]){
+                    nodeInstance.text(data["desc"]);
+                }else{
+                    nodeInstance.text("none");
+                }
+            }
+        )
+    }
+
+    // instanceInfoWindow: desc变动
     function instanceDescChange(){
         var id = $("#idValue").text()
         var descValue = $("#descValue")[0].value
@@ -482,9 +519,8 @@ var curSelectedInstance = undefined;
             id,
             {"desc": descValue},
             function(data){
-                showInstanceInfo(data);
-                updateInstanceButton(data);
-                addToCommonInstanceTab(data);
+                instanceInfoWindow_showInstanceInfo(data);
+                instanceSelectWindow_updateOneInstance(data);
                 if ($("#nodeInfo-path").css("display") == "block"){
                     getNodeByPosition(
                         $("#pathValue").text(),
@@ -496,25 +532,17 @@ var curSelectedInstance = undefined;
             }
         )
     }
-    // 实例信息变动(kg)
+    // instanceInfoWindow: kg变动
     function instanceKgChange(){
         var id = $("#idValue").text()
         var kgValue = $("#kgValue")[0].value
         setInstance(id, {"kg": kgValue})
     }
-    // 单击“添加实例”按钮
-    function addInstanceClick(){
-        addInstance();
-    }
-    // 单击“添加实例（基于当前节点）”按钮
-    function addInstanceBasedOnCurNodeClick(){
-        addInstanceBasedOnCurNode()
-    }
-
-
+    // instanceInfoWindow: 单击mentionList中"→"按钮
     /** click "extent mention list( based on cur node）" button
-     * @param instanceId {number} id of the instance to which the mention list belongs.
-     * @param mentionListIndex {number} index of the mention list to which the button belongs.
+     *
+     * @param instanceId {string} id string of the instance to which the mention list belongs.
+     * @param mentionListIndex {string} index string of the mention list to which the button belongs.
      */
     function extentMentionListButtonClick(instanceId, mentionListIndex){
         if ($("#nodeInfo-path").css("display") == "block"){
@@ -527,13 +555,22 @@ var curSelectedInstance = undefined;
                         "mention_list_index": mentionListIndex,
                         "new_node_position": curNodePosition
                     }
+                },
+                function (data) {
+                    if (typeof data == "string"){
+                        alert("set instance fail.");
+                    }
+                    else if (typeof data == "object"){
+                        instanceInfoWindow_showInstanceInfo(data);
+                    }
                 }
             )
         }
     }
-
+    // instanceInfoWindow: 单击mentionLists中"+"按钮
     /** click "add mention list" button
      *
+     *  @param instanceId {string} id string of the instance.
      */
     function addMentionListButtonClick(instanceId){
         setInstance(
@@ -541,6 +578,14 @@ var curSelectedInstance = undefined;
             {
                 "mention_list":{
                     "action": "add"
+                }
+            },
+            function(data){
+                if (typeof data == "string"){
+                    alert("set instance fail.");
+                }
+                else if (typeof data == "object"){
+                    instanceInfoWindow_showInstanceInfo(data);
                 }
             }
         )
