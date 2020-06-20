@@ -103,7 +103,7 @@ var curSelectedInstance = undefined;
         }else{
             nodeInstance = $("#instanceValue");
             nodeInstance.text("none");
-            nodeInstance.attr("name", undefined);
+            nodeInstance.attr("name", "");
             nodeInstance.removeClass("instance");
             nodeInstance.click(function(){});
         }
@@ -507,20 +507,34 @@ var curSelectedInstance = undefined;
     }
     // instanceSelectWindow: 单击“→”按钮
     function addInstanceArrowButtonClick(){
-        addInstance_node(
-            function (data) {
-                instanceInfoWindow_showInstanceInfo(data);
-                instanceSelectWindow_updateOneInstance(data);
-                //
-                nodeInstance = $("#instanceValue");
-                nodeInstance.attr("name", data["id"]);
-                if (data["desc"]){
-                    nodeInstance.text(data["desc"]);
-                }else{
-                    nodeInstance.text("none");
+        // 如果curNode不存在
+        if ($("#nodeInfo-path").css("display") == "none"){
+            alert("There is no current node, you can't add instance based on current node.");
+        }
+        // 如果curNode存在，但curNode已有instance
+        else if ($("#instanceValue").attr("name") !== ""){
+            alert("Current node is already referenced to a instance, " +
+                "You can't add a new instance based on current node, because this action will make one node " +
+                "reference to two different instance.");
+        }
+        // 如果curNode存在，curNode也没有instance
+        else{
+            addInstance_node(
+                function (data) {
+                    instanceInfoWindow_showInstanceInfo(data);
+                    instanceSelectWindow_updateOneInstance(data);
+                    //
+                    nodeInstance = $("#instanceValue");
+                    nodeInstance.attr("name", data["id"]);
+                    if (data["desc"]){
+                        nodeInstance.text(data["desc"]);
+                    }else{
+                        nodeInstance.text("none");
+                    }
                 }
-            }
-        )
+            )
+        }
+
     }
 
     // instanceInfoWindow: desc变动
