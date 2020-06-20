@@ -87,13 +87,25 @@ var curSelectedInstance = undefined;
             $("#semanticTypeValue option[value='none']")[0].selected = true
         }
         if(nodeInfo["instance"]){
-            $("#instanceValue")[0].textContent = nodeInfo["instance"]["desc"];
-            $("#instanceValue")[0].name = nodeInfo["instance"]["id"];
-            $("#instanceValue").addClass("instance");
+            nodeInstance = $("#instanceValue");
+            nodeInstance.text(nodeInfo["instance"]["desc"]);
+            nodeInstance.attr("name", nodeInfo["instance"]["id"]);
+            nodeInstance.addClass("instance");
+            nodeInstance.click(function(){
+                if(clickFlag) {//取消上次延时未执行的方法
+                    clickFlag = clearTimeout(clickFlag);
+                }
+                curSelectedInstance = this;
+                clickFlag = setTimeout(function(){
+                    instanceClick();
+                }, 150);//延时300毫秒执行
+            })
         }else{
-            $("#instanceValue").text("none");
-            $("#instanceValue").name = undefined;
-            $("#instanceValue").removeClass("instance");
+            nodeInstance = $("#instanceValue");
+            nodeInstance.text("none");
+            nodeInstance.attr("name", undefined);
+            nodeInstance.removeClass("instance");
+            nodeInstance.click(function(){});
         }
         $("#nodeInfo-noSelect").css("display", "none");
         $("#nodeInfo-noNode").css("display", "none");
