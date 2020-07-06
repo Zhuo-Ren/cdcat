@@ -39,34 +39,8 @@
 </head>
 <body>
     <div id="centerWindow">
-        <div id="textWindow">
-            <ul>
-                <li><a href="#textTab1">major</a></li>
-                <li><a href="#textTab2">minor</a></li>
-            </ul>
-            <div class="ui-layout-content">
-                <div id="textTab1" class="textTab">
-<!--                    {% for cur_text_unit in text_unit_list %}-->
-<!--                        {% if cur_text_unit["char"] in ["\n","\r"] %}-->
-<!--                            <div id= {{cur_text_unit["position"]}} class="char">-->
-<!--                                <div>\n</div>-->
-<!--                            </div>-->
-<!--                            <br style="clear:both;">-->
-<!--                        {% elif cur_text_unit["char"] == " " %}-->
-<!--                            <div id={{cur_text_unit["position"]}} class="char" >-->
-<!--                                <div>&nbsp;</div>-->
-<!--                            </div>-->
-<!--                        {% else %}-->
-<!--                            <div id={{cur_text_unit["position"]}} class="char" >-->
-<!--                                <div>{{ cur_text_unit["char"] }}</div>-->
-<!--                            </div>-->
-<!--                        {% endif %}-->
-<!--                    {% endfor %}-->
-                </div>
-                <div id="textTab2" class="textTab">
-                    <p>minor window is to show a mention in mentionList of a instance.</p>
-                </div>
-            </div>
+        <div id="contentWindow">
+            aaa
         </div>
         <div id="nodeInfoWindow">
             <p id="nodeInfo-noSelect" style="display: block">select a range of text to show the annotation info.</p>
@@ -99,6 +73,35 @@
                 <span id="instanceKey"> > coref.instance =</span>
                 <button id="instanceValue">none</button>
                 <span>(单击：显示并编辑实例信息，双击：选择另一个实例)</span>
+            </div>
+        </div>
+        <div id="textWindow">
+            <ul>
+                <li><a href="#textTab1">major</a></li>
+                <li><a href="#textTab2">minor</a></li>
+            </ul>
+            <div class="ui-layout-content">
+                <div id="textTab1" class="textTab">
+<!--                    {% for cur_text_unit in text_unit_list %}-->
+<!--                        {% if cur_text_unit["char"] in ["\n","\r"] %}-->
+<!--                            <div id= {{cur_text_unit["position"]}} class="char">-->
+<!--                                <div>\n</div>-->
+<!--                            </div>-->
+<!--                            <br style="clear:both;">-->
+<!--                        {% elif cur_text_unit["char"] == " " %}-->
+<!--                            <div id={{cur_text_unit["position"]}} class="char" >-->
+<!--                                <div>&nbsp;</div>-->
+<!--                            </div>-->
+<!--                        {% else %}-->
+<!--                            <div id={{cur_text_unit["position"]}} class="char" >-->
+<!--                                <div>{{ cur_text_unit["char"] }}</div>-->
+<!--                            </div>-->
+<!--                        {% endif %}-->
+<!--                    {% endfor %}-->
+                </div>
+                <div id="textTab2" class="textTab">
+                    <p>minor window is to show a mention in mentionList of a instance.</p>
+                </div>
             </div>
         </div>
     </div>
