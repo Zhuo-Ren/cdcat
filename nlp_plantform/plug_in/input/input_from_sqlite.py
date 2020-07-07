@@ -32,7 +32,7 @@ def input_from_sqlite(path: str, table_name: str)-> mytree:
     """
     语料列表，每一行就是一条新闻。
     """
-    # 把语料列表中的每一行，处理成为新闻节点
+    # 按行读取语料列表，生成新闻节点列表
     news_node_list = []
     for cur_news in news_list:
         # 读取语料，形成新闻节点
@@ -41,12 +41,9 @@ def input_from_sqlite(path: str, table_name: str)-> mytree:
         cur_title_node = input_from_string_plaintext_form(cur_news["title"])
         cur_title_node.add_label({"title": True})
         cur_news_node.insert(0,cur_title_node)
-        # 新闻节点添加到root节点
+        # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #
     root = mytree(label_dict={},children=news_node_list)
-    print(1)
-    # node = input_from_string_plaintext_form(fileStr)
-    # node.add_label({"file": True})
-
+    return root
 

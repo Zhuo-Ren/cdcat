@@ -9,7 +9,93 @@ var curSelectedInstance = undefined;
 
 
 // <!-- ui interface -->
-    /** In major text window, update char elements.
+    /**
+     *  In contentWindow, scroll to the given element.
+     *
+     */
+    function contentWindow_scroll(){}
+    /**
+     * In contentWindow, set content based on *contentArray*.
+     */
+    function contentWindow_updateContent(contentArray){
+        //
+        contentWindow = $("#contentWindow")
+        contentWindow.empty();
+        // 创建根目录
+        var contentRoot = $("<ul></ul>");
+        contentRoot.attr("id", "browser");
+        contentRoot.addClass("filetree");
+        contentWindow.append(contentRoot);
+        // 添加目录到根目录
+        /**
+         * Add the content to a <ul> element.
+         * @param parentUl The <ul> element.
+         * @param contentArray content array.
+         */
+        function addContentElement(parentUl, contentArray){
+            flag1 = (typeof contentArray[0] == "string");
+            flag2 = (typeof contentArray[1] == "string");
+            isLeaf = (flag1 && flag2);
+            // 添加当前节点
+            curLi = $("<li></li>");
+            curSpan = $("<span></span>")
+            positionString = contentArray[0];
+            if (positionString === ""){
+                index = "root";
+            }else{
+                positionList = positionString.split("-");
+                index = positionList[positionList.length - 1];
+            }
+            if (flag1 && flag2){
+                // 当前是叶子节点（文件）
+                curSpan.html(index + ": " + contentArray[1]);
+                curSpan.addClass("file");
+            } else{
+                // 当前是枝干节点（文件夹）
+                curSpan.html(index);
+                curSpan.addClass("folder");
+            }
+            curSpan.attr("id", contentArray[0]);
+            let curUl = $("<ul></ul>");
+            curLi.append(curSpan);
+            curLi.append(curUl);
+            parentUl.append(curLi);
+            // 遍历直接孩子
+            if (! isLeaf){
+                for (let i=1; i<contentArray.length; i++){
+                    addContentElement(curUl, contentArray[i]);
+                }
+            }
+        }
+        addContentElement(contentRoot, contentArray);
+        // 为目录添加样式
+        $("#browser").treeview({
+            toggle: function() {
+                console.log("%s was toggled.", $(this).find(">span").text());
+            }
+        });
+        $("#add").click(function() {
+            var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
+                "<li><span class='file'>Item1</span></li>" +
+                "<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
+            $("#browser").treeview({
+                add: branches
+            });
+        });
+        // 为目录添加单击事件
+        $("#contentWindow span").click(function(){
+            getText(
+                this.id,
+                function (data) {
+                    majorTextWindow_updateText(data, 0);
+                    majorTextWindow_show(data);
+                }
+            );
+        });
+    }
+
+    /**
+     * In major text window, update char elements.
      *
      * @param data
      * @param scroll
@@ -192,7 +278,8 @@ var curSelectedInstance = undefined;
     }
 
 // <!-- flask interface -->
-    /** flask interface. Given the position of a node, request the text of the node.
+    /**
+     * flask interface. Given the position of a node, request the text of the node.
      *
      * @param nodePosition {string} Position string of the node.
      * @param callback {function} The call back function.
@@ -209,7 +296,23 @@ var curSelectedInstance = undefined;
             }
         );
     }
-    /** flask interface. Given the position of a node, request the info of the node.
+    /**
+     * flask interface. request the content of corpora.
+     *
+     * @param callback {function} The call back function.
+     *   The return value *data* of the POST request is given as the first param of the call back function.
+     */
+    function getContent(callback){
+        $.post(
+            "/getContent",
+            { },
+            function (data, status) {
+                callback(data)
+            }
+        );
+    }
+    /**
+     * flask interface. Given the position of a node, request the info of the node.
      *
      * @param nodePosition {string} Position string of the node.
      * @param callback {function} The call back function.
@@ -232,7 +335,8 @@ var curSelectedInstance = undefined;
             }
         );
     }
-    /** flask interface. Given a range of nodes, check if those nodes correspond to a father node.
+    /**
+     * flask interface. Given a range of nodes, check if those nodes correspond to a father node.
      *
      * @param startNodePosition {string} Position string of the first node.
      * @param endNodePosition {string} Position string of the last node.
@@ -565,7 +669,8 @@ var curSelectedInstance = undefined;
         setInstance(id, {"kg": kgValue})
     }
     // instanceInfoWindow: 单击mentionList中"→"按钮
-    /** click "extent mention list( based on cur node）" button
+    /**
+     * click "extent mention list( based on cur node）" button
      *
      * @param instanceId {string} id string of the instance to which the mention list belongs.
      * @param mentionListIndex {string} index string of the mention list to which the button belongs.
@@ -594,7 +699,8 @@ var curSelectedInstance = undefined;
         }
     }
     // instanceInfoWindow: 单击mentionLists中"+"按钮
-    /** click "add mention list" button
+    /**
+     * click "add mention list" button
      *
      *  @param instanceId {string} id string of the instance.
      */

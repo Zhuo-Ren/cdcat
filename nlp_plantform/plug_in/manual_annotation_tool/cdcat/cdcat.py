@@ -4,7 +4,7 @@ from nlp_plantform.center.instance import Instance
 from typing import Dict, List, Tuple, Union  # for type hinting
 import logging
 
-def cdcat(root: mytree):
+def cdcat(root: mytree, unit_level: Dict):
     app = Flask(__name__)
 
     @app.route('/')
@@ -31,6 +31,31 @@ def cdcat(root: mytree):
         logging.debug("getText<-：" + "(success)" + "：" + str(text_unit_list))
         #
         return jsonify(text_unit_list)
+
+    @app.route('/getContent', methods=["POST"])
+    def getContent():
+        # 获取目录结构
+        content = ["",
+            ["0",
+                ["0-0",
+                    ("0-0-0", "哈哈哈哈"),
+                ],
+                ("0-1", "嘿嘿嘿")
+            ],
+            ("1", "嘻嘻嘻"),
+            ["2",
+                ["2-0",
+                    ("2-0-0", "吼吼吼"),
+                    ("2-0-1", "桀桀桀")
+                ],
+                ["2-1",
+                    ("2-1-0", "呱呱呱"),
+                    ("2-1-1", "汪汪汪")
+                ]
+            ]
+        ]
+        # 返回目录结构
+        return jsonify(content)
 
     @app.route('/addNode', methods=["POST"])
     def addNode():

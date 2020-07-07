@@ -18,24 +18,6 @@
     <link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.css" />
 	<link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/screen.css" />
 	<script src="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.js" type="text/javascript"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $("#browser").treeview({
-                toggle: function() {
-                    console.log("%s was toggled.", $(this).find(">span").text());
-                }
-            });
-
-            $("#add").click(function() {
-                var branches = $("<li><span class='folder'>New Sublist</span><ul>" +
-                    "<li><span class='file'>Item1</span></li>" +
-                    "<li><span class='file'>Item2</span></li></ul></li>").appendTo("#browser");
-                $("#browser").treeview({
-                    add: branches
-                });
-            });
-        });
-	</script>
     <!-- main js-->
     <script src="../static/js/main.js"></script>
     <!-- text stype -->
@@ -210,32 +192,40 @@
 <!-- add event -->
 <script>
     // textWindow: 选中一段文本
-    $(".textTab").mouseup( function(){textMouseup();} );
+    $(".textTab").mouseup(function () {
+        textMouseup();
+    });
 
     // nodeInfoWindow: 单击“添加标注对象”按钮
-    $("#nodeInfo-noNode").click(function(){addNodeButtonClick();});
+    $("#nodeInfo-noNode").click(function () {
+        addNodeButtonClick();
+    });
     // nodeInfoWindow: 标注信息变动（token）
-    $("#tokenValue input").change(function(){nodeTokenChange();});
+    $("#tokenValue input").change(function () {
+        nodeTokenChange();
+    });
     // nodeInfoWindow: 标注信息变动（semanticType）
-    $("#semanticTypeValue select").change(function(){nodeSemanticTypeChange();});
+    $("#semanticTypeValue select").change(function () {
+        nodeSemanticTypeChange();
+    });
 
     // 单击实例
-    $(".instance").click(function(){
-        if(clickFlag) {//取消上次延时未执行的方法
+    $(".instance").click(function () {
+        if (clickFlag) {//取消上次延时未执行的方法
             clickFlag = clearTimeout(clickFlag);
         }
         curSelectedInstance = this;
-        clickFlag = setTimeout(function(){
+        clickFlag = setTimeout(function () {
             instanceClick();
         }, 150);//延时300毫秒执行
     });
     // 双击实例槽
-    $("#instanceValue").dblclick(function(){
-        if(clickFlag) {//取消上次延时未执行的方法
+    $("#instanceValue").dblclick(function () {
+        if (clickFlag) {//取消上次延时未执行的方法
             clickFlag = clearTimeout(clickFlag);
         }
         // dblclick 事件的处理
-        if (curTriggerInstanceSlot === undefined){
+        if (curTriggerInstanceSlot === undefined) {
             curTriggerInstanceSlot = this;
             instanceDblclick();
         }
@@ -246,20 +236,24 @@
         addInstancePlusButtonClick();
     });
     // instanceSelectWindow: 单击“→”按钮
-    $(".addInstanceArrow").click(function(){
+    $(".addInstanceArrow").click(function () {
         addInstanceArrowButtonClick();
     });
 
     // instanceInfoWindow: desc变动
-    $("#descValue").change(function(){instanceDescChange();});
+    $("#descValue").change(function () {
+        instanceDescChange();
+    });
     // instanceInfoWindow: kg变动
-    $("#kgValue").change(function(){instanceKgChange();});
+    $("#kgValue").change(function () {
+        instanceKgChange();
+    });
     // instanceInfoWindow: 单击mentionList中"→"按钮
     $(".instance_extentMentionList_button").click(function () {
         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
     });
     // instanceInfoWindow: 单击mentionLists中"+"按钮
-    $("instance_addMentionList_button").click(function (){
+    $("instance_addMentionList_button").click(function () {
         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
     });
 </script>
@@ -267,11 +261,16 @@
 <!--页面初始化-->
 <script>
     // #textTab1--Load text
-    getText(
-        "",
-        function (data) {
-            majorTextWindow_updateText(data, 0);
-            majorTextWindow_show(data);
-        }
-    );
+    // getText(
+    //     "",
+    //     function (data) {
+    //         majorTextWindow_updateText(data, 0);
+    //         majorTextWindow_show(data);
+    //     }
+    // );
+
+    // #contentWindow--Load content
+    getContent(function (data){
+        contentWindow_updateContent(data);
+    })
 </script>
