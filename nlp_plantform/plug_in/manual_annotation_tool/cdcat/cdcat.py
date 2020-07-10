@@ -15,11 +15,7 @@ def cdcat(root: mytree, unit_level: Dict):
     def getText():
         text_node_position = request.form.get("textNodeId")
         text_unit_list = []
-        if text_node_position == "":
-            text_node_position = ()
-        else:
-            text_node_position = text_node_position.split("-")
-            text_node_position = (int(i) for i in text_node_position)
+        text_node_position = mytree.strToPosition(text_node_position)
         for cur_nleaf in root[text_node_position].all_nleaves():
             p = [str(i) for i in cur_nleaf.position()]
             text_unit_list.append({

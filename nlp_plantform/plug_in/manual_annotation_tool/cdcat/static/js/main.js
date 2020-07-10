@@ -50,6 +50,16 @@ var curSelectedInstance = undefined;
                 // 当前是叶子节点（文件）
                 curSpan.html(index + ": " + contentArray[1]);
                 curSpan.addClass("file");
+                // 为目录添加单击事件
+                curSpan.click(function(){
+                    getText(
+                        this.id,
+                        function (data) {
+                            majorTextWindow_updateText(data, 0);
+                            majorTextWindow_show(data);
+                        }
+                    );
+                });
             } else{
                 // 当前是枝干节点（文件夹）
                 curSpan.html(index);
@@ -81,16 +91,6 @@ var curSelectedInstance = undefined;
             $("#browser").treeview({
                 add: branches
             });
-        });
-        // 为目录添加单击事件
-        $("#contentWindow span").click(function(){
-            getText(
-                this.id,
-                function (data) {
-                    majorTextWindow_updateText(data, 0);
-                    majorTextWindow_show(data);
-                }
-            );
         });
     }
 
