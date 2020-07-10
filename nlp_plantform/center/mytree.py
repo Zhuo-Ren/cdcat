@@ -330,7 +330,7 @@ class mytree(ParentedTree):
     treeposition = position
 
     @staticmethod
-    def strToPosition(positionStr: str):
+    def str_to_position(positionStr: str):
         if positionStr is None:
             return None
         elif positionStr == "":
@@ -339,6 +339,14 @@ class mytree(ParentedTree):
             return tuple(int(i) for i in positionStr.split("-"))
         else:
             raise TypeError("1th arg should be None or string")
+
+    @staticmethod
+    def position_to_str(position: Tuple):
+        if position == ():
+            return ""
+        else:
+            r = [str(i) for i in position]
+            return "-".join(r)
 
     def left_sibling(self):
         """获取左边那个兄弟。

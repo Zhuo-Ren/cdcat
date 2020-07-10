@@ -15,7 +15,7 @@ def cdcat(root: mytree, unit_level: Dict):
     def getText():
         text_node_position = request.form.get("textNodeId")
         text_unit_list = []
-        text_node_position = mytree.strToPosition(text_node_position)
+        text_node_position = mytree.str_to_position(text_node_position)
         for cur_nleaf in root[text_node_position].all_nleaves():
             p = [str(i) for i in cur_nleaf.position()]
             text_unit_list.append({
@@ -31,6 +31,13 @@ def cdcat(root: mytree, unit_level: Dict):
     @app.route('/getContent', methods=["POST"])
     def getContent():
         # 获取目录结构
+        def walk_to_file(node: mytree):
+            content = []
+            content[0] = node.position()
+
+            pass
+
+        walk_to_file(root)
         content = ["",
             ["0",
                 ["0-0",
@@ -74,9 +81,9 @@ def cdcat(root: mytree, unit_level: Dict):
     @app.route('/getNode', methods=["POST"])
     def getNode():
         # 获取参数
-        position = mytree.strToPosition(request.form.get("position"))
-        start_position = mytree.strToPosition(request.form.get("start"))
-        end_position = mytree.strToPosition(request.form.get("end"))
+        position = mytree.str_to_position(request.form.get("position"))
+        start_position = mytree.str_to_position(request.form.get("start"))
+        end_position = mytree.str_to_position(request.form.get("end"))
         #
         if position:
             logging.debug("getNode->：position=" + str(position))
@@ -99,7 +106,7 @@ def cdcat(root: mytree, unit_level: Dict):
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
-        position = mytree.strToPosition(request.form.get("position"))
+        position = mytree.str_to_position(request.form.get("position"))
         logging.debug("setNode->：position=" + str(position))
         node = root[position]
         if node is None:
@@ -165,7 +172,7 @@ def cdcat(root: mytree, unit_level: Dict):
             if mention_list_action == 'extent':
                 #
                 mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                new_node_position = mytree.strToPosition(request.form.get('mention_list[new_node_position]'))
+                new_node_position = mytree.str_to_position(request.form.get('mention_list[new_node_position]'))
                 #
                 instance["mention_list"][mention_list_index].append(root[new_node_position])
             # 添加一个新的mention_list
@@ -178,7 +185,7 @@ def cdcat(root: mytree, unit_level: Dict):
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        position = mytree.strToPosition(request.form.get("position"))
+        position = mytree.str_to_position(request.form.get("position"))
         if position:
             node = root[position]
             logging.debug("addInstance_node->：position=" + str(position))
