@@ -42,6 +42,7 @@ var curSelectedInstance = undefined;
             curSpan = $("<span></span>")
             curLi.append(curSpan);
             curSpan.attr("id", contentArray[0]);
+            curSpan.css("white-space","nowrap")
             positionString = contentArray[0];
             if (positionString === ""){
                 index = "root";
