@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from nlp_plantform.center.mytree import mytree
 from nlp_plantform.center.instance import Instance
 from typing import Dict, List, Tuple, Union  # for type hinting
+import nlp_plantform.log_config
 import logging
 
 def cdcat(root: mytree, unit_level: Dict):

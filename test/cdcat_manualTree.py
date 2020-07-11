@@ -3,19 +3,8 @@ from nlp_plantform.plug_in.input.add_from_list_of_token import add_from_list_of_
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 from nlp_plantform.center.mytree import mytree
 from nlp_plantform.center.instance import Instance
-import logging
 import sys
 import os
-
-rootLogger = logging.getLogger()  # 如果getLogger函数没有参数，就返回root logger
-rootLogger.setLevel(logging.DEBUG)
-streamHandler = logging.StreamHandler(stream=sys.stdout)  # sys.stderr
-streamHandler.setLevel(logging.DEBUG)
-formatter = logging.Formatter(
-    fmt='%(message)s', datefmt=None, style='%'
-)  # %(levelname)s
-streamHandler.setFormatter(formatter)
-rootLogger.addHandler(streamHandler)
 
 # init
 pass

@@ -1,6 +1,7 @@
 from nlp_plantform.center.mytree import mytree
 from nlp_plantform.plug_in.input.input_from_string_plaintext_form import input_from_string_plaintext_form
 from  dbsql.dbsql_sqlite import DbSql
+import nlp_plantform.log_config
 
 def input_from_sqlite(path: str, table_name: str)-> mytree:
     """ read a sqlite database, and genera the node.
