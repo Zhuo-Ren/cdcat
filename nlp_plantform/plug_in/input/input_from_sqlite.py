@@ -28,7 +28,7 @@ def input_from_sqlite(path: str, table_name: str)-> mytree:
         response = DbSql.selectRow(table_name)
     finally:
         DbSql.disconnectDataBase()
-    news_list = [{"data":i[16:19], "title":i[15], "source":i[13], "text":i[19]} for i in response]
+    news_list = [{"date":i[16:19], "title":i[15], "source":i[13], "text":i[19]} for i in response]
     """
     语料列表，每一行就是一条新闻。
     """
@@ -37,10 +37,11 @@ def input_from_sqlite(path: str, table_name: str)-> mytree:
     for cur_news in news_list:
         # 读取语料，形成新闻节点
         cur_news_node = input_from_string_plaintext_form(cur_news["text"])
-        cur_news_node.add_label({"data": cur_news["data"], "source":cur_news["source"]})
-        cur_title_node = input_from_string_plaintext_form(cur_news["title"])
+        cur_news_node.add_label({"date": cur_news["date"], "source": cur_news["source"]})
+        cur_news_node.add_label({"article": True})   # 表示这个一个文章，在cdcat中单独显示。
+        cur_title_node = input_from_string_plaintext_form(cur_news["title"]+"\n")
         cur_title_node.add_label({"title": True})
-        cur_news_node.insert(0,cur_title_node)
+        cur_news_node.insert(0, cur_title_node)
         # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #

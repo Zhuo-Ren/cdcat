@@ -30,33 +30,49 @@ def cdcat(root: mytree, unit_level: Dict):
 
     @app.route('/getContent', methods=["POST"])
     def getContent():
-        # 获取目录结构
+        # 迭代函数
         def walk_to_file(node: mytree):
-            content = []
-            content[0] = node.position()
+            content = [mytree.position_to_str(node.position())]
+            for cur_node in root:
+                try:
+                    if cur_node.get_label()["article"] == True:
+                        is_file = True
+                    else:
+                        is_file = False
+                except:
+                    is_file = False
+                if is_file :
+                    content.append((
+                        mytree.position_to_str(cur_node.position()),
+                        cur_node.text()[0:7]
+                    ))
+                else:
+                    content.append(walk_to_file(cur_node))
+            return content
 
-            pass
+        # content = ["",
+        #     ["0",
+        #         ["0-0",
+        #             ("0-0-0", "哈哈哈哈"),
+        #         ],
+        #         ("0-1", "嘿嘿嘿")
+        #     ],
+        #     ("1", "嘻嘻嘻"),
+        #     ["2",
+        #         ["2-0",
+        #             ("2-0-0", "吼吼吼"),
+        #             ("2-0-1", "桀桀桀")
+        #         ],
+        #         ["2-1",
+        #             ("2-1-0", "呱呱呱"),
+        #             ("2-1-1", "汪汪汪")
+        #         ]
+        #     ]
+        # ]
+        # 返回目录结构
 
-        walk_to_file(root)
-        content = ["",
-            ["0",
-                ["0-0",
-                    ("0-0-0", "哈哈哈哈"),
-                ],
-                ("0-1", "嘿嘿嘿")
-            ],
-            ("1", "嘻嘻嘻"),
-            ["2",
-                ["2-0",
-                    ("2-0-0", "吼吼吼"),
-                    ("2-0-1", "桀桀桀")
-                ],
-                ["2-1",
-                    ("2-1-0", "呱呱呱"),
-                    ("2-1-1", "汪汪汪")
-                ]
-            ]
-        ]
+        # 获取目录结构
+        content = walk_to_file(root)
         # 返回目录结构
         return jsonify(content)
 

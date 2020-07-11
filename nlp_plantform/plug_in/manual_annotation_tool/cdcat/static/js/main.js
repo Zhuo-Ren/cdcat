@@ -112,18 +112,23 @@ var curSelectedInstance = undefined;
                                 "class='char'" +
                             ">";
             if (data[i]["char"] === "\n"){
-                elementText += "<div>\\n<div> <br style='clear:both;'>";
+                elementText += "<div>\\n</div> ";
+                elementText += "</div>";
+                elementText += "<br style='clear:both;'>";
             }
-            if (data[i]["char"] ==="\r"){
-                elementText += "<div>\\n<div> <br style='clear:both;'>";
+            else if (data[i]["char"] ==="\r"){
+                elementText += "<div>\\r</div>";
+                elementText += "</div>";
+                elementText += "<br style='clear:both;'>";
             }
-            if (data[i]["char"] === " "){
+            else if (data[i]["char"] === " "){
                 elementText += "<div>&nbsp; <div>";
+                elementText += "</div>";
             }
             else{
-                elementText += "<div>" + data[i]["char"] + "<div>";
+                elementText += "<div>" + data[i]["char"] + "</div>";
+                elementText += "</div>";
             }
-            elementText += "</div>";
             let charElement = $(elementText);
             //
             majorTextWindow.append(charElement);
