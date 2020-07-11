@@ -24,6 +24,8 @@
     <style>
         .char{
             float: left;
+            height: 21px;
+            /*border: 1px solid red;*/
         }
         .textTab{
             height: 90%;
@@ -47,39 +49,6 @@
 <body>
     <div id="centerWindow">
         <div id="contentWindow">
-            <ul id="browser" class="filetree">
-                <li><span>Folder 1</span>
-                    <ul>
-                        <li><span>Item 1.1</span>
-                            <ul>
-                                <li><span>Item 1.1.1</span></li>
-                            </ul>
-                        </li>
-                        <li><span>Folder 2</span>
-                            <ul>
-                                <li><span>Subfolder 2.1</span>
-                                    <ul id="folder21">
-                                        <li><span class="file">File 2.1.1</span></li>
-                                        <li><span class="file">File 2.1.2</span></li>
-                                    </ul>
-                                </li>
-                                <li><span>Subfolder 2.2</span>
-                                    <ul>
-                                        <li><span>File 2.2.1</span></li>
-                                        <li><span>File 2.2.2</span></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="closed"><span>Folder 3 (closed at start)</span>
-                            <ul>
-                                <li><span>File 3.1</span></li>
-                            </ul>
-                        </li>
-                        <li><span>File 4</span></li>
-                    </ul>
-                </li>
-            </ul>
         </div>
         <div id="nodeInfoWindow">
             <p id="nodeInfo-noSelect" style="display: block">select a range of text to show the annotation info.</p>

@@ -38,7 +38,10 @@ var curSelectedInstance = undefined;
             isLeaf = (flag1 && flag2);
             // 添加当前节点
             curLi = $("<li></li>");
+            parentUl.append(curLi);
             curSpan = $("<span></span>")
+            curLi.append(curSpan);
+            curSpan.attr("id", contentArray[0]);
             positionString = contentArray[0];
             if (positionString === ""){
                 index = "root";
@@ -46,7 +49,7 @@ var curSelectedInstance = undefined;
                 positionList = positionString.split("-");
                 index = positionList[positionList.length - 1];
             }
-            if (flag1 && flag2){
+            if (isLeaf){
                 // 当前是叶子节点（文件）
                 curSpan.html(index + ": " + contentArray[1]);
                 curSpan.addClass("file");
@@ -64,14 +67,10 @@ var curSelectedInstance = undefined;
                 // 当前是枝干节点（文件夹）
                 curSpan.html(index);
                 curSpan.addClass("folder");
-            }
-            curSpan.attr("id", contentArray[0]);
-            let curUl = $("<ul></ul>");
-            curLi.append(curSpan);
-            curLi.append(curUl);
-            parentUl.append(curLi);
-            // 遍历直接孩子
-            if (! isLeaf){
+                let curUl = $("<ul></ul>");
+                curLi.append(curUl);
+
+                // 遍历直接孩子
                 for (let i=1; i<contentArray.length; i++){
                     addContentElement(curUl, contentArray[i]);
                 }
