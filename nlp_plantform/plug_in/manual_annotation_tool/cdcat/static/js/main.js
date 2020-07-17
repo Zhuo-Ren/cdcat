@@ -7,6 +7,10 @@ var curTriggerInstanceSlot = undefined;
 // 全局变量。记录被选中的实例。
 var curSelectedInstance = undefined;
 
+// 设置ajax不要异步执行
+$.ajaxSetup({
+    async : false
+});
 
 // <!-- ui interface -->
     /**
@@ -618,10 +622,17 @@ var curSelectedInstance = undefined;
     function addInstanceArrowButtonClick(){
         // 如果curNode不存在
         if ($("#nodeInfo-path").css("display") == "none"){
-            alert("There is no current node, you can't add instance based on current node.");
+            // 如果有选中一个mention，只差创建node
+            if ($("#nodeInfo-noNode").css("display") == "block"){
+                $("#nodeInfo-noNode").click();
+            }
+            else{
+                alert("There is no current node, you can't add instance based on current node.");
+                return;
+            }
         }
         // 如果curNode存在，但curNode已有instance
-        else if ($("#instanceValue").attr("name") !== ""){
+        if ($("#instanceValue").attr("name") !== ""){
             alert("Current node is already referenced to a instance, " +
                 "You can't add a new instance based on current node, because this action will make one node " +
                 "reference to two different instance.");

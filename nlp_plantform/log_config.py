@@ -1,7 +1,6 @@
 import logging
 import sys
 
-print(1)
 rootLogger = logging.getLogger()  # 如果getLogger函数没有参数，就返回root logger
 rootLogger.setLevel(logging.DEBUG)
 streamHandler = logging.StreamHandler(stream=sys.stdout)  # sys.stderr

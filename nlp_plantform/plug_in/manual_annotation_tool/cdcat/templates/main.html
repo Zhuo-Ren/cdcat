@@ -85,7 +85,7 @@
         </div>
         <div id="nodeInfoWindow">
             <p id="nodeInfo-noSelect" style="display: block">select a range of text to show the annotation info.</p>
-            <button id="nodeInfo-noNode" style="display: none">the selected text isn't a annotation object, click this button to add a annotation object.</button>
+            <button id="nodeInfo-noNode" style="display: none">add a annotation node for this mention.</button>
             <div id="nodeInfo-path" style="display: none">
                 <span id="pathKey"> > path =</span>
                 <span id="pathValue">XXXXX</span>
@@ -98,7 +98,7 @@
                 </span>
             </div>
             <div id="nodeInfo-semanticType" style="display: none">
-                <span id="semanticTypeKey"> > ner.entity_type =</span>
+                <span id="semanticTypeKey"> > mention.type =</span>
                 <span id="semanticTypeValue">
                     <select>
                         <option value="none" selected>无</option>
@@ -113,7 +113,7 @@
             <div id="nodeInfo-instance" style="display: none">
                 <span id="instanceKey"> > coref.instance =</span>
                 <button id="instanceValue">none</button>
-                <span>(单击：显示并编辑实例信息，双击：选择另一个实例)</span>
+                <span>(double click to edit)</span>
             </div>
         </div>
         <div id="textWindow">
