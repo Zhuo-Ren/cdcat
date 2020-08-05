@@ -458,6 +458,10 @@ $.ajaxSetup({
         document.body.style.cursor = "";
         //
         curTriggerInstanceSlot = undefined
+        // 更新instance info
+        if (curSelectedInstance != undefined){
+            getInstanceById(curSelectedInstance.name);
+        }
     }
 
     // textWindow: 选中一段文本
@@ -509,7 +513,22 @@ $.ajaxSetup({
                     alert("获取文本选区的curve元素出错")
                 }
                 // 识别anchor和curve的顺序，得到start和end
-                if (startDiv.id > endDiv.id) {
+                function idCompare(a, b){
+                    a = a.split('-').map(Number)
+                    b = b.split('-').map(Number)
+                    var r = 0;
+                    for (var i = 0; i < Math.min(a.length,b.length); i++)
+                    {
+                        if (a[i] != b[i]){
+                            r = (a[i] > b[i]);
+                            break;
+                        }
+                    }
+                    if ((r == 0) && (a.length == b.length)){
+                        r = false
+                    }
+                }
+                if (idCompare(startDiv.id, endDiv.id)) {
                     t = endDiv;
                     endDiv = startDiv;
                     startDiv = t;

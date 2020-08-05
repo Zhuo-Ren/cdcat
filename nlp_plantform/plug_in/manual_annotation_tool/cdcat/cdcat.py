@@ -97,24 +97,27 @@ def cdcat(root: mytree, unit_level: Dict):
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
-        # 获取参数
+        # get params(for js function "getNodeByPositon")
         position = mytree.str_to_position(request.form.get("position"))
+        # get params(for js function "getNodeByChild")
         start_position = mytree.str_to_position(request.form.get("start"))
         end_position = mytree.str_to_position(request.form.get("end"))
-        #
+        # get node(for js function "getNodeByPositon")
         if position:
             logging.debug("getNode->：position=" + str(position))
             node = root[position]
+        # get node(for js function "getNodeByChild")
         elif start_position and end_position:
             logging.debug("getNode->：position=" + str(start_position) + '-' + str(end_position))
             node = mytree.is_annotated(root, start_position, end_position)
-        #
+        # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
             anno_info = node.label()
             anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(anno_info))
             return jsonify(anno_info)
+        # return(failed)
         else:
             logging.debug("getNode--：no such node.")
             logging.debug("getNode<-：\"\"")
