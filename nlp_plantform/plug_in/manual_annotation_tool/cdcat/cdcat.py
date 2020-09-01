@@ -217,5 +217,5 @@ def cdcat(root: mytree, unit_level: Dict):
             instance = Instance()
         return jsonify(instance.output_to_dict())
 
-    app.run()
+    app.run(debug=True)
     print("请在浏览器中打开http://127.0.0.1:5000/ ")

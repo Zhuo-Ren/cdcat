@@ -62,9 +62,10 @@ $.ajaxSetup({
                 curSpan.click(function(){
                     getText(
                         this.id,
-                        function (data) {
-                            majorTextWindow_updateText(data, 0);
-                            majorTextWindow_show(data);
+                        function (returnData, status, requireData){
+                            majorTextWindow_setCurNodePosition(requireData["textNodeId"]);
+                            majorTextWindow_updateText(returnData, 0);
+                            majorTextWindow_show(returnData);
                         }
                     );
                 });
@@ -96,6 +97,16 @@ $.ajaxSetup({
                 add: branches
             });
         });
+    }
+
+    function majorTextWindow_setCurNodePosition(curNodePosition){
+        let majorTextWindow = $("#textTab1");
+        majorTextWindow.attr("name", curNodePosition);
+    }
+
+    function majorTextWindow_getCurNodePosition(){
+        let majorTextWindow = $("#textTab1");
+        return majorTextWindow.attr("name");
     }
 
     /**
@@ -291,17 +302,21 @@ $.ajaxSetup({
      * flask interface. Given the position of a node, request the text of the node.
      *
      * @param nodePosition {string} Position string of the node.
-     * @param callback {function} The call back function.
-     *   The return value *data* of the POST request is given as the first param of the call back function.
+     * @param callback {function} The call back function. This callback function has the following params: *data* is the
+     * return data of the ajax require. *status* means whether the ajax require is success or not. *requireData* is a
+     * array that includes the data which is send to server within the ajax require.
      */
     function getText(nodePosition, callback){
+        requireData = {
+            textNodeId: nodePosition
+        }
         $.post(
             "/getText",
             {
-                textNodeId: nodePosition
+                textNodeId: nodePosition,
             },
             function (data, status) {
-                callback(data)
+                callback(data, status, requireData);
             }
         );
     }
@@ -383,11 +398,18 @@ $.ajaxSetup({
                 // 区分是否为标注对象
                 if (data === ""){
                     nodeInfoWindow_showCannotAddNodeInfo();
-                }else{
+                }else {
                     // 显示标注信息
                     nodeInfoWindow_showNodeInfo(data);
                     // 重新加载文本
-                    getText("#textTab1", "")
+                    getText(
+                        majorTextWindow_getCurNodePosition(),
+                        function (returnData, status, requireData) {
+                            majorTextWindow_setCurNodePosition(requireData["textNodeId"]);
+                            majorTextWindow_updateText(returnData, 0);
+                            majorTextWindow_show(returnData);
+                        }
+                    )
                 }
             }
         );
