@@ -1,7 +1,7 @@
 from nlp_plantform.plug_in.input.input_from_string_plaintext_form import input_from_string_plaintext_form
 from nlp_plantform.plug_in.input.add_from_list_of_token import add_from_list_of_token
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
-from nlp_plantform.center.mytree import mytree
+from nlp_plantform.center.ntree import ntree
 from nlp_plantform.center.instance import Instance
 import sys
 import os
@@ -28,8 +28,8 @@ root[9].get_label()["semanticType"] = "sub"
 root[12].get_label()["semanticType"] = "addr"
 root[14].get_label()["semanticType"] = "act"
 root[16].get_label()["semanticType"] = "peo"
-mytree.add_parent({"semanticType": "addr"},[root[2],root[3]])
-mytree.add_parent({}, [root[15], root[16], root[17]])
+ntree.add_parent({"semanticType": "addr"},[root[2],root[3]])
+ntree.add_parent({}, [root[15], root[16], root[17]])
 # instance
 Instance(desc="我")
 Instance(desc="天安门")

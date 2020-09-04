@@ -657,7 +657,7 @@ $.layout = {
 	;
 	if (b) lb[b] = true; // set CURRENT browser
 	/*	OLD versions of jQuery only set $.support.boxModel after page is loaded
-	 *	so if this is IE, use support.boxModel to test for quirks-mode (ONLY IE changes boxModel) */
+	 *	so if this is IE, use support.boxModel to test_integration for quirks-mode (ONLY IE changes boxModel) */
 	if (!bm && !cm) $(function(){ lb.boxModel = $s.boxModel; });
 })();
 
@@ -1568,7 +1568,7 @@ $.fn.layout = function (opts) {
 	/**
 	 * Initialize the layout IF not already
 	 *
-	 * @see  All methods in Instance run this test
+	 * @see  All methods in Instance run this test_integration
 	 * @return  boolean	true = layoutElements have been initialized | false = panes are not initialized (yet)
 	 */
 ,	isInitialized = function () {

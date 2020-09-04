@@ -1,8 +1,8 @@
 import os
-from nlp_plantform.center.mytree import mytree
+from nlp_plantform.center.ntree import ntree
 from nlp_plantform.plug_in.input.input_from_string_plaintext_form import input_from_string_plaintext_form
 
-def input_from_file(filePath: str) -> mytree:
+def input_from_file(filePath: str) -> ntree:
     """ read a plain text file, and genera the node.
 
     :param filePath: A path string of a plain text file.

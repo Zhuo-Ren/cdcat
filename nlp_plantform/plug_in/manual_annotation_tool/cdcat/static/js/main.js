@@ -99,20 +99,31 @@ $.ajaxSetup({
         });
     }
 
+    /**
+     * If majorTextWindow shows the chars of a node, the name of majorTextWindow is the position of this node. If
+     * majorTextWindow shows nothing, the name of majorTextWindow is "notext". This function set the name of
+     * majorTextWindow (the position of node whose string is going to be shown in majorTextWindow).
+     *
+     * @param {string} curNodePosition: the position of the node that is going to be shown in majorTextWindow.
+     */
     function majorTextWindow_setCurNodePosition(curNodePosition){
         let majorTextWindow = $("#textTab1");
         majorTextWindow.attr("name", curNodePosition);
     }
-
-    function majorTextWindow_getCurNodePosition(){
-        let majorTextWindow = $("#textTab1");
-        return majorTextWindow.attr("name");
-    }
-
     /**
-     * In major text window, update char elements.
+     * If majorTextWindow shows the chars of a node, the name of majorTextWindow is the position of this node. If
+     * majorTextWindow shows nothing, the name of majorTextWindow is "notext". This function get the name of
+     * majorTextWindow (the position of node whose string is shown in majorTextWindow).
      *
-     * @param data
+     * @returns {string}
+     */
+    function majorTextWindow_getCurNodePosition(){
+         let majorTextWindow = $("#textTab1");
+         return majorTextWindow.attr("name");
+     }
+    /**
+     *
+     * @param data The Array of every chair
      * @param scroll
      */
     function majorTextWindow_updateText(data, scroll){
@@ -326,9 +337,9 @@ $.ajaxSetup({
      * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getContent(callback){
+    function getCatalogue(callback){
         $.post(
-            "/getContent",
+            "/getCatalogue",
             { },
             function (data, status) {
                 callback(data)
