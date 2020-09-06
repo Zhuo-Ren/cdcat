@@ -6,7 +6,8 @@ from nltk.util import slice_bounds
 from nltk.compat import python_2_unicode_compatible, unicode_repr
 from nltk.tree import ParentedTree
 
-class ntree(ParentedTree):
+
+class NodeTree(ParentedTree):
     def __init__(self, label_dict, children=None):
         # 静态成员
         self._label = None
@@ -41,7 +42,7 @@ class ntree(ParentedTree):
         self._label = label_dict
         # 修改孩子
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 child._parent = self
 
     # getter setter
@@ -75,7 +76,7 @@ class ntree(ParentedTree):
     def add_label(self, label):
         self._label.update(label)
 
-    def get_parent(self) -> Union[None, "ntree"]:
+    def get_parent(self) -> Union[None, "NodeTree"]:
         return self._parent
     parent = get_parent
 
@@ -92,7 +93,7 @@ class ntree(ParentedTree):
         return (id(self) == id(other))
 
     def __lt__(self, other):
-        if not isinstance(other, ntree):
+        if not isinstance(other, NodeTree):
             # raise_unorderable_types("<", self, other)
             # Sometimes children can be pure strings,
             # so we need to be able to compare with non-trees:
@@ -146,7 +147,7 @@ class ntree(ParentedTree):
             # Remove the child
             list.__delitem__(self, index)
             # Clear the child's parent pointer.
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 if child.get_parent is not None:
                     child._parent = None
 
@@ -180,7 +181,7 @@ class ntree(ParentedTree):
             old_child = self[index]
             new_child = value
             # 修改新孩子
-            if isinstance(new_child, ntree):
+            if isinstance(new_child, NodeTree):
                 if new_child._parent is not None:
                     raise RuntimeError("can not add a tree which already has parent")
                 else:
@@ -188,7 +189,7 @@ class ntree(ParentedTree):
             # 修改自己
             list.__setitem__(self, index, new_child)
             # 修改旧孩子
-            if isinstance(old_child, ntree):
+            if isinstance(old_child, NodeTree):
                 old_child._parent = None
 
         # 继承list的切片：tree_obj[start:stop] = value
@@ -205,7 +206,7 @@ class ntree(ParentedTree):
             list.__setitem__(self, index, new_child_list)
             # 修改旧孩子
             for old_child in old_child_list:
-                if isinstance(old_child, ntree):
+                if isinstance(old_child, NodeTree):
                     old_child._parent = None
 
         # 新增按路径索引：tree_obj[1, 1, 0]=value，等价于tree_obj[1][1][0]=value
@@ -236,7 +237,7 @@ class ntree(ParentedTree):
                 assert isinstance(value, ntree)
         """
         # 修改孩子
-        if isinstance(value, ntree):
+        if isinstance(value, NodeTree):
             if value._parent is not None:
                 raise RuntimeError("can not add a tree which already has parent")
             else:
@@ -260,7 +261,7 @@ class ntree(ParentedTree):
                 assert isinstance(value, ntree)
         """
         # 修改孩子
-        if isinstance(value, ntree):
+        if isinstance(value, NodeTree):
             if value._parent is not None:
                 raise RuntimeError("can not add a tree which already has parent")
             else:
@@ -273,7 +274,7 @@ class ntree(ParentedTree):
         # 修改自己
         child = list.pop(self, index)
         # 修改孩子
-        if isinstance(child, ntree):
+        if isinstance(child, NodeTree):
             child._parent = None
         return child
 
@@ -357,7 +358,7 @@ class ntree(ParentedTree):
             return self._parent[parent_index - 1]
         return None  # no left sibling
 
-    def right_sibling(self, acceptCousin=False) -> "ntree":
+    def right_sibling(self, acceptCousin=False) -> "NodeTree":
         """获取右边那个兄弟。
         The right sibling of this tree, or None if it has none.
         """
@@ -399,7 +400,7 @@ class ntree(ParentedTree):
             its leaves, omitting all intervening non-terminal nodes.
         :rtype: Tree
         """
-        return ntree(self.get_label(), self.leaves())
+        return NodeTree(self.get_label(), self.leaves())
 
     def height(self):
         """
@@ -422,7 +423,7 @@ class ntree(ParentedTree):
         """
         max_child_height = 0
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 max_child_height = max(max_child_height, child.height())
             else:
                 max_child_height = max(max_child_height, 1)
@@ -433,7 +434,7 @@ class ntree(ParentedTree):
         Traverse the tree, in given order, optionally restricted to leaves.
 
         example::
-            >>> t = ntree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
+            >>> t = NodeTree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
             >>> t.treepositions()
             [(), (0,), (0, 0), (0, 0, 0), (0, 1), (0, 1, 0), (1,), (1, 0), (1, 0, 0), (1, 1), (1, 1, 0), (1, 1, 0, 0), (1, 1, 1), (1, 1, 1, 0)]
             >>> for pos in t.treepositions('leaves'):
@@ -448,7 +449,7 @@ class ntree(ParentedTree):
         positions = []
         if order in ('preorder', 'bothorder'): positions.append( () )
         for i, child in enumerate(self):
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 childpos = child.treepositions(order)
                 positions.extend((i,)+p for p in childpos)
             else:
@@ -478,7 +479,7 @@ class ntree(ParentedTree):
         if not filter or filter(self):
             yield self
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 for subtree in child.subtrees(filter):
                     yield subtree
 
@@ -502,7 +503,7 @@ class ntree(ParentedTree):
 
         prods = [Production(Nonterminal(self._label), _child_names(self))]
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 prods += child.productions()
         return prods
 
@@ -558,7 +559,7 @@ class ntree(ParentedTree):
         """
         leaves = []
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 leaves.extend(child.leaves())
             else:
                 leaves.append(child)
@@ -568,7 +569,7 @@ class ntree(ParentedTree):
     def text(self):
         t = ""
         for i in self:
-            if isinstance(i, ntree):
+            if isinstance(i, NodeTree):
                 t = t + i.text()
             else:
                 t = t + str(i)
@@ -589,7 +590,7 @@ class ntree(ParentedTree):
         """
         pos = []
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 pos.extend(child.pos())
             else:
                 pos.append((child, self._label))
@@ -600,7 +601,7 @@ class ntree(ParentedTree):
         """获取所有叶子的路径。
 
         example::
-            >>> t = ntree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
+            >>> t = NodeTree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
             >>> t.treepositions('leaves')
             [(0, 0, 0), (0, 1, 0), (1, 0, 0), (1, 1, 0, 0), (1, 1, 1, 0)]
 
@@ -618,7 +619,7 @@ class ntree(ParentedTree):
         ``self[tp]==self.leaves()[i]``.
 
         example::
-            >>> t = ntree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
+            >>> t = NodeTree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
             >>> t.leaf_treeposition(index=3)
             (1, 1, 0, 0)
 
@@ -632,7 +633,7 @@ class ntree(ParentedTree):
         stack = [(self, ())]
         while stack:
             value, treepos = stack.pop()
-            if not isinstance(value, ntree):
+            if not isinstance(value, NodeTree):
                 if index == 0: return treepos
                 else: index -= 1
             else:
@@ -662,10 +663,10 @@ class ntree(ParentedTree):
     treeposition_spanning_leaves = spanning_leaves_position
 
     # nleaves ------------------------------------------------
-    def all_nleaves(self) -> List["ntree"]:
+    def all_nleaves(self) -> List["NodeTree"]:
         nleaves = []
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 nleaves.extend(child.all_nleaves())
         # 没有孩子，或所有孩子都不是树，那么就是nleaf
         if nleaves == []:
@@ -676,7 +677,7 @@ class ntree(ParentedTree):
 
     def is_nleaf(self):
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                return False
         return True
 
@@ -693,7 +694,7 @@ class ntree(ParentedTree):
         return cur_node
 
     @staticmethod
-    def nleaf_in_margin(left_margin: "ntree", right_margin: "ntree", include_margin=1) ->"ntree":
+    def nleaf_in_margin(left_margin: "NodeTree", right_margin: "NodeTree", include_margin=1) -> "NodeTree":
         """获取两个节点之间的nleaf列表
         example::
 
@@ -726,9 +727,9 @@ class ntree(ParentedTree):
         :return:
         """
         # 参数检测：参数类型
-        if not isinstance(left_margin, ntree):
+        if not isinstance(left_margin, NodeTree):
             raise TypeError("margin1 should be ntree")
-        if not isinstance(right_margin, ntree):
+        if not isinstance(right_margin, NodeTree):
             raise TypeError("margin2 should be ntree")
         # 参数检测：左右margin是否同树
         if left_margin.root() != right_margin.root():
@@ -743,10 +744,10 @@ class ntree(ParentedTree):
         left_nleaf_position = left_nleaf.position()
         right_nleaf_position = right_nleaf.position()
         # 核心逻辑
-        if ntree.is_order([left_nleaf,right_nleaf], acceptSameNode=True):
-            within_nleaf_list :List["ntree"]= []
+        if NodeTree.is_order([left_nleaf, right_nleaf], acceptSameNode=True):
+            within_nleaf_list :List["NodeTree"]= []
             cur_nleaf = left_nleaf.right_sibling(acceptCousin=True).left_nleaf()
-            while ntree.is_order([left_nleaf, cur_nleaf, right_nleaf], acceptSameNode=False):
+            while NodeTree.is_order([left_nleaf, cur_nleaf, right_nleaf], acceptSameNode=False):
                 within_nleaf_list.append(cur_nleaf)
                 cur_nleaf = cur_nleaf.right_sibling(acceptCousin=True).left_nleaf()
             if include_margin == 3 or include_margin == 2:
@@ -760,12 +761,12 @@ class ntree(ParentedTree):
 
     # 智能操作-----------------------------------------------------------
     @staticmethod
-    def add_parent(label, node_list: List["ntree"]):
+    def add_parent(label, node_list: List["NodeTree"]):
         # 类型检测
         if not isinstance(node_list, list):
             raise TypeError('1th param should be a list of tree node')
         for cur_node in node_list:
-            if not isinstance(cur_node, ntree):
+            if not isinstance(cur_node, NodeTree):
                 raise TypeError('item in list should be tree node')
         if len(node_list) < 1:
             raise TypeError('node_list should has at least one item')
@@ -791,7 +792,7 @@ class ntree(ParentedTree):
                     # 退出寻祖
                     break
                 # 如果祖宗节点能cover最右兄弟
-                elif ntree.is_order([node_list[-1].right_nleaf(), cur_parent.right_nleaf()]):
+                elif NodeTree.is_order([node_list[-1].right_nleaf(), cur_parent.right_nleaf()]):
                     # cur_parent不被认可
                     parent_list.append(cur_child)
                     if len(parent_list) >= 2:
@@ -820,7 +821,7 @@ class ntree(ParentedTree):
         for cur_child in parent_list:
             old_parent.remove(cur_child)
         # parent_list中节点认新爸爸
-        new_parent = ntree(label, parent_list)
+        new_parent = NodeTree(label, parent_list)
         # 新爸爸的爸爸是旧爸爸
         if index == len(old_parent):
             old_parent.append(new_parent)
@@ -830,7 +831,7 @@ class ntree(ParentedTree):
         return new_parent
 
     @staticmethod
-    def get_shared_parent(node_list :List["ntree"] = None, node_position_list = None):
+    def get_shared_parent(node_list :List["NodeTree"] = None, node_position_list = None):
         # 参数检测
         if node_list is not None:
             if isinstance(node_list, list):
@@ -851,7 +852,7 @@ class ntree(ParentedTree):
                     return node_position_list[0][:i-1]
 
     @staticmethod
-    def is_annotated(root: "ntree", start_nleaf_position, end_nleaf_positon):
+    def is_annotated(root: "NodeTree", start_nleaf_position, end_nleaf_positon):
         # 类型检测
         pass
         # 根据position获取nleaf
@@ -953,7 +954,7 @@ class ntree(ParentedTree):
         :param tree: The tree that should be converted.
         :return: The new Tree.
         """
-        if isinstance(tree, ntree):
+        if isinstance(tree, NodeTree):
             children = [cls.convert(child) for child in tree]
             return cls(tree._label, children)
         else:
@@ -1205,7 +1206,7 @@ class ntree(ParentedTree):
         else:
             s = '%s%s%s' % (parens[0], unicode_repr(self._label), nodesep)
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 s += '\n'+' '*(indent+2)+child.pformat(margin, indent+2,
                                                   nodesep, parens, quotes)
             elif isinstance(child, tuple):
@@ -1242,7 +1243,7 @@ class ntree(ParentedTree):
     def _pformat_flat(self, nodesep, parens, quotes):
         childstrs = []
         for child in self:
-            if isinstance(child, ntree):
+            if isinstance(child, NodeTree):
                 childstrs.append(child._pformat_flat(nodesep, parens, quotes))
             elif isinstance(child, tuple):
                 childstrs.append("/".join(child))
@@ -1263,7 +1264,7 @@ class ntree(ParentedTree):
 def _child_names(tree):
     names = []
     for child in tree:
-        if isinstance(child, ntree):
+        if isinstance(child, NodeTree):
             names.append(Nonterminal(child._label))
         else:
             names.append(child)
@@ -1301,4 +1302,4 @@ def sinica_parse(s):
             tokens[i] = ''
 
     treebank_string = " ".join(tokens)
-    return ntree.fromstring(treebank_string, remove_empty_top_bracketing=True)
+    return NodeTree.fromstring(treebank_string, remove_empty_top_bracketing=True)

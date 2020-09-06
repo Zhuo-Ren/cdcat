@@ -1,9 +1,9 @@
-from nlp_plantform.center.ntree import ntree
-from nlp_plantform.plug_in.input.input_from_string_plaintext_form import input_from_string_plaintext_form
+from nlp_plantform.center.nodetree import NodeTree
+from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_from_string_plaintext_form
 from  dbsql.dbsql_sqlite import DbSql
 import nlp_plantform.log_config
 
-def input_from_sqlite(path: str, table_name: str)-> ntree:
+def input_from_sqlite(path: str, table_name: str)-> NodeTree:
     """ read a sqlite database, and genera the node.
 
     The database in *path* should have a table named *table_name*.
@@ -46,6 +46,6 @@ def input_from_sqlite(path: str, table_name: str)-> ntree:
         # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #
-    root = ntree(label_dict={},children=news_node_list)
+    root = NodeTree(label_dict={}, children=news_node_list)
     return root
 

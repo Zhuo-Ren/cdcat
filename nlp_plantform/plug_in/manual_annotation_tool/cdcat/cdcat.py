@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, jsonify
-from nlp_plantform.center.ntree import ntree
-from nlp_plantform.center.instance import instance
-from nlp_plantform.center.instances import instances
 from typing import Dict, List, Tuple, Union  # for type hinting
 import nlp_plantform.log_config
 import logging
+from nlp_plantform.center.nodetree import NodeTree
+from nlp_plantform.center.instance import Instance
+from nlp_plantform.center.instances import Instances
+from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
+from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
 
-def cdcat(ntree: ntree, instances: instances, unit_level: Dict) -> None :
+def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
     """
     This is a manual annotation tool for cross-document coreference.
 
@@ -161,7 +163,7 @@ def cdcat(ntree: ntree, instances: instances, unit_level: Dict) -> None :
             logging.debug("setNode--：no such node")
             logging.debug("getNode<-：\"\"")
             return ""
-        elif isinstance(node, ntree):
+        elif isinstance(node, NodeTree):
             if request.form.get("token"):
                 logging.debug("setNode->：token=" + request.form.get("token"))
                 if request.form.get("token") == 'false':
@@ -177,12 +179,12 @@ def cdcat(ntree: ntree, instances: instances, unit_level: Dict) -> None :
             if request.form.get("instance"):
                 logging.debug("setNode->：instance=" + request.form.get("instance"))
                 if "instance" not in node.get_label():
-                    new_instance = Instance.getInstanceById(request.form.get("instance"))
+                    new_instance = instances.get_instance(id=request.form.get("instance"))[0]
                     node.add_label({"instance": new_instance})
                     new_instance["mention_list"].append([node])
                 else:
                     old_instance = node.get_label()["instance"]
-                    new_instance = Instance.getInstanceById(request.form.get("instance"))
+                    new_instance = instances.get_instance(id=request.form.get("instance"))[0]
                     node.add_label({"instance": new_instance})
                     new_instance["mention_list"].append([node])
                     old_instance["mention_list"].remove([node])
@@ -245,10 +247,12 @@ def cdcat(ntree: ntree, instances: instances, unit_level: Dict) -> None :
             instance = instances.add_instance()
         return jsonify(instance.output_to_dict())
 
+    @app.route('/save', methods=["POST"])
+    def save():
+        output_ntree_to_pickle(ntree)
+        output_instances_to_pickle(instances)
+        return jsonify({"success": True})
+
     app.run(debug=True)
     print("请在浏览器中打开http://127.0.0.1:5000/ ")
 
-def statistic():
-    r = {}
-
-    return r

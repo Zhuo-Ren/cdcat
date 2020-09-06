@@ -1,7 +1,7 @@
-from nlp_plantform.center.ntree import ntree
+from nlp_plantform.center.nodetree import NodeTree
 from typing import Dict, List, Tuple, Union
 
-def add_from_list_of_token(basetree: ntree, token_list: List[str]):
+def add_from_list_of_token(basetree: NodeTree, token_list: List[str]):
     """
     example::
         >>> s = "abc def g 我爱北京天安门"
@@ -36,5 +36,5 @@ def add_from_list_of_token(basetree: ntree, token_list: List[str]):
             anno["token"] = True
             cur_token[0][1].set_label(anno)
         else:
-            ntree.add_parent({"token": True}, [i[1] for i in cur_token])
+            NodeTree.add_parent({"token": True}, [i[1] for i in cur_token])
 

@@ -465,7 +465,17 @@ $.ajaxSetup({
             }
         )
     }
-
+    function save(){
+       $.post(
+           "/save",
+           {},
+           function(data, status){
+               if (data["success"] == true){
+                   alert("saved success")
+               }
+           }
+       )
+    }
 // <!-- evnet logic -->
     function startOfInstanceSlotFilling(){
         // 标红当前槽元素
@@ -790,3 +800,9 @@ $.ajaxSetup({
             }
         )
     }
+
+    // wholeSystem: ctrl+s
+    function ctrls(){
+        save();
+    }
+

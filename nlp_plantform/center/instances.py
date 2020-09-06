@@ -1,13 +1,13 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
-from nlp_plantform.center.instance import instance
+from nlp_plantform.center.instance import Instance
 
 
-class instances(dict):
+class Instances(dict):
     def __init__(self):
         self.next_id = 0
 
     def add_instance(self, desc=None, kg=None):
-        new_instance = instance(id=self.next_id, desc=desc, kg=kg)
+        new_instance = Instance(id=self.next_id, desc=desc, kg=kg)
         self[self.next_id] = new_instance
         self.next_id = self.next_id + 1
         return new_instance
@@ -17,7 +17,7 @@ class instances(dict):
                      desc: Union[str, None] = None,
                      kg: Union[str, None] = None,
                      mention: Union[str, None] = None
-                     )-> List[instance]:
+                     )-> List[Instance]:
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 
@@ -31,7 +31,7 @@ class instances(dict):
         if id is not None:
             return self.get_instance_by_id(id)
 
-    def get_instance_by_id(self, id: Union[int, str])-> List[instance]:
+    def get_instance_by_id(self, id: Union[int, str])-> List[Instance]:
         """
         get_instance_by_id
 
@@ -46,4 +46,32 @@ class instances(dict):
             return [self[id]]
         except:
             return []
+
+    def statistic(self, ifprint=False) -> Dict:
+        """
+        calc the statistic info.
+
+        example of the statistic info dict::
+            r = {
+                "instance_num" : (int)how many instances.
+                "0": (int) num of instances which have no mention.
+                "1": (int) num of instances which have 1 mention.
+                "2": (int) num of instances which have 2 mentions, which means the 2 mentions are co-reffed.
+                ...
+            }
+        :param ifprint: whether print the result.
+        :return: A statistic info dict likes shown above.
+        """
+        r = {}
+        r["instance_num"] = len(self)
+        for instance in self.values():
+            l = len(instance["mention_list"])
+            try:
+                r[l] += 1
+            except:
+                r[1] = 1
+        if ifprint == True:
+            for key, value in r.items():
+                print(key, ": ", value)
+        return r
 

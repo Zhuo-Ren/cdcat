@@ -258,6 +258,13 @@
     $("instance_addMentionList_button").click(function () {
         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
     });
+
+    // whole system: 键盘ctrl+s
+    $(document).keydown(function(e) {
+        if (e.ctrlKey && e.which == 83) {
+            ctrls();
+        }
+    });
 </script>
 
 <!--页面初始化-->
