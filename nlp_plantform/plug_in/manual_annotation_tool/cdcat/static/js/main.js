@@ -659,7 +659,11 @@ $.ajaxSetup({
     function instanceClick(){
         if (curTriggerInstanceSlot === undefined){
             // 显示实例信息
-            getInstanceById(curSelectedInstance.name);
+            if (curSelectedInstance.name == ""){
+                alert("no instance.")
+            }else{
+                getInstanceById(curSelectedInstance.name);
+            }
         }
         else{
             // 选择此实例填充当前槽
