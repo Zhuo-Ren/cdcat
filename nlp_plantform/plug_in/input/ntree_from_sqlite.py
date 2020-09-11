@@ -3,7 +3,8 @@ from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_f
 from  dbsql.dbsql_sqlite import DbSql
 import nlp_plantform.log_config
 
-def input_from_sqlite(path: str, table_name: str)-> NodeTree:
+
+def input_ntree_from_sqlite(path: str, table_name: str)-> NodeTree:
     """ read a sqlite database, and genera the node.
 
     The database in *path* should have a table named *table_name*.

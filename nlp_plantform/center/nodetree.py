@@ -442,9 +442,9 @@ class NodeTree(ParentedTree):
             >>> print(t)
             (S (NP (D EHT) (N GOD)) (VP (V DESAHC) (NP (D EHT) (N TAC))))
 
-        :param order: One of: ``preorder``先序遍历, ``postorder``后序遍历,
+        :param order: Select from: ``preorder``先序遍历, ``postorder``后序遍历,
          ``bothorder``中序遍历,``leaves``只遍历叶子.
-        :return: A list of node path. The path is given in tuple form.
+        :return: A list of tuples, one tuple is one node path.
         """
         positions = []
         if order in ('preorder', 'bothorder'): positions.append( () )
@@ -1257,6 +1257,14 @@ class NodeTree(ParentedTree):
         else:
             return '%s%s%s %s%s' % (parens[0], unicode_repr(self._label), nodesep,
                                     " ".join(childstrs), parens[1])
+
+    # statistic------------------------------------------------------
+    def statistic(self, ifprint=False):
+        wp = self.walk_position()
+        node_num = len(wp)
+        if ifprint == True:
+            print("node_num:", node_num)
+        return {"node_num": node_num}
 
     # 兼容nltk.tree
 

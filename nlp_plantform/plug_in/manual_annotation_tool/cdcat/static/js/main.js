@@ -231,8 +231,8 @@ $.ajaxSetup({
         $("#nodeInfo-semanticType").css("display", "block");
         $("#nodeInfo-instance").css("display", "block");
     }
-    function nodeInfoWindow_showCannotAddNodeInfo(){
-        alert("不行")
+    function nodeInfoWindow_showCannotAddNode(){
+        alert(langDict["can not add node based on current mention."])
     }
 
     function instanceSelectWindow_updateOneInstance(data){
@@ -408,7 +408,7 @@ $.ajaxSetup({
             function (data, status) {
                 // 区分是否为标注对象
                 if (data === ""){
-                    nodeInfoWindow_showCannotAddNodeInfo();
+                    nodeInfoWindow_showCannotAddNode();
                 }else {
                     // 显示标注信息
                     nodeInfoWindow_showNodeInfo(data);
@@ -471,7 +471,7 @@ $.ajaxSetup({
            {},
            function(data, status){
                if (data["success"] == true){
-                   alert("saved success")
+                   alert(langDict["saved success!"])
                }
            }
        )
@@ -538,7 +538,7 @@ $.ajaxSetup({
                 } else if (startDiv.id === undefined) {
                     startDiv = startDiv.parentNode.parentNode
                 } else {
-                    alert("获取文本选区的anchor元素出错")
+                    alert(langDict["Error: can not get Anchor of the selected area."]);
                 }
                 // 获取curve
                 var endDiv = curRange.endContainer.parentNode;
@@ -553,7 +553,7 @@ $.ajaxSetup({
                 } else if (endDiv.id === undefined) {
                     endDiv = endDiv.parentNode.parentNode
                 } else {
-                    alert("获取文本选区的curve元素出错")
+                    alert(langDict["Error: can not get Curve of the selected area."]);
                 }
                 // 识别anchor和curve的顺序，得到start和end
                 function idCompare(a, b){
@@ -660,7 +660,7 @@ $.ajaxSetup({
         if (curTriggerInstanceSlot === undefined){
             // 显示实例信息
             if (curSelectedInstance.name == ""){
-                alert("no instance.")
+                // alert("no instance.")
             }else{
                 getInstanceById(curSelectedInstance.name);
             }
@@ -692,19 +692,23 @@ $.ajaxSetup({
             if ($("#nodeInfo-noNode").css("display") == "block"){
                 $("#nodeInfo-noNode").click();
             }
+            // 如果连mention都没选
             else{
-                alert("There is no current node, you can't add instance based on current node.");
+                alert(langDict["you should select a mention at first."]);
                 return;
             }
         }
-        // 如果curNode存在，但curNode已有instance
-        if ($("#instanceValue").attr("name") !== ""){
-            alert("Current node is already referenced to a instance, " +
-                "You can't add a new instance based on current node, because this action will make one node " +
-                "reference to two different instance.");
-        }
-        // 如果curNode存在，curNode也没有instance
-        else{
+        // 如果curNode存在
+            // 如果curNode已指向一个instance
+            if($("#instanceValue").attr("name") !== ""){
+                if (allowOneNodeReferToMultiInstances == False){
+                    alert(langDict["Current node is already referenced to a instance, " +
+                        "You can't add a new instance based on current node, because this action will make one node " +
+                        "reference to two different instance."]);
+                    return;
+                }
+            }
+            // curNode也没有指向instance
             addInstance_node(
                 function (data) {
                     instanceInfoWindow_showInstanceInfo(data);
@@ -719,8 +723,6 @@ $.ajaxSetup({
                     }
                 }
             )
-        }
-
     }
 
     // instanceInfoWindow: desc变动
@@ -771,7 +773,7 @@ $.ajaxSetup({
                 },
                 function (data) {
                     if (typeof data == "string"){
-                        alert("set instance fail.");
+                        alert(langDict["set instance fail."]);
                     }
                     else if (typeof data == "object"){
                         instanceInfoWindow_showInstanceInfo(data);
@@ -796,7 +798,7 @@ $.ajaxSetup({
             },
             function(data){
                 if (typeof data == "string"){
-                    alert("set instance fail.");
+                    alert(langDict["set instance fail."]);
                 }
                 else if (typeof data == "object"){
                     instanceInfoWindow_showInstanceInfo(data);

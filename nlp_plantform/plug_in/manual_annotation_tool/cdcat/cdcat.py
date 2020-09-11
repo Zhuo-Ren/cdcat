@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 from typing import Dict, List, Tuple, Union  # for type hinting
+import json
 import nlp_plantform.log_config
 import logging
+from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import lang_dict_path, allow_one_node_refer_to_more_than_one_instance
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.center.instance import Instance
 from nlp_plantform.center.instances import Instances
@@ -20,7 +22,12 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
 
     @app.route('/')
     def init():
-        return render_template("main.html", instance_dict=instances)
+        with open(lang_dict_path, 'r', encoding='utf8') as f:
+            lang_dict = json.load(f)
+        return render_template("main.html",
+                               instance_dict=instances,
+                               allowOneNodeReferToMultiInstances = allow_one_node_refer_to_more_than_one_instance,
+                               langDict=lang_dict)
 
     @app.route('/getText', methods=["POST"])
     def getText():

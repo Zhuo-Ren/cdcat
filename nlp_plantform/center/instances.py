@@ -62,16 +62,38 @@ class Instances(dict):
         :param ifprint: whether print the result.
         :return: A statistic info dict likes shown above.
         """
-        r = {}
-        r["instance_num"] = len(self)
+        temp = {}
+        max = 0
         for instance in self.values():
             l = len(instance["mention_list"])
             try:
-                r[l] += 1
+                temp[l] += 1
             except:
-                r[1] = 1
+                temp[l] = 1
+            if l > max:
+                max = l
+
+        r = {}
+        coref_num = 0
+        for i in range(0, max+1):
+            try:
+                r[i] = temp[i]
+            except:
+                r[i] = 0
+            if ifprint == True:
+               print("coreference chain with ", i, "mention(s):", r[i])
+            if r[i] == 0:
+                pass
+            elif r[i] > 0:
+                coref_num += (r[i] - 1)
+
+        r["instance_num"] = len(self)
         if ifprint == True:
-            for key, value in r.items():
-                print(key, ": ", value)
+            print("instance_num: ", r["instance_num"])
+
+        r["coref_num"] = coref_num
+        if ifprint == True:
+            print("coref_num: ", r["coref_num"])
+
         return r
 
