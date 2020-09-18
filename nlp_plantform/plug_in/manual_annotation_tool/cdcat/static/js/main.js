@@ -12,6 +12,8 @@ $.ajaxSetup({
     async : false
 });
 
+
+
 // <!-- ui interface -->
     /**
      *  In contentWindow, scroll to the given element.
@@ -174,66 +176,86 @@ $.ajaxSetup({
     function nodeInfoWindow_showNoSelect(){
         $("#nodeInfo-noSelect").css("display", "block");
         $("#nodeInfo-noNode").css("display", "none");
-        $("#nodeInfo-path").css("display", "none");
-        $("#nodeInfo-token").css("display", "none");
-        $("#nodeInfo-semanticType").css("display", "none");
-        $("#nodeInfo-instance").css("display", "none");
+        $("#nodeInfo-selectedNode").css("display", "none");
     }
     function nodeInfoWindow_showNoNode(){
         $("#nodeInfo-noSelect").css("display", "none");
         $("#nodeInfo-noNode").css("display", "block");
-        $("#nodeInfo-path").css("display", "none");
-        $("#nodeInfo-token").css("display", "none");
-        $("#nodeInfo-semanticType").css("display", "none");
-        $("#nodeInfo-instance").css("display", "none");
-    }
-    function nodeInfoWindow_showNodeInfo(nodeInfo) {
-        if(nodeInfo["position"]){
-            $("#pathValue")[0].textContent = nodeInfo["position"]
-        }else{
-            $("#pathValue")[0].textContent = ""
-        }
-        if(nodeInfo["token"]){
-            $("#tokenValue").children()[0].checked = true
-        }else{
-            $("#tokenValue").children()[1].checked = true
-        }
-        if(nodeInfo["semanticType"]){
-            $("#semanticTypeValue option[value="+ nodeInfo["semanticType"] +"]")[0].selected = true
-        }else{
-            $("#semanticTypeValue option[value='none']")[0].selected = true
-        }
-        if(nodeInfo["instance"]){
-            nodeInstance = $("#instanceValue");
-            nodeInstance.text(nodeInfo["instance"]["desc"]);
-            nodeInstance.attr("name", nodeInfo["instance"]["id"]);
-            nodeInstance.addClass("instance");
-            nodeInstance.click(function(){
-                if(clickFlag) {//取消上次延时未执行的方法
-                    clickFlag = clearTimeout(clickFlag);
-                }
-                curSelectedInstance = this;
-                clickFlag = setTimeout(function(){
-                    instanceClick();
-                }, 150);//延时300毫秒执行
-            })
-        }else{
-            nodeInstance = $("#instanceValue");
-            nodeInstance.text("none");
-            nodeInstance.attr("name", "");
-            nodeInstance.removeClass("instance");
-            nodeInstance.click(function(){});
-        }
-        $("#nodeInfo-noSelect").css("display", "none");
-        $("#nodeInfo-noNode").css("display", "none");
-        $("#nodeInfo-path").css("display", "block");
-        $("#nodeInfo-token").css("display", "block");
-        $("#nodeInfo-semanticType").css("display", "block");
-        $("#nodeInfo-instance").css("display", "block");
+        $("#nodeInfo-selectedNode").css("display", "none");
     }
     function nodeInfoWindow_showCannotAddNode(){
         alert(langDict["can not add node based on current mention."])
     }
+    function nodeInfoWindow_addLabels(){
+        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            curLabelDict = labelSysDict["node"][curLabelIndex];
+            //generate label obj
+            curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
+            $("#nodeInfo-selectedNode").append(curLabelObj);
+            //add change event to label obj
+            labelTemplate[curLabelDict["value_type"]]["addValueChangeEvent_func"](curLabelDict);
+            //add updateValueFunc to label (in labelSysDict)
+            curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
+            labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+        }
+    }
+    function nodeInfoWindow_updateInfo(nodeInfo){
+        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            let curLabelDict = labelSysDict["node"][curLabelIndex];
+            let newValue = undefined;
+            if(curLabelDict["key"] in nodeInfo) {
+                newValue = nodeInfo[curLabelDict["key"]];
+            }else{
+                newValue = undefined;
+            }
+            updateValueFunc = curLabelDict["updateValueFunc"];
+            updateValueFunc(newValue);
+        }
+    }
+        // if(nodeInfo["position"]){
+        //     $("#pathValue")[0].textContent = nodeInfo["position"]
+        // }else{
+        //     $("#pathValue")[0].textContent = ""
+        // }
+        // if(nodeInfo["token"]){
+        //     $("#tokenValue").children()[0].checked = true
+        // }else{
+        //     $("#tokenValue").children()[1].checked = true
+        // }
+        // if(nodeInfo["semanticType"]){
+        //     $("#semanticTypeValue option[value="+ nodeInfo["semanticType"] +"]")[0].selected = true
+        // }else{
+        //     $("#semanticTypeValue option[value='none']")[0].selected = true
+        // }
+        // if(nodeInfo["instance"]){
+        //     nodeInstance = $("#instanceValue");
+        //     nodeInstance.text(nodeInfo["instance"]["desc"]);
+        //     nodeInstance.attr("name", nodeInfo["instance"]["id"]);
+        //     nodeInstance.addClass("instance");
+        //     nodeInstance.click(function(){
+        //         if(clickFlag) {//取消上次延时未执行的方法
+        //             clickFlag = clearTimeout(clickFlag);
+        //         }
+        //         curSelectedInstance = this;
+        //         clickFlag = setTimeout(function(){
+        //             instanceClick();
+        //         }, 150);//延时300毫秒执行
+        //     })
+        // }else{
+        //     nodeInstance = $("#instanceValue");
+        //     nodeInstance.text("none");
+        //     nodeInstance.attr("name", "");
+        //     nodeInstance.removeClass("instance");
+        //     nodeInstance.click(function(){});
+        // }
+
+    function nodeInfoWindow_showNodeInfo(nodeInfo) {
+        nodeInfoWindow_updateInfo(nodeInfo);
+        $("#nodeInfo-noSelect").css("display", "none");
+        $("#nodeInfo-noNode").css("display", "none");
+        $("#nodeInfo-selectedNode").css("display", "block");
+    }
+
 
     function instanceSelectWindow_updateOneInstance(data){
         // 删除旧节点
@@ -410,6 +432,8 @@ $.ajaxSetup({
                 if (data === ""){
                     nodeInfoWindow_showCannotAddNode();
                 }else {
+                    // 更新标注信息
+                    nodeInfoWindow_updateInfo(data)
                     // 显示标注信息
                     nodeInfoWindow_showNodeInfo(data);
                     // 重新加载文本
@@ -701,12 +725,13 @@ $.ajaxSetup({
         // 如果curNode存在
             // 如果curNode已指向一个instance
             if($("#instanceValue").attr("name") !== ""){
-                if (allowOneNodeReferToMultiInstances == False){
-                    alert(langDict["Current node is already referenced to a instance, " +
-                        "You can't add a new instance based on current node, because this action will make one node " +
-                        "reference to two different instance."]);
-                    return;
-                }
+
+                // if (allowOneNodeReferToMultiInstances == False){
+                //     alert(langDict["Current node is already referenced to a instance, " +
+                //         "You can't add a new instance based on current node, because this action will make one node " +
+                //         "reference to two different instance."]);
+                //     return;
+                // }
             }
             // curNode也没有指向instance
             addInstance_node(

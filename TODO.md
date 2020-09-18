@@ -1,5 +1,4 @@
 - input和output的格式支持
-- 语言配置
 - 标注系统配置
 - debug: 如果curNode已指向一个instance
 - 为每个节点添加“来源”属性，以应对以下情况：

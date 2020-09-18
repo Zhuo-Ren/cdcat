@@ -1,14 +1,15 @@
 from flask import Flask, render_template, request, jsonify
 from typing import Dict, List, Tuple, Union  # for type hinting
-import json
+import json  # for reading the config files
 import nlp_plantform.log_config
 import logging
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import lang_dict_path, allow_one_node_refer_to_more_than_one_instance
+from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.center.instance import Instance
 from nlp_plantform.center.instances import Instances
 from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
 from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
+from nlp_plantform.plug_in.manual_annotation_tool.cdcat.label_sys import labelTemplate
 
 def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
     """
@@ -20,14 +21,19 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
     """
     app = Flask(__name__)
 
+    with open(config.lang_dict_path, 'r', encoding='utf8') as langf:
+        lang_dict = json.load(langf)
+
+    with open(config.label_sys_dict_path, 'r', encoding='utf8') as labelf:
+        label_sys_dict = json.load(labelf)
+
     @app.route('/')
     def init():
-        with open(lang_dict_path, 'r', encoding='utf8') as f:
-            lang_dict = json.load(f)
         return render_template("main.html",
                                instance_dict=instances,
-                               allowOneNodeReferToMultiInstances = allow_one_node_refer_to_more_than_one_instance,
-                               langDict=lang_dict)
+                               allowOneNodeReferToMultiInstances = config.allow_one_node_refer_to_more_than_one_instance,
+                               langDict=lang_dict,
+                               labelSysDict=label_sys_dict)
 
     @app.route('/getText', methods=["POST"])
     def getText():
@@ -171,18 +177,23 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
             logging.debug("getNode<-：\"\"")
             return ""
         elif isinstance(node, NodeTree):
+            for cur_label_dict in label_sys_dict["node"]:
+                if cur_label_dict["key"] in request.form:
+                    cur_label_new_value = request.form.get(cur_label_dict["key"])
+                    cur_label_set_value_func = labelTemplate[cur_label_dict["value_type"]]
+                    cur_label_set_value_func(node, cur_label_dict["key"])
             if request.form.get("token"):
                 logging.debug("setNode->：token=" + request.form.get("token"))
                 if request.form.get("token") == 'false':
                     del node.get_label()["token"]
                 elif request.form.get("token") == 'true':
                     node.add_label({"token": True})
-            if request.form.get("semanticType"):
-                logging.debug("setNode->：semanticType=" + request.form.get("semanticType"))
-                if request.form.get("semanticType") == 'none':
-                    del node.get_label()["semanticType"]
+            if request.form.get("type"):
+                logging.debug("setNode->：type=" + request.form.get("type"))
+                if request.form.get("type") == 'none':
+                    del node.get_label()["type"]
                 else:
-                    node.add_label({"semanticType": request.form.get("semanticType")})
+                    node.add_label({"type": request.form.get("type")})
             if request.form.get("instance"):
                 logging.debug("setNode->：instance=" + request.form.get("instance"))
                 if "instance" not in node.get_label():
