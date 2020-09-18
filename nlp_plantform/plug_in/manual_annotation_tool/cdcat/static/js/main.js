@@ -2,6 +2,7 @@
 var clickFlag = null;
 // 全局变量。array of html elements。选中的文本所对应的元素的数组。
 var selectedElements = 0
+var selectedIndex = undefined
 // 全局变量。记录正在填充的实例槽。
 var curTriggerInstanceSlot = undefined;
 // 全局变量。记录被选中的实例。
@@ -65,7 +66,7 @@ $.ajaxSetup({
                     getText(
                         this.id,
                         function (returnData, status, requireData){
-                            majorTextWindow_setCurNodePosition(requireData["textNodeId"]);
+                            majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
                             majorTextWindow_updateText(returnData, 0);
                             majorTextWindow_show(returnData);
                         }
@@ -101,6 +102,104 @@ $.ajaxSetup({
         });
     }
 
+    function majorTextWindow_getSelected(){
+        // 如果没选中任何内容
+        if (window.getSelection().toString() === "") {
+            selectedIndex = undefined;
+        }
+        // 如果选中了某些内容
+        else {
+            var selected = window.getSelection();
+            var curRange = selected.getRangeAt(0);
+            // 获取anchor
+            var startDiv = curRange.startContainer.parentNode;
+            if (startDiv.className.indexOf("ui-layout-content") !== -1) {
+                startDiv = startDiv.children[0].children[0]
+            } else if (startDiv.className.indexOf("textTab") !== -1) {
+                startDiv = startDiv.childNodes[0]
+            } else if (startDiv.className.indexOf("char") !== -1) {
+                //
+            } else if (startDiv.id === "") {
+                startDiv = startDiv.parentNode;
+            } else if (startDiv.id === undefined) {
+                startDiv = startDiv.parentNode.parentNode
+            } else {
+                alert(langDict["Error: can not get Anchor of the selected area."]);
+            }
+            // 获取curve
+            var endDiv = curRange.endContainer.parentNode;
+            if (endDiv.className.indexOf("ui-layout-content") !== -1) {
+                endDiv = endDiv.children[0].children[0]
+            } else if (endDiv.className.indexOf("textTab") !== -1) {
+                endDiv = endDiv.childNodes[0]
+            } else if (endDiv.className.indexOf("char") !== -1) {
+                //
+            } else if (endDiv.id === "") {
+                endDiv = endDiv.parentNode;
+            } else if (endDiv.id === undefined) {
+                endDiv = endDiv.parentNode.parentNode
+            } else {
+                alert(langDict["Error: can not get Curve of the selected area."]);
+            }
+            // 识别anchor和curve的顺序，得到start和end
+            function idCompare(a, b){
+                a = a.split('-').map(Number)
+                b = b.split('-').map(Number)
+                var r = 0;
+                for (var i = 0; i < Math.min(a.length,b.length); i++)
+                {
+                    if (a[i] != b[i]){
+                        r = (a[i] > b[i]);
+                        break;
+                    }
+                }
+                if ((r == 0) && (a.length == b.length)){
+                    r = false
+                }
+            }
+            if (idCompare(startDiv.id, endDiv.id)) {
+                t = endDiv;
+                endDiv = startDiv;
+                startDiv = t;
+            }
+            // 遍历选区，得到element列表
+            selectedElements = new Array(0);
+            var selectedText = "";
+            var curDiv = startDiv;
+            while (true) {
+                selectedElements.push(curDiv);
+                selectedText = selectedText + curDiv.childNodes[0].textContent;
+                if (curDiv !== endDiv) {
+                    curDiv = curDiv.nextElementSibling;
+                } else {
+                    break;
+                }
+            }
+            // 解决start和end的空选问题
+            s = selected.toString().replace(/[\n\r]/g, "")
+            if (s[0] !== selectedText[0]) {
+                selectedElements.shift();
+                selectedText = selectedText.slice(1, selectedText.length);
+            }
+            if (s[s.length - 1] !== selectedText[selectedText.length - 1]) {
+                selectedElements.pop();
+                selectedText = selectedText.slice(0, selectedText.length - 1);
+            }
+            // translate selectedElements to selectedIndex.
+            // It is because after the reloading of majorTextWindow, the elements in selectedElements are disabled.
+            selectedIndex = [];
+            for (i=0; i<selectedElements.length; i++){
+                curElement = selectedElements[i];
+                index = $(curElement.parentElement).children().index(curElement);
+                selectedIndex.push(index);
+            }
+        }
+    }
+    function majorTextWindow_hightlightSelectedMention(){
+        for (var i = 0; i < selectedIndex.length; i++) {
+            $("#textTab1").children()[selectedIndex[i]].style = "color: red";
+        }
+    }
     /**
      * If majorTextWindow shows the chars of a node, the name of majorTextWindow is the position of this node. If
      * majorTextWindow shows nothing, the name of majorTextWindow is "notext". This function set the name of
@@ -108,7 +207,7 @@ $.ajaxSetup({
      *
      * @param {string} curNodePosition: the position of the node that is going to be shown in majorTextWindow.
      */
-    function majorTextWindow_setCurNodePosition(curNodePosition){
+    function majorTextWindow_setCurArticleNodePosition(curNodePosition){
         let majorTextWindow = $("#textTab1");
         majorTextWindow.attr("name", curNodePosition);
     }
@@ -119,7 +218,7 @@ $.ajaxSetup({
      *
      * @returns {string}
      */
-    function majorTextWindow_getCurNodePosition(){
+    function majorTextWindow_getCurArticleNodePosition(){
          let majorTextWindow = $("#textTab1");
          return majorTextWindow.attr("name");
      }
@@ -438,13 +537,15 @@ $.ajaxSetup({
                     nodeInfoWindow_showNodeInfo(data);
                     // 重新加载文本
                     getText(
-                        majorTextWindow_getCurNodePosition(),
+                        majorTextWindow_getCurArticleNodePosition(),
                         function (returnData, status, requireData) {
-                            majorTextWindow_setCurNodePosition(requireData["textNodeId"]);
+                            majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
                             majorTextWindow_updateText(returnData, 0);
                             majorTextWindow_show(returnData);
                         }
                     )
+                   // 高亮选中文本
+                   majorTextWindow_hightlightSelectedMention();
                 }
             }
         );
@@ -539,98 +640,16 @@ $.ajaxSetup({
                 selectedElements[i].style = "color: black";
             }
         }
+        // 获取选区
+        majorTextWindow_getSelected();
         // 如果没选中任何内容
-        if (window.getSelection().toString() === "") {
+        if (selectedIndex === undefined) {
             nodeInfoWindow_showNoSelect()
         }
         // 如果选中了某些内容
         else {
-            // 获取当前选区(如果有多个选取，那只管第一个)
-            {
-                var selected = window.getSelection();
-                var curRange = selected.getRangeAt(0);
-                // 获取anchor
-                var startDiv = curRange.startContainer.parentNode;
-                if (startDiv.className.indexOf("ui-layout-content") !== -1) {
-                    startDiv = startDiv.children[0].children[0]
-                } else if (startDiv.className.indexOf("textTab") !== -1) {
-                    startDiv = startDiv.childNodes[0]
-                } else if (startDiv.className.indexOf("char") !== -1) {
-                    //
-                } else if (startDiv.id === "") {
-                    startDiv = startDiv.parentNode;
-                } else if (startDiv.id === undefined) {
-                    startDiv = startDiv.parentNode.parentNode
-                } else {
-                    alert(langDict["Error: can not get Anchor of the selected area."]);
-                }
-                // 获取curve
-                var endDiv = curRange.endContainer.parentNode;
-                if (endDiv.className.indexOf("ui-layout-content") !== -1) {
-                    endDiv = endDiv.children[0].children[0]
-                } else if (endDiv.className.indexOf("textTab") !== -1) {
-                    endDiv = endDiv.childNodes[0]
-                } else if (endDiv.className.indexOf("char") !== -1) {
-                    //
-                } else if (endDiv.id === "") {
-                    endDiv = endDiv.parentNode;
-                } else if (endDiv.id === undefined) {
-                    endDiv = endDiv.parentNode.parentNode
-                } else {
-                    alert(langDict["Error: can not get Curve of the selected area."]);
-                }
-                // 识别anchor和curve的顺序，得到start和end
-                function idCompare(a, b){
-                    a = a.split('-').map(Number)
-                    b = b.split('-').map(Number)
-                    var r = 0;
-                    for (var i = 0; i < Math.min(a.length,b.length); i++)
-                    {
-                        if (a[i] != b[i]){
-                            r = (a[i] > b[i]);
-                            break;
-                        }
-                    }
-                    if ((r == 0) && (a.length == b.length)){
-                        r = false
-                    }
-                }
-                if (idCompare(startDiv.id, endDiv.id)) {
-                    t = endDiv;
-                    endDiv = startDiv;
-                    startDiv = t;
-                }
-                // 遍历选区，得到element列表
-                selectedElements = new Array(0);
-                var selectedText = "";
-                var curDiv = startDiv;
-                while (true) {
-                    selectedElements.push(curDiv);
-                    selectedText = selectedText + curDiv.childNodes[0].textContent;
-                    if (curDiv !== endDiv) {
-                        curDiv = curDiv.nextElementSibling;
-                    } else {
-                        break;
-                    }
-                }
-                // 解决start和end的空选问题
-                s = selected.toString().replace(/[\n\r]/g, "")
-                if (s[0] !== selectedText[0]) {
-                    selectedElements.shift();
-                    selectedText = selectedText.slice(1, selectedText.length);
-                }
-                if (s[s.length - 1] !== selectedText[selectedText.length - 1]) {
-                    selectedElements.pop();
-                    selectedText = selectedText.slice(0, selectedText.length - 1);
-                }
-            }
-
             // 选中效果
-            for (var i = 0; i < selectedElements.length; i++) {
-                selectedElements[i].style = "color: red";
-            }
-            selected.empty();
-
+            majorTextWindow_hightlightSelectedMention();
             // 请求注释信息，并显示
             getNodeByChildren(
                 selectedElements[0].id.toString(),
