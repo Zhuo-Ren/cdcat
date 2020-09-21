@@ -10,5 +10,8 @@
     "you should select a mention at first.": "需要先选中一个指称，然后才能基于它创建节点和实例。",
     "Current node is already referenced to a instance, You can't add a new instance based on current node, because this action will make one node reference to two different instance.": "错误：不能标注指向关系。因为当前节点已经指向一个实例，而当前模式不支持一个节点对应多个实例。",
     "set instance fail.": "错误：设置实例信息失败。",
-    "current node": "当前节点"
+    "current node": "当前节点",
+    "Can not delete this value, because this value is already empty.": "不能删除值，因为这个值现在已经是空的了。",
+    "Can not view the info of this instance, because it is a empty instance.": "不能查看这个实例的信息，因为这是个空实例。",
+    "Can not create node, because no mention is selected.": "不能创建节点，因为没有选中任何指称。"
 }

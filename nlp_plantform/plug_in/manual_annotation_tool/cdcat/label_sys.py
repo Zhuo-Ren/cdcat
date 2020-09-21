@@ -10,13 +10,19 @@ def setValue_list_one(node, key):
 def setValue_list_multi(node, key):
     print(1)
 
+def setValue_text_readonly(node, key):
+    print(1)
+
+def setValue_text_input(node, key):
+    print(1)
+
 def setValue_instance(node, key):
     print(1)
 
 def setValue_instances(node, key):
     print(1)
 
-def setValue_text(node, key):
+def setValue_node(node, key):
     print(1)
 
 labelTemplate = {
@@ -24,7 +30,9 @@ labelTemplate = {
     "checkbox": setValue_checkbox,
     "list-one": setValue_list_one,
     "list-multi": setValue_list_multi,
+    "text-readonly": setValue_text_readonly,
+    "text-input":setValue_text_input,
     "instance": setValue_instance,
     "instances": setValue_instances,
-    "text": setValue_text
+    "node":setValue_node
 }

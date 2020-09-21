@@ -23,11 +23,7 @@
         var allowOneNodeReferToMultiInstances = {{ allowOneNodeReferToMultiInstances | lower }};
         var langDict = {{ langDict | tojson | safe }};
         var labelSysDict = {{ labelSysDict | tojson | safe }};
-        // var a= "{{ labelSysDict | safe  }}" ;
-        // a = a.replace(/'/g, '"');
-        // a = a.replace(/True/g, "true");
-        // a = a.replace(/False/g, "false");
-        // a = JSON.parse(a);
+        var instances = {{ instance_dict | tojson }}
     </script>
     <!-- main js-->
     <script src="../static/js/label_sys.js"></script>
@@ -56,7 +52,121 @@
         #contentWindow{
             background-color: white;
         }
+        .circleButton{
+            border-radius: 50%;
+            border:1px solid gray;
+            padding: 0px;
+            margin: 0px;
+            background: white;
+            height: 20px;
+            width: 20px;
+        }
     </style>
+    <!-- 页面加载后 -->
+    <script>
+    $(function(){
+        <!--页面初始化(动态部分)-->
+            // #contentWindow--Load content
+            let catalogueInfo = getCatalogue();
+            contentWindow_updateContent(catalogueInfo);
+
+            // #nodeInfoWindow--Load node labels
+            nodeInfoWindow_addLabels();
+            nodeInfoWindow_showNoSelect();
+
+            // #instanceSelectWindow--Load instances
+            for (let key in instances){
+                let instanceInfo = instances[key];
+                instanceSelectWindow_updateOneInstance(instanceInfo);
+            }
+
+            // #instanceInfoWindow--Load instance labels
+            instanceInfoWindow_addLabels();
+            instanceInfoWindow_showNoInstance();
+
+        <!-- add event -->
+            //textWindow
+                // textWindow: 选中一段文本
+                $(".textTab").mouseup(function () {
+                    textMouseup();
+                });
+
+            // nodeInfoWindow
+                // nodeInfoWindow: 单击“添加标注对象”按钮
+                $("#nodeInfo-noNode").click(function () {
+                    addNodeButtonClick();
+                });
+                // // nodeInfoWindow: 标注信息变动（token）
+                    // $("#tokenValue input").change(function () {
+                    //     nodeTokenChange();
+                    // });
+                    // // nodeInfoWindow: 标注信息变动（semanticType）
+                    // $("#semanticTypeValue select").change(function () {
+                    //     nodeSemanticTypeChange();
+                    // });
+                    // // 单击实例槽
+                    // $(".instance").click(function () {
+                    //     if (clickFlag) {//取消上次延时未执行的方法
+                    //         clickFlag = clearTimeout(clickFlag);
+                    //     }
+                    //     curSelectedInstance = this;
+                    //     clickFlag = setTimeout(function () {
+                    //         instanceClick();
+                    //     }, 200);//延时200毫秒执行
+                    // });
+                    // // 双击实例槽
+                    // $("#instanceValue").dblclick(function () {
+                    //     if (clickFlag) {//取消上次延时未执行的方法
+                    //         clickFlag = clearTimeout(clickFlag);
+                    //     }
+                    //     // dblclick 事件的处理
+                    //     if (curTriggerInstanceSlot === undefined) {
+                    //         curTriggerInstanceSlot = this;
+                    //         instanceDblclick();
+                    //     }
+                    // });
+
+            // instanceSelectWindow
+                // instanceSelectWindow: 单击“+”按钮
+                $("#addInstancePlus").click(function () {
+                    addInstancePlusButtonClick();
+                });
+                // instanceSelectWindow: 单击“→”按钮
+                $("#addInstanceArrow").click(function () {
+                    addInstanceArrowButtonClick();
+                });
+                // instanceSelectWindow: 单击实例
+                $("#allInstanceDiv .instance").click(function () {
+                    //curSelectedInstance = this;
+                    instanceClick(this);
+                });
+
+            // instanceInfoWindow
+                    //     // instanceInfoWindow: desc变动
+                    //     $("#descValue").change(function () {
+                    //         instanceDescChange();
+                    //     });
+                    //     // instanceInfoWindow: kg变动
+                    //     $("#kgValue").change(function () {
+                    //         instanceKgChange();
+                    //     });
+                    //     // instanceInfoWindow: 单击mentionList中"→"按钮
+                    //     $(".instance_extentMentionList_button").click(function () {
+                    //         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
+                    //     });
+                    //     // instanceInfoWindow: 单击mentionLists中"+"按钮
+                    //     $("instance_addMentionList_button").click(function () {
+                    //         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
+                    //     });
+
+            // whole system: 键盘ctrl+s
+                $(document).keydown(function(e) {
+                    if (e.ctrlKey && e.which == 83) {
+                        ctrls();
+                    }
+                });
+    });
+    </script>
 </head>
 <body>
     <div id="centerWindow">
@@ -96,13 +206,13 @@
 <!--            </ul>-->
         </div>
         <div id="nodeInfoWindow">
-            <div id="nodeInfo-noSelect" style="display: block">
+            <div id="nodeInfo-noSelect">
                 <p>{{langDict["no mention selected."]}}</p>
             </div>
-            <div id="nodeInfo-noNode" style="display: none">
+            <div id="nodeInfo-noNode">
                 <button>{{langDict["create a node for current mention."]}}</button>
             </div>
-            <div id="nodeInfo-selectedNode"  style="display: none">
+            <div id="nodeInfo-selectedNode">
                 <span>
                     {{langDict["current node"]}}
                     <button>del</button>
@@ -173,127 +283,43 @@
                 <input style="width: 85%">
                 <button class="searchInstanceButton" style="padding:0px;">🔍</button>
             </div>
-            <button class="addInstancePlus" >+</button>
-            <button class="addInstanceArrow">→</button>
+            <button id="addInstancePlus" class="circleButton">+</button>
+            <button id="addInstanceArrow" class="circleButton">→</button>
             <div id="allInstanceDiv">
-                {% for i in instance_dict: %}
-                    <button class="instance" name={{instance_dict[i]["id"]}}>
-                                                                        {{instance_dict[i]["desc"]}}
-                                                                        </button>
-                {% endfor %}
+<!--                {% for i in instance_dict: %}-->
+<!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->
+<!--                        {{instance_dict[i]["desc"]}}-->
+<!--                    </button>-->
+<!--                {% endfor %}-->
             </div>
         </div>
         <div id="instancInfoWindow">
             <div id="instanceInfo-noInstance"style="display: block">select a instance to show it's info.</div>
-            <div id="instanceInfo-id" style="display: none">
-                <span id="idKey">id=</span>
-                <span id="idValue"> </span>
-                <hr/>
-            </div>
-            <div id="instanceInfo-desc" style="display: none">
-                <span id="descKey">desc= </span>
-                <input id="descValue" type="text" value="" />
-                <hr/>
-            </div>
-            <div id="instanceInfo-kg"  style="display: none">
-                <span id="kgKey">kg=</span>
-                <input id="kgValue" type="text" value="none"/>
-                <hr/>
-            </div>
-            <div id="instanceInfo-mentionLists"  style="display: none">
-                <span id="mentionListsKey">mentionList=</span>
-                <div id="mentionListsValue">
-
-                </div>
-                <hr/>
+            <div id="instanceInfo-selectedInstance">
+<!--                <div id="instanceInfo-id" style="display: none">-->
+<!--                    <span id="idKey">id=</span>-->
+<!--                    <span id="idValue"> </span>-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-desc" style="display: none">-->
+<!--                    <span id="descKey">desc= </span>-->
+<!--                    <input id="descValue" type="text" value="" />-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-kg"  style="display: none">-->
+<!--                    <span id="kgKey">kg=</span>-->
+<!--                    <input id="kgValue" type="text" value="none"/>-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-mentionLists"  style="display: none">-->
+<!--                    <span id="mentionListsKey">mentionList=</span>-->
+<!--                    <div id="mentionListsValue">-->
+<!--    -->
+<!--                    </div>-->
+<!--                    <hr/>-->
+<!--                </div>-->
             </div>
         </div>
     </div>
 </body>
 </html>
-
-<!-- add event -->
-<script>
-    // textWindow: 选中一段文本
-    $(".textTab").mouseup(function () {
-        textMouseup();
-    });
-
-    // nodeInfoWindow: 单击“添加标注对象”按钮
-    $("#nodeInfo-noNode").click(function () {
-        addNodeButtonClick();
-    });
-    // nodeInfoWindow: 标注信息变动（token）
-    $("#tokenValue input").change(function () {
-        nodeTokenChange();
-    });
-    // nodeInfoWindow: 标注信息变动（semanticType）
-    $("#semanticTypeValue select").change(function () {
-        nodeSemanticTypeChange();
-    });
-
-    // 单击实例
-    $(".instance").click(function () {
-        if (clickFlag) {//取消上次延时未执行的方法
-            clickFlag = clearTimeout(clickFlag);
-        }
-        curSelectedInstance = this;
-        clickFlag = setTimeout(function () {
-            instanceClick();
-        }, 200);//延时200毫秒执行
-    });
-    // 双击实例槽
-    $("#instanceValue").dblclick(function () {
-        if (clickFlag) {//取消上次延时未执行的方法
-            clickFlag = clearTimeout(clickFlag);
-        }
-        // dblclick 事件的处理
-        if (curTriggerInstanceSlot === undefined) {
-            curTriggerInstanceSlot = this;
-            instanceDblclick();
-        }
-    });
-
-    // instanceSelectWindow: 单击“+”按钮
-    $(".addInstancePlus").click(function () {
-        addInstancePlusButtonClick();
-    });
-    // instanceSelectWindow: 单击“→”按钮
-    $(".addInstanceArrow").click(function () {
-        addInstanceArrowButtonClick();
-    });
-
-    // instanceInfoWindow: desc变动
-    $("#descValue").change(function () {
-        instanceDescChange();
-    });
-    // instanceInfoWindow: kg变动
-    $("#kgValue").change(function () {
-        instanceKgChange();
-    });
-    // instanceInfoWindow: 单击mentionList中"→"按钮
-    $(".instance_extentMentionList_button").click(function () {
-        // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
-    });
-    // instanceInfoWindow: 单击mentionLists中"+"按钮
-    $("instance_addMentionList_button").click(function () {
-        // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
-    });
-
-    // whole system: 键盘ctrl+s
-    $(document).keydown(function(e) {
-        if (e.ctrlKey && e.which == 83) {
-            ctrls();
-        }
-    });
-</script>
-
-<!--页面初始化-->
-<script>
-    // load button language
-    nodeInfoWindow_addLabels();
-    // #contentWindow--Load content
-    getCatalogue(function (data){
-        contentWindow_updateContent(data);
-    })
-</script>
