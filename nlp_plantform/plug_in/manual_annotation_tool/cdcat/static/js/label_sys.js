@@ -87,97 +87,90 @@ labelTemplate = {
         }
     },
     "text-input":{
-        "generateLabelObj_func": function(labelDict){
-            reStr = "<div id='nodeInfo-" + labelDict["key"] + "'>" +
-                    "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
-                    "   <input id='" + labelDict["key"] + "Value' type='text' value='" + labelDict["value_default"] + "'/>" +
-                    "</div>";
-            reObj = $(reStr);
-            reObj.css("padding-left","10px");
-            return reObj
-        },
+        "generateLabelObj_func": generateTextInputLabelObj,
         "addUpdateValueFunc_func": function (labelDict) {
             return function(newValue){
-                alert("没实现")
+                // alert("没实现")
             };
         },
         "addEvent_func": function(labelDict){
-            $("#" + labelDict["key"] + "Value").change(function() {
-                // if the changed label belongs to a node
-                if ($("#nodeInfoWindow")[0].contains(this)){
-                    let position = $("#positionValue").text();
-                    let value = $("#" + labelDict["key"] + "Value")[0].value;
-                    setNode(position, {[labelDict["key"]]: value});
-                }
-                // if the changed label belongs to a instance
-                else if($("#instancInfoWindow")[0].contains(this)){
-                    // prepare ajax data
-                    let id = $("#idValue").text();
-                    let value = $("#" + labelDict["key"] + "Value")[0].value;
-                    // ajax to background
-                    instanceInfo = setInstance(id, {[labelDict["key"]]: value});
-                    // display the new instance info in GUI
-                    instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                    instanceInfoWindow_showInstanceInfo();
-                    instanceSelectWindow_updateOneInstance(instanceInfo);
-
-                    // The change of instance may lead to a change of nodes, so we also update the current node.
-                    if ($("#nodeInfo-selectedNode").css("display") == "block"){
-                        // prepare ajax data
-                        let position = $("#pathValue").text();
-                        // ajax to background
-                        let nodeInfo = getNodeByPosition(position);
-                        // display the new node info in GUI
-                        if (nodeInfo === "") {
-                            nodeInfoWindow_showNoNode();
-                        } else {
-                            nodeInfoWindow_updateNodeInfo(nodeInfo);
-                            nodeInfoWindow_showNodeInfo();
-                        }
-                    }
-                }
-            });
+            // $("#" + labelDict["key"] + "Value").change(function() {
+            //     // if the changed label belongs to a node
+            //     if ($("#nodeInfoWindow")[0].contains(this)){
+            //         let position = $("#positionValue").text();
+            //         let value = $("#" + labelDict["key"] + "Value")[0].value;
+            //         setNode(position, {[labelDict["key"]]: value});
+            //     }
+            //     // if the changed label belongs to a instance
+            //     else if($("#instancInfoWindow")[0].contains(this)){
+            //         // prepare ajax data
+            //         let id = $("#idValue").text();
+            //         let value = $("#" + labelDict["key"] + "Value")[0].value;
+            //         // ajax to background
+            //         instanceInfo = setInstance(id, {[labelDict["key"]]: value});
+            //         // display the new instance info in GUI
+            //         instanceInfoWindow_updateInstanceInfo(instanceInfo);
+            //         instanceInfoWindow_showInstanceInfo();
+            //         instanceSelectWindow_updateOneInstance(instanceInfo);
+            //
+            //         // The change of instance may lead to a change of nodes, so we also update the current node.
+            //         if ($("#nodeInfo-selectedNode").css("display") == "block"){
+            //             // prepare ajax data
+            //             let position = $("#pathValue").text();
+            //             // ajax to background
+            //             let nodeInfo = getNodeByPosition(position);
+            //             // display the new node info in GUI
+            //             if (nodeInfo === "") {
+            //                 nodeInfoWindow_showNoNode();
+            //             } else {
+            //                 nodeInfoWindow_updateNodeInfo(nodeInfo);
+            //                 nodeInfoWindow_showNodeInfo();
+            //             }
+            //         }
+            //     }
+            // });
         }
     },
     "instance":{
-        "generateLabelObj_func": function(labelDict){
-            reStr =     " <div id='nodeInfo-" + labelDict["key"] + "'>" +
-                        "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
-                        "   <span id='" + labelDict["key"] + "Value'> " +
-                        "       <button class='instance' name=''>none</button>" +
-                        "       <button class='circleButton'>x</button>" +
-                        "   </span>" +
-                        "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
-                        "</div>";
-            reObj = $(reStr);
-            reObj.css("padding-left","10px");
-            return reObj
-        },
+        "generateLabelObj_func": generateInstanceLabelObj,
+        // function(labelDict){
+        //     reStr =     " <div id='nodeInfo-" + labelDict["key"] + "'>" +
+        //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
+        //                 "   <span id='" + labelDict["key"] + "Value'> " +
+        //                 "       <button class='instance' name=''>none</button>" +
+        //                 "       <button class='circleButton'>x</button>" +
+        //                 "   </span>" +
+        //                 "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
+        //                 "</div>";
+        //     reObj = $(reStr);
+        //     reObj.css("padding-left","10px");
+        //     return reObj
+        // },
         "addUpdateValueFunc_func": function (labelDict) {
             return function(newValue){
-                if(newValue != undefined){
-                    let label = $("#" + labelDict["key"] + "Value button.instance");
-                    label.text(newValue["desc"]);
-                    label.attr("name", newValue["id"]);
-                    // label.addClass("instance");
-                    // label.click(function(){
-                    //     if(clickFlag) {//取消上次延时未执行的方法
-                    //         clickFlag = clearTimeout(clickFlag);
-                    //     }
-                    //     curSelectedInstance = this;
-                    //     clickFlag = setTimeout(function(){
-                    //         instanceClick();
-                    //     }, 149);//延时300毫秒执行
-                    // })
-                }else{
-                    let label = $("#" + labelDict["key"] + "Value button.instance");
-                    label.text("none");
-                    label.attr("name", "");
-                    // nodeInstance.text("none");
-                    // nodeInstance.attr("name", "");
-                    // nodeInstance.removeClass("instance");
-                    // nodeInstance.click(function(){});
-                }
+                // if(newValue != undefined){
+                //     let label = $("#" + labelDict["key"] + "Value button.instance");
+                //     label.text(newValue["desc"]);
+                //     label.attr("name", newValue["id"]);
+                //     // label.addClass("instance");
+                //     // label.click(function(){
+                //     //     if(clickFlag) {//取消上次延时未执行的方法
+                //     //         clickFlag = clearTimeout(clickFlag);
+                //     //     }
+                //     //     curSelectedInstance = this;
+                //     //     clickFlag = setTimeout(function(){
+                //     //         instanceClick();
+                //     //     }, 149);//延时300毫秒执行
+                //     // })
+                // }else{
+                //     let label = $("#" + labelDict["key"] + "Value button.instance");
+                //     label.text("none");
+                //     label.attr("name", "");
+                //     // nodeInstance.text("none");
+                //     // nodeInstance.attr("name", "");
+                //     // nodeInstance.removeClass("instance");
+                //     // nodeInstance.click(function(){});
+                // }
             };
         },
         "addEvent_func": function(labelDict){
@@ -205,67 +198,67 @@ labelTemplate = {
                     // }
                 // }
             // });
-            $("#" + labelDict["key"] + "Value Button.instance").click(function(e){
-                let instanceIdStr = this.name;
-                if (instanceIdStr == ""){
-                    alert(langDict["Can not view the info of this instance, because it is a empty instance."]);
-                }else{
-                    let instanceInfo = getInstanceById(instanceIdStr);
-                    instanceInfoWindow_showInstanceInfo(instanceInfo);
-                    instanceSelectWindow_updateOneInstance(instanceInfo);
-                }
-            });
-            $("#" + labelDict["key"] + "Value Button.circleButton").click(function(e){
-               if (this.prev().name == ""){
-                   alert(langDict["Can not delete this value, because this value is already empty."]);
-               }else{
-                   // 准备数据
-                   let curNodePosition = $("#pathValue").text();
-                   let newValueDict = {
-                       [labelDict["key"]]: ""
-                   }
-                   // 回传给后台
-                   let nodeInfo = setNode(curNodePosition, newValueDict);
-                   // 显示节点的最新信息
-                   nodeInfoWindow_updateNodeInfo(nodeInfo);
-                   nodeInfoWindow_showNodeInfo(nodeInfo);
-
-               }
-            });
-            $("#" + labelDict["key"] + "Arrow").click(function(e){
-                // 准备数据
-                let curNodePosition = $("#pathValue").text();
-                let newValueDict = {
-                    [labelDict["key"]]: $("#idValue").text()
-                }
-                // 回传给后台
-                let nodeInfo = setNode(curNodePosition, newValueDict);
-                // 显示节点的最新信息
-                nodeInfoWindow_updateNodeInfo(nodeInfo);
-                nodeInfoWindow_showNodeInfo(nodeInfo);
-                //
-                // var slot = curTriggerInstanceSlot;
-                // if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
-                //     var slotType = "node";
-                //     var position = $("#pathValue").text();
-                // }
-                // newInstanceId = curSelectedInstance.name;
-                // // 向后台传数据
-                // if (slotType === "node"){
-                //     setNode(position,{"instance":newInstanceId});
-                // } else if (slotType === "instance"){
-                //     setInstance()
-                // }
-                // // 取消当前solt的待选特效
-                // curTriggerInstanceSlot.classList.remove("curSlot");
-                // document.body.style.cursor = "";
-                // //
-                // curTriggerInstanceSlot = undefined
-                // // 更新instance info
-                // if (curSelectedInstance != undefined){
-                //     getInstanceById(curSelectedInstance.name);
-                // }
-            });
+            // $("#" + labelDict["key"] + "Value Button.instance").click(function(e){
+            //     let instanceIdStr = this.name;
+            //     if (instanceIdStr == ""){
+            //         alert(langDict["Can not view the info of this instance, because it is a empty instance."]);
+            //     }else{
+            //         let instanceInfo = getInstanceById(instanceIdStr);
+            //         instanceInfoWindow_showInstanceInfo(instanceInfo);
+            //         instanceSelectWindow_updateOneInstance(instanceInfo);
+            //     }
+            // });
+            // $("#" + labelDict["key"] + "Value Button.circleButton").click(function(e){
+            //    if (this.prev().name == ""){
+            //        alert(langDict["Can not delete this value, because this value is already empty."]);
+            //    }else{
+            //        // 准备数据
+            //        let curNodePosition = $("#pathValue").text();
+            //        let newValueDict = {
+            //            [labelDict["key"]]: ""
+            //        }
+            //        // 回传给后台
+            //        let nodeInfo = setNode(curNodePosition, newValueDict);
+            //        // 显示节点的最新信息
+            //        nodeInfoWindow_updateNodeInfo(nodeInfo);
+            //        nodeInfoWindow_showNodeInfo(nodeInfo);
+            //
+            //    }
+            // });
+            // $("#" + labelDict["key"] + "Arrow").click(function(e){
+            //     // 准备数据
+            //     let curNodePosition = $("#pathValue").text();
+            //     let newValueDict = {
+            //         [labelDict["key"]]: $("#idValue").text()
+            //     }
+            //     // 回传给后台
+            //     let nodeInfo = setNode(curNodePosition, newValueDict);
+            //     // 显示节点的最新信息
+            //     nodeInfoWindow_updateNodeInfo(nodeInfo);
+            //     nodeInfoWindow_showNodeInfo(nodeInfo);
+            //     //
+            //     // var slot = curTriggerInstanceSlot;
+            //     // if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
+            //     //     var slotType = "node";
+            //     //     var position = $("#pathValue").text();
+            //     // }
+            //     // newInstanceId = curSelectedInstance.name;
+            //     // // 向后台传数据
+            //     // if (slotType === "node"){
+            //     //     setNode(position,{"instance":newInstanceId});
+            //     // } else if (slotType === "instance"){
+            //     //     setInstance()
+            //     // }
+            //     // // 取消当前solt的待选特效
+            //     // curTriggerInstanceSlot.classList.remove("curSlot");
+            //     // document.body.style.cursor = "";
+            //     // //
+            //     // curTriggerInstanceSlot = undefined
+            //     // // 更新instance info
+            //     // if (curSelectedInstance != undefined){
+            //     //     getInstanceById(curSelectedInstance.name);
+            //     // }
+            // });
         }
     },
     "instances":{
@@ -372,7 +365,7 @@ labelTemplate = {
              */
             function extentMentionListButtonClick(instanceId, mentionListIndex){
                 if ($("#nodeInfo-path").css("display") == "block"){
-                    curNodePosition = $("#pathValue").text()
+                    curNodePosition = $("#positionValue").text()
                     setInstance(
                         instanceId,
                         {
@@ -573,7 +566,7 @@ function generateListOneLabelObj(labelDict, labelValue){
         "value_default": "XXXXX"
     };
  let labelValue = "0-0-1-2";
- let labelObj = generateListOneLabelObj(labelDict, labelValue);
+ let labelObj = generateTextReadonlyLabelObj(labelDict, labelValue);
  *
  * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name". Optional items
  *   include "value_default".
@@ -607,4 +600,228 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
         labelObj.append(valueObj);
     // return
     return labelObj
+}
+
+/**
+ * This function generate a text-input type label obj.
+ *
+ * @example
+ let labelDict = {
+    "key": "desc",
+    "GUI_name": "desc: ",
+    "value_type": "text-input",
+    "value_default": "XXXXX"
+ };
+ let labelValue = "埃航失事客机";
+ let labelObj = generateTextInputLabelObj(labelDict, labelValue);
+ *
+ * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name". Optional items
+ *   include "value_default".
+ * @param {Array} labelValue **[Optional]** The value of this label. The generated obj will display the value if given, or
+ *   display the default value in *labelDict* if not given.
+ * @return {Jquery.HtmlElement}
+ */
+function generateTextInputLabelObj(labelDict, labelValue){
+    // labelObj <div>
+        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+        labelObj.css("padding-left","10px");
+        // keyObj <span>
+            let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
+            labelObj.append(keyObj);
+        // valueObj <span>
+            let valueObj = $("<input id='" + labelDict["key"] + "Value' type='text'></input>");
+            labelObj.append(valueObj);
+            // display the label value
+                let inputText = undefined;
+                // if given a value, display the value
+                if (labelValue != undefined) {
+                    inputText =  labelValue;
+                }
+                // if no value given, display the default value
+                else if (labelDict["value_default"] != undefined){
+                    inputText = labelDict["value_default"];
+                }
+                // if no given value and no default value
+                else{
+                    inputText = "";
+                }
+                valueObj.attr("value", inputText)
+            // add change event
+                valueObj.change(function() {
+                    // if the changed label belongs to a node
+                    if ($("#nodeInfoWindow")[0].contains(this)){
+                        let position = $("#positionValue").text();
+                        let value = $("#" + labelDict["key"] + "Value")[0].value;
+                        setNode(position, {[labelDict["key"]]: value});
+                    }
+                    // if the changed label belongs to a instance
+                    else if($("#instancInfoWindow")[0].contains(this)){
+                        // prepare ajax data
+                        let id = $("#idValue").text();
+                        let value = $("#" + labelDict["key"] + "Value")[0].value;
+                        // ajax to background
+                        instanceInfo = setInstance(id, {[labelDict["key"]]: value});
+                        // display the new instance info in GUI
+                        instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                        instanceInfoWindow_showInstanceInfo();
+                        instanceSelectWindow_updateOneInstance(instanceInfo);
+
+                        // The change of instance may lead to a change of nodes, so we also update the current node.
+                        if ($("#nodeInfo-selectedNode").css("display") == "block"){
+                            // prepare ajax data
+                            let position = $("#positionValue").text();
+                            // ajax to background
+                            let nodeInfo = getNodeByPosition(position);
+                            // display the new node info in GUI
+                            if (nodeInfo === "") {
+                                nodeInfoWindow_showNoNode();
+                            } else {
+                                nodeInfoWindow_updateNodeInfo(nodeInfo);
+                                nodeInfoWindow_showNodeInfo();
+                            }
+                        }
+                    }
+                });
+
+
+    // return
+    return labelObj
+}
+
+/**
+ * This function generate a instance type label obj.
+ *
+ * @example
+ let labelDict = {
+    "key": "refer",
+    "GUI_name": "instance which the mention refer to: ",
+    "value_type": "instance",
+    "instance_label": "mention_list",
+ };
+ let labelValue = {"id": "1", "desc":"AAA"}; //"id" can be "1" or 1 or "".  "desc" can be "AAA" or "".
+ let labelObj = generateTextInputLabelObj(labelDict, labelValue);
+ *
+ * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name". Optional items
+ *   include "value_default".
+ * @param {Array} labelValue **[Optional]** The value of this label. The generated obj will display the value if given, or
+ *   display the default value in *labelDict* if not given.
+ * @return {Jquery.HtmlElement}
+ */
+function generateInstanceLabelObj(labelDict, labelValue){
+    // labelObj <div>
+        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+        labelObj.css("padding-left","10px");
+        // keyObj <span>
+            let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
+            labelObj.append(keyObj);
+        // valueObj <span>
+            let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
+            labelObj.append(valueObj);
+            // instanceButtonObj <button>
+                let instanceButtonObj = $("<button class='instance' name=''></button>");
+                valueObj.append(instanceButtonObj);
+                // display the label value
+                    let inputText = undefined;
+                    let instanceId = undefined;
+                    // if given a value, display the value
+                    if (labelValue != undefined) {
+                        if (labelValue["desc"]==""){
+                            inputText = '　';
+                        }else{
+                            inputText =  labelValue["desc"];
+                        }
+                        instanceId = labelValue["id"];
+                    }
+                    // if no value given, display the default value
+                    else if (labelDict["value_default"] != undefined){
+                        if (labelDict["value_default"]["desc"]==""){
+                            inputText = '　';
+                        }else{
+                            inputText = labelDict["value_default"]["desc"];
+                        }
+                        instanceId = labelDict["value_default"]["id"];
+                    }
+                    // if no given value and no default value
+                    else{
+                        inputText = '　';
+                        instanceId = "";
+                    }
+                    instanceButtonObj.text(inputText);
+                    instanceButtonObj.attr("name", instanceId);
+                // add click event
+                    instanceButtonObj.click(function(e){
+                        let instanceIdStr = this.name;
+                        if (instanceIdStr == ""){
+                            alert(langDict["Can not view the info of this instance, because it is a empty instance."]);
+                        }else{
+                            let instanceInfo = getInstanceById(instanceIdStr);
+                            instanceInfoWindow_showInstanceInfo();
+                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                            instanceSelectWindow_updateOneInstance(instanceInfo);
+                        }
+                    });
+            // delInstanceButtonObj <button>
+                let delInstanceButtonObj = $("<button class='circleButton'>x</button>");
+                valueObj.append(delInstanceButtonObj);
+                // add click event
+                    delInstanceButtonObj.click(function(){
+                        // prepare ajax data
+                        let curNodePosition = undefined;
+                        let newValueDict = undefined;
+                        if (delInstanceButtonObj.prev().attr("name") == ""){
+                            alert(langDict["Can not delete this value, because this value is already empty."]);
+                        }else {
+                            // 准备数据
+                            curNodePosition = $("#positionValue").text();
+                            newValueDict = {
+                                [labelDict["key"]]: ""
+                            }
+                        }
+                        // ajax
+                        setNode(curNodePosition,newValueDict);
+                        // 更新node
+                        if ($("#nodeInfo-selectedNode").css("display") == "block"){
+                            let curNodePosition = $("#positionValue").text();
+                            let nodeInfo = getNodeByPosition(curNodePosition);
+                            nodeInfoWindow_updateNodeInfo(nodeInfo);
+                        }
+                        // 更新instance
+                        if ($("#instanceInfo-selectedInstance").css("display") == "block"){
+                            let curInstanceId = $("#idValue").text();
+                            let instanceInfo = getInstanceById(curInstanceId);
+                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                        }
+                    });
+        // ArrowObj <button>
+            let arrowObj = $("<button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>");
+            labelObj.append(arrowObj);
+            // add click event
+                arrowObj.click(function(){
+                    // prepare ajax data
+                    let curNodePosition = $("#positionValue").text();
+                    let curInstanceId = undefined;
+                    if ($("#instanceInfo-selectedInstance").css("display") == "block") {
+                        curInstanceId = $("#idValue").text();
+                    }else{
+                        alert(langDict["Can not line cur node to cur instance, because no instance are selected."]);
+                        return;
+                    }
+                    let newValue = {[labelDict["key"]]: curInstanceId};
+                    // ajax
+                    setNode(curNodePosition,newValue);
+                    // 更新node
+                    if ($("#nodeInfo-selectedNode").css("display") == "block"){
+                        let curNodePosition = $("#positionValue").text();
+                        let nodeInfo = getNodeByPosition(curNodePosition);
+                        nodeInfoWindow_updateNodeInfo(nodeInfo);
+                    }
+                    // 更新instance
+                    if ($("#instanceInfo-selectedInstance").css("display") == "block"){
+                        let curInstanceId = $("#idValue").text();
+                        let instanceInfo = getInstanceById(curInstanceId);
+                        instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                    }
+                });
+    // return
+        return labelObj
 }

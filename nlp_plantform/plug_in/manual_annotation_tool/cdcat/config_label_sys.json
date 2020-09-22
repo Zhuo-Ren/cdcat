@@ -21,11 +21,14 @@
       "value_default": "none"
     },
     {
-      "key": "refer",
+      "key": "instance",
       "GUI_name": "instance which the mention refer to: ",
       "value_type": "instance",
       "instance_label": "mention_list",
-      "value_default": "test"
+      "value_default": {
+        "id": "",
+        "desc": ""
+      }
     }
   ],
   "instance": [

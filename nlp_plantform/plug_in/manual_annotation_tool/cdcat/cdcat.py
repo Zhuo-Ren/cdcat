@@ -182,19 +182,19 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                     cur_label_new_value = request.form.get(cur_label_dict["key"])
                     cur_label_set_value_func = labelTemplate[cur_label_dict["value_type"]]
                     cur_label_set_value_func(node, cur_label_dict["key"])
-            if request.form.get("token"):
+            if request.form.get("token")!=None:
                 logging.debug("setNode->：token=" + request.form.get("token"))
                 if request.form.get("token") == 'false':
                     del node.get_label()["token"]
                 elif request.form.get("token") == 'true':
                     node.add_label({"token": True})
-            if request.form.get("type"):
+            if request.form.get("type")!=None:
                 logging.debug("setNode->：type=" + request.form.get("type"))
                 if request.form.get("type") == 'none':
                     del node.get_label()["type"]
                 else:
                     node.add_label({"type": request.form.get("type")})
-            if request.form.get("instance"):
+            if request.form.get("instance")!=None:
                 logging.debug("setNode->：instance=" + request.form.get("instance"))
                 if "instance" not in node.get_label():
                     new_instance = instances.get_instance(id=request.form.get("instance"))[0]
@@ -202,10 +202,14 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                     new_instance["mention_list"].append([node])
                 else:
                     old_instance = node.get_label()["instance"]
-                    new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-                    node.add_label({"instance": new_instance})
-                    new_instance["mention_list"].append([node])
                     old_instance["mention_list"].remove([node])
+                    if request.form.get("instance")=="":
+                        node.del_label("instance")
+                    else:
+                        new_instance = instances.get_instance(id=request.form.get("instance"))[0]
+                        node.add_label({"instance": new_instance})
+                        new_instance["mention_list"].append([node])
+
             output = node.output_to_dict()
             logging.debug("setNode<-：(success)" + str(output))
             return jsonify(output)

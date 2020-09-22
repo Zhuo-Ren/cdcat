@@ -398,10 +398,14 @@ $.ajaxSetup({
         // 加属性
         newInstanceObj.attr('name', data['id']);
         newInstanceObj.addClass('instance');
-        if (data['desc'] !== ""){
-            newInstanceObj.text(data['desc']);
+        if (data['desc'] !== undefined){
+            if (data['desc'] !== "") {
+                newInstanceObj.text(data['desc']);
+            }else{
+                newInstanceObj.text('　');
+            }
         } else {
-            newInstanceObj.text('　');
+            newInstanceObj.text(labelSysDict["instance"][1]["value_default"]);  //[1]是desc标签的描述数组
         }
         // 挂事件
         newInstanceObj.click(function() {
@@ -444,33 +448,48 @@ $.ajaxSetup({
             labelSysDict["instance"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
         }
     }
-    function instanceInfoWindow_updateInstanceInfo(data){
-        $("#idValue").text(data["id"]);
-        $("#descValue").val(data["desc"]);
-        if(data["kg"] !== undefined){
-            $("#kgValue").val(data["kg"])
-        }
-        var mentionListsValue = $("#mentionListsValue");
-        mentionListsValue.empty();
-        for(var i=0; i<data["mention_list"].length; i++){
-            var curMention = data["mention_list"][i];
-            var curMentionLine = $("<div class='instanceMentionDiv'></div>");
-            curMentionLine.append($("<span>[</span>"));
-            for (var j=0; j<curMention.length; j++){
-                var curPart = curMention[j];
-                curMentionLine.append($(
-                    "<button" +
-                        " name=\"" + curPart["position"]+ "\"" +
-                    ">" +
-                        curPart["text"] +
-                    "</button>"
-                ));
+    function instanceInfoWindow_updateInstanceInfo(instanceInfo){
+        // $("#idValue").text(data["id"]);
+        // $("#descValue").val(data["desc"]);
+        // if(data["kg"] !== undefined){
+        //     $("#kgValue").val(data["kg"])
+        // }
+        // var mentionListsValue = $("#mentionListsValue");
+        // mentionListsValue.empty();
+        // for(var i=0; i<data["mention_list"].length; i++){
+        //     var curMention = data["mention_list"][i];
+        //     var curMentionLine = $("<div class='instanceMentionDiv'></div>");
+        //     curMentionLine.append($("<span>[</span>"));
+        //     for (var j=0; j<curMention.length; j++){
+        //         var curPart = curMention[j];
+        //         curMentionLine.append($(
+        //             "<button" +
+        //                 " name=\"" + curPart["position"]+ "\"" +
+        //             ">" +
+        //                 curPart["text"] +
+        //             "</button>"
+        //         ));
+        //     }
+        //     curMentionLine.append($("<button class='instance_extentMentionList_button' name=" + (i).toString() +">→</button>"));
+        //     curMentionLine.append($("<span>]</span>"));
+        //     mentionListsValue.append(curMentionLine)
+        // }
+        // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
+        for(curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
+            // get the label data ready
+            let curLabelDict = labelSysDict["instance"][curLabelIndex];
+            let newValue = undefined;
+            if(curLabelDict["key"] in instanceInfo) {
+                newValue = instanceInfo[curLabelDict["key"]];
+            }else{
+                newValue = undefined;
             }
-            curMentionLine.append($("<button class='instance_extentMentionList_button' name=" + (i).toString() +">→</button>"));
-            curMentionLine.append($("<span>]</span>"));
-            mentionListsValue.append(curMentionLine)
+            let curLabelTypeDict = labelTemplate[curLabelDict["value_type"]];
+            // generate a new label obj based on new value
+            let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelDict, newValue);
+            // replace the old label obj
+            $("#nodeInfo-" + curLabelDict["key"]).replaceWith(labelObj);
         }
-        mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
     }
 
 // <!-- flask interface -->
@@ -639,7 +658,7 @@ $.ajaxSetup({
         $.post(
             "/addInstance",
             {
-                "position": $("#pathValue").text()
+                "position": $("#positionValue").text()
             },
             function (data, status) {
                 callback(data);
@@ -666,7 +685,7 @@ $.ajaxSetup({
         var slot = curTriggerInstanceSlot;
         if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
             var slotType = "node";
-            var position = $("#pathValue").text();
+            var position = $("#positionValue").text();
         }
         newInstanceId = curSelectedInstance.name;
         // 向后台传数据
@@ -744,7 +763,7 @@ $.ajaxSetup({
     }
     // nodeInfoWindow: 标注信息变动（token）
     function nodeTokenChange(){
-        var position = $("#pathValue").text();
+        var position = $("#positionValue").text();
         var tokenValue = $("#tokenValue :checked").attr("value");
         if (tokenValue === "false"){
             tokenValue = false;
@@ -757,7 +776,7 @@ $.ajaxSetup({
     }
     // nodeInfoWindow: 标注信息变动（semanticType）
     function nodeSemanticTypeChange(){
-        var position = $("#pathValue").text();
+        var position = $("#positionValue").text();
         var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
         setNode(position, {"semanticType": semanticTypeValue});
     }
@@ -781,7 +800,7 @@ $.ajaxSetup({
 
     // instanceSelectWindow: 单击“+”按钮
     function addInstancePlusButtonClick(){
-        // to flask
+        // ajax to background
         let instanceInfo = addInstance_empty();
         // add instance obj in instanceSelectWindow
         instanceSelectWindow_updateOneInstance(instanceInfo);
@@ -846,7 +865,7 @@ $.ajaxSetup({
             let instanceSlot = $(".curInstanceSlot");
             if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
                 var slotType = "node";
-                var position = $("#pathValue").text();
+                var position = $("#positionValue").text();
             }
             newInstanceId = curSelectedInstance.name;
             // 向后台传数据

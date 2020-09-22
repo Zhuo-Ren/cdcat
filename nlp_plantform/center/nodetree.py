@@ -76,6 +76,9 @@ class NodeTree(ParentedTree):
     def add_label(self, label):
         self._label.update(label)
 
+    def del_label(self, key):
+        del self._label[key]
+
     def get_parent(self) -> Union[None, "NodeTree"]:
         return self._parent
     parent = get_parent
