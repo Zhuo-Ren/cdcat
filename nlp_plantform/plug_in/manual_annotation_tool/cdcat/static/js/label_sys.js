@@ -479,13 +479,21 @@ function generateRadioLabelObj(labelDict, labelValue) {
                 let position = $("#positionValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 let r = setNode(position, {[labelDict["key"]]: value});
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
             }else if($("#instancInfoWindow")[0].contains(this)){
                 let id = $("#idValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
                 if (r != "success"){
-                    alert(r);
+                    alert(langDict[r]);
                     return;
                 }
                 // refresh nodeInfoWindow
@@ -553,7 +561,15 @@ function generateListOneLabelObj(labelDict, labelValue){
             if ($("#nodeInfoWindow")[0].contains(this)){
                 var position = $("#positionValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                setNode(position, {[labelDict["key"]]: value});
+                let r = setNode(position, {[labelDict["key"]]: value});
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
             }else if($("#instancInfoWindow")[0].contains(this)){
                 // prepare ajax data
                 var id = $("#pidValue").text();
@@ -561,7 +577,7 @@ function generateListOneLabelObj(labelDict, labelValue){
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
                 if (r != "success"){
-                    alert(r);
+                    alert(langDict[r]);
                     return;
                 }
                 // refresh nodeInfoWindow
@@ -672,7 +688,15 @@ function generateTextInputLabelObj(labelDict, labelValue){
                     if ($("#nodeInfoWindow")[0].contains(this)){
                         let position = $("#positionValue").text();
                         let value = $("#" + labelDict["key"] + "Value")[0].value;
-                        setNode(position, {[labelDict["key"]]: value});
+                        let r = setNode(position, {[labelDict["key"]]: value});
+                        if (r != "success"){
+                            alert(langDict[r]);
+                            return;
+                        }
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
                     }
                     // if the changed label belongs to a instance
                     else if($("#instancInfoWindow")[0].contains(this)){
@@ -682,14 +706,13 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         // ajax to background
                         let r = setInstance(id, {[labelDict["key"]]: value});
                         if (r != "success"){
-                            alert(r);
+                            alert(langDict[r]);
                             return;
                         }
                         // refresh nodeInfoWindow
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
-
                         // The change of instance may lead to a change of nodes, so we also update the current node.
                         if ($("#nodeInfo-selectedNode").css("display") == "block"){
                             // prepare ajax data
@@ -802,19 +825,15 @@ function generateInstanceLabelObj(labelDict, labelValue){
                             }
                         }
                         // ajax
-                        setNode(curNodePosition,newValueDict);
-                        // 更新node
-                        if ($("#nodeInfo-selectedNode").css("display") == "block"){
-                            let curNodePosition = $("#positionValue").text();
-                            let nodeInfo = getNodeByPosition(curNodePosition);
-                            nodeInfoWindow_updateNodeInfo(nodeInfo);
+                        let r = setNode(curNodePosition,newValueDict);
+                        if (r != "success"){
+                            alert(langDict[r]);
+                            return;
                         }
-                        // 更新instance
-                        if ($("#instanceInfo-selectedInstance").css("display") == "block"){
-                            let curInstanceId = $("#idValue").text();
-                            let instanceInfo = getInstanceById(curInstanceId);
-                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                        }
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
                     });
         // ArrowObj <button>
             let arrowObj = $("<button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>");
@@ -827,25 +846,21 @@ function generateInstanceLabelObj(labelDict, labelValue){
                     if ($("#instanceInfo-selectedInstance").css("display") == "block") {
                         curInstanceId = $("#idValue").text();
                     }else{
-                        alert(langDict["Can not line cur node to cur instance, because no instance are selected."]);
+                        alert(langDict["can not build a reference relation between cur node and cur instance, because no instance are selected."]);
                         return;
                     }
                     let newValue = {[labelDict["key"]]: curInstanceId};
                     // ajax
-                    setNode(curNodePosition,newValue);
-                    // 更新node
-                    if ($("#nodeInfo-selectedNode").css("display") == "block"){
-                        let curNodePosition = $("#positionValue").text();
-                        let nodeInfo = getNodeByPosition(curNodePosition);
-                        nodeInfoWindow_updateNodeInfo(nodeInfo);
+                    let r = setNode(curNodePosition,newValue);
+                    if (r != "success"){
+                        alert(langDict[r]);
+                        return;
                     }
-                    // 更新instance
-                    if ($("#instanceInfo-selectedInstance").css("display") == "block"){
-                        let curInstanceId = $("#idValue").text();
-                        let instanceInfo = getInstanceById(curInstanceId);
-                        instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                    }
-                });
+                    // refresh nodeInfoWindow
+                    nodeInfoWindow_refresh();
+                    // refresh instanceInfoWindow
+                    instanceInfoWindow_refresh();
+                    });
     // return
         return labelObj
 }
@@ -948,21 +963,21 @@ function generateNodesLabelObj(labelDict, labelValue){
                             }
                             // <del mention button>
                             {
-                                let delMentionButton = $("<button class='circleButton'>x</button>");
+                                let delMentionButton = $("<button class='circleButton' name='delMentionButton'>x</button>");
                                 mentionListLineObj.append(delMentionButton);
                                 // add click event
                                 delMentionButton.click(function () {
                                     // prepare ajax data
                                     let curInstanceId = $("#idValue").text();
                                     let newValueDict = {"mention_list": {
-                                        "action": "del mention",
-                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
-                                        "mention_index": $(this).prev().attr("mentionIndex")
-                                    }};
+                                            "action": "del mention",
+                                            "mention_list_index":$(this).parent().attr("mentionListIndex"),
+                                            "mention_index": $(this).prev().attr("mentionIndex")
+                                        }};
                                     // ajax to background
                                     r = setInstance(curInstanceId, newValueDict);
                                     if (r != "success"){
-                                        alert(r);
+                                        alert(langDict[r]);
                                         return;
                                     }
                                     // refresh nodeInfoWindow
@@ -974,37 +989,82 @@ function generateNodesLabelObj(labelDict, labelValue){
                             // <semicolon between mention>
                             mentionListLineObj.append($("<span>;</span>"));
                         }
-                        // <add new mention button>
+                        // <append new mention button>
                         {
-                            let addNewMentionButtonObj = $("<button class='circleButton'>→</button>");
-                            mentionListLineObj.append(addNewMentionButtonObj);
+                            let appendNewMentionButtonObj = $("<button class='circleButton'>→</button>");
+                            mentionListLineObj.append(appendNewMentionButtonObj);
                             // add click event
-                            addNewMentionButtonObj.click(function () {
-                                alert("你愁啥");
+                            appendNewMentionButtonObj.click(function () {
+                                if ($("#nodeInfo-selectedNode").css("display") != "block"){
+                                    alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
+                                    return
+                                }
+                                // prepare ajax data
+                                let curInstanceId = $("#idValue").text();
+                                let newValueDict = {
+                                    "mention_list":{
+                                        "action": "append mention",
+                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
+                                        "new_node_position": $("#positionValue").text()
+                                    }
+                                };
+                                // ajax to background
+                                r = setInstance(curInstanceId, newValueDict);
+                                if (r != "success"){
+                                    alert(langDict[r]);
+                                    return;
+                                }
+                                // refresh nodeInfoWindow
+                                nodeInfoWindow_refresh();
+                                // refresh instanceInfoWindow
+                                instanceInfoWindow_refresh();
                             });
                         }
                         // <s]>
                         mentionListLineObj.append($("<span>]</span>"));
                         // <del mentionList button>
                         {
-                            let delMentionListButtonObj = $("<button class='circleButton'>x</button>");
+                            let delMentionListButtonObj = $("<button class='circleButton' name='delMentionListButton'>x</button>");
                             mentionListLineObj.append(delMentionListButtonObj);
                             // add click event
                             delMentionListButtonObj.click(function () {
-                            alert("你愁啥");
+                                let delButtonList = mentionListLineObj.children("[name=delMentionButton]");
+                                for (let curDelButtonIndex = 0; curDelButtonIndex < delButtonList.length; curDelButtonIndex++){
+                                    let curDelButtonObj = delButtonList[curDelButtonIndex];
+                                    curDelButtonObj.click();
+                                }
+                                //prepare ajax data
+                                let curInstanceId = $("#idValue").text();
+                                let newValueDict = {
+                                    "mention_list":{
+                                        "action": "del mentionList",
+                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
+                                    }
+                                };
+                                // ajax to background
+                                r = setInstance(curInstanceId, newValueDict);
+                                if (r != "success"){
+                                    alert(langDict[r]);
+                                    return;
+                                }
+                                // refresh nodeInfoWindow
+                                nodeInfoWindow_refresh();
+                                // refresh instanceInfoWindow
+                                instanceInfoWindow_refresh();
                             });
-                            }
+
+                        }
                         // <br/>
                         mentionListLineObj.append($("<br/>"));
                 }
                 // <add new mentionList button>
-                {
-                    let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
-                    bigBracketObj.append(addNewMentionListButtonObj);
-                    addNewMentionListButtonObj.click(function () {
-                        alert("走着瞧");
-                    });
-                }
+                // {
+                //     let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
+                //     bigBracketObj.append(addNewMentionListButtonObj);
+                //     addNewMentionListButtonObj.click(function () {
+                //         alert("走着瞧");
+                //     });
+                // }
             }
             // <b]>
             valueObj.append($("<span>]</span>"));

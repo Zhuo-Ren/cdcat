@@ -175,7 +175,7 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         if node is None:
             logging.debug("setNode--：no such node")
             logging.debug("getNode<-：\"\"")
-            return ""
+            return jsonify("can not find node based on given position.")
         elif isinstance(node, NodeTree):
             for cur_label_dict in label_sys_dict["node"]:
                 if cur_label_dict["key"] in request.form:
@@ -196,23 +196,34 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                     node.add_label({"type": request.form.get("type")})
             if request.form.get("instance")!=None:
                 logging.debug("setNode->：instance=" + request.form.get("instance"))
+                new_instance = instances.get_instance(id=request.form.get("instance"))[0]
+                # 操作合理性检测（node原来的instance是否和新instance一致）
+                if "instance" in node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+                    old_instance = node.get_label()["instance"]
+                    if old_instance == new_instance:
+                        return jsonify("can not build a reference relation between cur node and cur instance, because is already existing.")
                 if "instance" not in node.get_label():
-                    new_instance = instances.get_instance(id=request.form.get("instance"))[0]
                     node.add_label({"instance": new_instance})
                     new_instance["mention_list"].append([node])
                 else:
+                    # edit old instance
                     old_instance = node.get_label()["instance"]
-                    old_instance["mention_list"].remove([node])
+                    mentionLists = old_instance["mention_list"]
+                    for mentionList in mentionLists:
+                        if node in mentionList:
+                            mentionList.remove(node)
+                    old_instance["mention_list"] = mentionLists
                     if request.form.get("instance")=="":
+                        # edit node
                         node.del_label("instance")
                     else:
+                        # edit new instance
                         new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-                        node.add_label({"instance": new_instance})
                         new_instance["mention_list"].append([node])
-
-            output = node.output_to_dict()
-            logging.debug("setNode<-：(success)" + str(output))
-            return jsonify(output)
+                        # edit node
+                        node.add_label({"instance": new_instance})
+            logging.debug("setNode<-：(success)")
+            return jsonify("success")
 
     @app.route('/getInstance', methods=["POST"])
     def getInstance():
@@ -246,22 +257,41 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                 mention_index = int(request.form.get('mention_list[mention_index]'))
                 deletedNode = instance["mention_list"][mention_list_index][mention_index]
                 del instance["mention_list"][mention_list_index][mention_index]
+                # if instance["mention_list"][mention_list_index] == []:  # 删除空mentionList
+                #     if len(instance["mention_list"]) > 1:  # 如果空mentionList是最后一个mentionList，就不删
+                #         del instance["mention_list"][mention_list_index]
                 # edit node
                 deletedNode.del_label("instance")
             elif mention_list_action == 'append mention':
                 mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                new_node_position = request.form.get('mention_list[new_node_position]')
-                new_node_position = ntree.str_to_position(new_node_position)
-                new_node = ntree[new_node_position]
-                instance["mention_list"][mention_list_index].append(new_node)
+                cur_node_position = request.form.get('mention_list[new_node_position]')
+                cur_node_position = ntree.str_to_position(cur_node_position)
+                cur_node = ntree[cur_node_position]
+                new_instance = instance
+                # 操作合理性检测（node原来的instance是否和新instance一致）
+                if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+                    old_instance = cur_node.get_label()["instance"]
+                    if old_instance == new_instance:
+                        return jsonify("can not build a reference relation between cur node and cur instance, because is already existing.")
+                # edit new instance
+                instance["mention_list"][mention_list_index].append(cur_node)
+                # edit old instance
+                if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+                    old_instance = cur_node.get_label()["instance"]
+                    mentionLists = old_instance["mention_list"]
+                    for mentionList in mentionLists:
+                        if cur_node in mentionList:
+                            mentionList.remove(cur_node)
+                    old_instance["mention_list"] = mentionLists
+                # edit node
+                cur_node.add_label({'instance': instance})
             elif mention_list_action == 'del mentionList':
                 mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
                 del instance["mention_list"][mention_list_index]
             elif mention_list_action == 'append mentionList':
                 instance["mention_list"].append([])
-        output = "success"
-        logging.debug("setInstance<-：(success)" + str(output))
-        return jsonify(output)
+        logging.debug("setInstance<-：(success)" )
+        return jsonify("success")
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():

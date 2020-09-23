@@ -15,5 +15,8 @@
     "Can not view the info of this instance, because it is a empty instance.": "不能查看这个实例的信息，因为这是个空实例。",
     "Can not create node, because no mention is selected.": "不能创建节点，因为没有选中任何指称。",
     "current instance": "当前实例",
-    "Can not line cur node to cur instance, because no instance are selected.": "不能把当前节点指向当前实例，因为当前没有选中任何实例"
+    "can not build a reference relation between cur node and cur instance, because no instance are selected.": "不能把当前节点指向当前实例，因为当前没有选中任何实例。",
+    "can not build a reference relation between cur node and cur instance, because no node are selected.": "不能把当前节点指向当前实例，因为当前没有选中任何节点。",
+    "can not build a reference relation between cur node and cur instance, because is already existing.": "不能把当前节点（再次）指向当前实例，因为现在已经指向了。",
+    "can not find node based on given position.": "在所示路径下未找到节点。"
 }

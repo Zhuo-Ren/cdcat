@@ -511,7 +511,7 @@ $.ajaxSetup({
             let instanceId = $("#idValue").text();
             // ajax to background
             let instanceInfo = getInstanceById(instanceId);
-            // display the new node info in GUI
+            // display the new instance info in GUI
             if (instanceInfo === "") {
                 instanceInfoWindow_showNoInstance();
             } else {
@@ -800,13 +800,29 @@ $.ajaxSetup({
         }else{
             alert("搞笑")
         }
-        setNode(position, {"token": tokenValue});
+        let r = setNode(position, {"token": tokenValue});
+        if (r != "success"){
+            alert(langDict[r]);
+            return;
+        }
+        // refresh nodeInfoWindow
+        nodeInfoWindow_refresh();
+        // refresh instanceInfoWindow
+        instanceInfoWindow_refresh();
     }
     // nodeInfoWindow: 标注信息变动（semanticType）
     function nodeSemanticTypeChange(){
         var position = $("#positionValue").text();
         var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
-        setNode(position, {"semanticType": semanticTypeValue});
+        let r = setNode(position, {"semanticType": semanticTypeValue});
+        if (r != "success"){
+            alert(langDict[r]);
+            return;
+        }
+        // refresh nodeInfoWindow
+        nodeInfoWindow_refresh();
+        // refresh instanceInfoWindow
+        instanceInfoWindow_refresh();
     }
 
     // // 单击实例
@@ -878,48 +894,64 @@ $.ajaxSetup({
             )
     }
     // // instanceSelectWindow: 单击实例
-    // function instanceClick(instanceElement){
-    //     let isHaveInstanceSlotActive = undefined;
-    //     if ($(".curInstanceSlot").length == 0){
-    //         isHaveInstanceSlotActive = false;
-    //     }else{
-    //         isHaveInstanceSlotActive = true;
-    //     }
-    //
-    //     // 用此实例填充槽
-    //     if (isHaveInstanceSlotActive){
-    //         // 数据准备
-    //         var slot = curTriggerInstanceSlot;
-    //         let instanceSlot = $(".curInstanceSlot");
-    //         if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
-    //             var slotType = "node";
-    //             var position = $("#positionValue").text();
-    //         }
-    //         newInstanceId = curSelectedInstance.name;
-    //         // 向后台传数据
-    //         if (slotType === "node"){
-    //             setNode(position,{"instance":newInstanceId});
-    //         } else if (slotType === "instance"){
-    //             setInstance()
-    //         }
-    //         // 取消当前solt的待选特效
-    //         curTriggerInstanceSlot.classList.remove("curSlot");
-    //         document.body.style.cursor = "";
-    //         //
-    //         curTriggerInstanceSlot = undefined
-    //         // 更新instance info
-    //         if (curSelectedInstance != undefined){
-    //             getInstanceById(curSelectedInstance.name);
-    //         }
-    //     }
-    //     // 展示实例
-    //     else{
-    //         let instanceIdStr = instanceElement.name;
-    //         let instanceInfo = getInstanceById(instanceIdStr);
-    //         instanceInfoWindow_showInstanceInfo(instanceInfo);
-    //         instanceSelectWindow_updateOneInstance(instanceInfo);
-    //     }
-    // }
+    function instanceClick(instanceElement){
+        let isHaveInstanceSlotActive = undefined;
+        if ($(".curInstanceSlot").length == 0){
+            isHaveInstanceSlotActive = false;
+        }else{
+            isHaveInstanceSlotActive = true;
+        }
+
+        // 用此实例填充槽
+        if (isHaveInstanceSlotActive){
+            // 数据准备
+            var slot = curTriggerInstanceSlot;
+            let instanceSlot = $(".curInstanceSlot");
+            if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
+                var slotType = "node";
+                var position = $("#positionValue").text();
+            }
+            newInstanceId = curSelectedInstance.name;
+            // 向后台传数据
+            if (slotType === "node"){
+                let r = setNode(position,{"instance":newInstanceId});
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
+            } else if (slotType === "instance"){
+                setInstance();
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
+            }
+            // 取消当前solt的待选特效
+            curTriggerInstanceSlot.classList.remove("curSlot");
+            document.body.style.cursor = "";
+            //
+            curTriggerInstanceSlot = undefined
+            // 更新instance info
+            if (curSelectedInstance != undefined){
+                getInstanceById(curSelectedInstance.name);
+            }
+        }
+        // 展示实例
+        else{
+            let instanceIdStr = instanceElement.name;
+            let instanceInfo = getInstanceById(instanceIdStr);
+            instanceInfoWindow_showInstanceInfo(instanceInfo);
+            instanceSelectWindow_updateOneInstance(instanceInfo);
+        }
+    }
 
     // // instanceInfoWindow: desc变动
     // function instanceDescChange(){

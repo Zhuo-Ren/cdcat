@@ -8,7 +8,7 @@ class Instance(dict):
         self["id"] = id
         self["desc"] = "" if desc is None else desc
         self["kg"] = [] if kg is None else kg
-        self["mention_list"]: List[List[NodeTree]] = []
+        self["mention_list"]: List[List[NodeTree]] = [[]]
 
     def output_to_dict(self) -> Dict:
         output_dict = {}
