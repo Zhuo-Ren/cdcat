@@ -51,10 +51,11 @@
       "value_default": "XXXXX"
     },
     {
-      "key": "mentionLists",
+      "key": "mention_list",
       "GUI_name": "mentionList: ",
-      "value_type": "node",
-      "node_label": "refer"
+      "value_type": "nodes",
+      "node_label": "refer",
+      "value_default": [[]]
     }
   ]
 }

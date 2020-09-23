@@ -271,19 +271,20 @@ labelTemplate = {
             };
         }
     },
-    "node": {
-        "generateLabelObj_func": function(labelDict){
-            reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
-                        "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
-                        "   <span id='" + labelDict["key"] + "Value'> " +
-                        "       <button class='circleButton' name='addList'>x</button>" +
-                        "   </span>" +
-                        "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
-                        "</div>";
-            reObj = $(reStr);
-            reObj.css("padding-left","10px");
-            return reObj
-        },
+    "nodes": {
+        "generateLabelObj_func": generateNodesLabelObj,
+        // function(labelDict){
+        //     reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
+        //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
+        //                 "   <span id='" + labelDict["key"] + "Value'> " +
+        //                 "       <button class='circleButton' name='addList'>x</button>" +
+        //                 "   </span>" +
+        //                 "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
+        //                 "</div>";
+        //     reObj = $(reStr);
+        //     reObj.css("padding-left","10px");
+        //     return reObj
+        // },
         "addUpdateValueFunc_func": function (labelDict) {
             return function(newValue){
                 // if(newValue != undefined){
@@ -357,73 +358,73 @@ labelTemplate = {
             // });
             // instanceInfoWindow: 单击mentionList中"→"按钮
 
-            /**
-             * click "extent mention list( based on cur node）" button
-             *
-             * @param instanceId {string} id string of the instance to which the mention list belongs.
-             * @param mentionListIndex {string} index string of the mention list to which the button belongs.
-             */
-            function extentMentionListButtonClick(instanceId, mentionListIndex){
-                if ($("#nodeInfo-path").css("display") == "block"){
-                    curNodePosition = $("#positionValue").text()
-                    setInstance(
-                        instanceId,
-                        {
-                            "mention_list":{
-                                "action": "extent",
-                                "mention_list_index": mentionListIndex,
-                                "new_node_position": curNodePosition
-                            }
-                        },
-                        function (data) {
-                            if (typeof data == "string"){
-                                alert(langDict["set instance fail."]);
-                            }
-                            else if (typeof data == "object"){
-                                instanceInfoWindow_showInstanceInfo();
-                                instanceInfoWindow_updateInstanceInfo(data);
-                            }
-                        }
-                    )
-                }
-            }
-
-            // instanceInfoWindow: 单击mentionLists中"+"按钮
-            /**
-             * click "add mention list" button
-             *
-             *  @param instanceId {string} id string of the instance.
-             */
-            function addMentionListButtonClick(instanceId){
-                setInstance(
-                    instanceId,
-                    {
-                        "mention_list":{
-                            "action": "add"
-                        }
-                    },
-                    function(data){
-                        if (typeof data == "string"){
-                            alert(langDict["set instance fail."]);
-                        }
-                        else if (typeof data == "object"){
-                            instanceInfoWindow_showInstanceInfo(data);
-                        }
-                    }
-                )
-            }
-
-            // instanceInfoWindow: 单击mentionLists中"+"按钮
-            $("#instance_addMentionList_button").click(function(){
-                instanceId = $("#idValue").text();
-                addMentionListButtonClick(instanceId);
-            });
-            // instanceInfoWindow: 单击mentionList中"→"按钮
-            $(".instance_extentMentionList_button").click(function () {
-                instanceId = $("#idValue").text();
-                mentionListIndex = this.name;
-                extentMentionListButtonClick(instanceId, mentionListIndex);
-            });
+            // /**
+            //  * click "extent mention list( based on cur node）" button
+            //  *
+            //  * @param instanceId {string} id string of the instance to which the mention list belongs.
+            //  * @param mentionListIndex {string} index string of the mention list to which the button belongs.
+            //  */
+            // function extentMentionListButtonClick(instanceId, mentionListIndex){
+            //     if ($("#nodeInfo-path").css("display") == "block"){
+            //         curNodePosition = $("#positionValue").text()
+            //         setInstance(
+            //             instanceId,
+            //             {
+            //                 "mention_list":{
+            //                     "action": "extent",
+            //                     "mention_list_index": mentionListIndex,
+            //                     "new_node_position": curNodePosition
+            //                 }
+            //             },
+            //             function (data) {
+            //                 if (typeof data == "string"){
+            //                     alert(langDict["set instance fail."]);
+            //                 }
+            //                 else if (typeof data == "object"){
+            //                     instanceInfoWindow_showInstanceInfo();
+            //                     instanceInfoWindow_updateInstanceInfo(data);
+            //                 }
+            //             }
+            //         )
+            //     }
+            // }
+            //
+            // // instanceInfoWindow: 单击mentionLists中"+"按钮
+            // /**
+            //  * click "add mention list" button
+            //  *
+            //  *  @param instanceId {string} id string of the instance.
+            //  */
+            // function addMentionListButtonClick(instanceId){
+            //     setInstance(
+            //         instanceId,
+            //         {
+            //             "mention_list":{
+            //                 "action": "add"
+            //             }
+            //         },
+            //         function(data){
+            //             if (typeof data == "string"){
+            //                 alert(langDict["set instance fail."]);
+            //             }
+            //             else if (typeof data == "object"){
+            //                 instanceInfoWindow_showInstanceInfo(data);
+            //             }
+            //         }
+            //     )
+            // }
+            //
+            // // instanceInfoWindow: 单击mentionLists中"+"按钮
+            // $("#instance_addMentionList_button").click(function(){
+            //     instanceId = $("#idValue").text();
+            //     addMentionListButtonClick(instanceId);
+            // });
+            // // instanceInfoWindow: 单击mentionList中"→"按钮
+            // $(".instance_extentMentionList_button").click(function () {
+            //     instanceId = $("#idValue").text();
+            //     mentionListIndex = this.name;
+            //     extentMentionListButtonClick(instanceId, mentionListIndex);
+            // });
         }
     }
 }
@@ -822,6 +823,152 @@ function generateInstanceLabelObj(labelDict, labelValue){
                         instanceInfoWindow_updateInstanceInfo(instanceInfo);
                     }
                 });
+    // return
+        return labelObj
+}
+
+/**
+ * This function generate a nodes type label obj.
+ *
+ * @example
+ let labelDict = {
+    "key": "mention_list",
+    "GUI_name": "mentionList: ",
+    "value_type": "node",
+    "node_label": "refer",
+    "value_default": [[]]
+ };
+ let labelValue = [
+    [
+        {"position": "0-0-0", "text":"埃航"},
+        {"position":"0-0-1", "text":"狮航"}
+    ],
+    [
+        {"position": "5-2-0", "text":"两家航空公司"}
+    ]
+ ]
+ let labelObj = generateNodesLabelObj(labelDict, labelValue);
+ *
+ * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name". Optional items
+ *   include "value_default".
+ * @param {Array} labelValue **[Optional]** The value of this label. The generated obj will display the value if given, or
+ *   display the default value in *labelDict* if not given.
+ * @return {Jquery.HtmlElement}
+ */
+function generateNodesLabelObj(labelDict, labelValue){
+    // function(labelDict){
+        //     reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
+        //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
+        //                 "   <span id='" + labelDict["key"] + "Value'> " +
+        //                 "       <button class='circleButton' name='addList'>x</button>" +
+        //                 "   </span>" +
+        //                 "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
+        //                 "</div>";
+        //     reObj = $(reStr);
+        //     reObj.css("padding-left","10px");
+        //     return reObj
+        // },
+    // <labelObj>
+        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+        labelObj.css("padding-left","10px");
+        // <keyObj>
+            let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
+            labelObj.append(keyObj);
+        // <valueObj>
+            let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
+            labelObj.append(valueObj);
+            // <b[>
+            valueObj.append($("<span>[</span>"));
+            valueObj.append($("<br>/"));
+            // <bigBracketObj>
+            {
+                let bigBracketObj = $("<div name='bigBracket'></div>");
+                valueObj.append(bigBracketObj);
+                bigBracketObj.css("padding-left", "10px");
+                // calc the value
+                {
+                    // if given a value, display the value
+                    if (labelValue != undefined) {
+                        //labelValue = labelValue
+                    }
+                    // if no value given, display the default value
+                    else if (labelDict["value_default"] != undefined) {
+                        labelValue = labelDict["value_default"];
+                    }
+                    // if no given value and no default value
+                    else {
+                        labelValue = [[]];
+                    }
+                }
+                // for each mentionList
+                for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
+                    let curMentionList = labelValue[curMentionListIndex];
+                    // <mentionLineObj>
+                    let mentionLineObj = $("<span class='mentionLine'></span>");
+                    bigBracketObj.append(mentionLineObj);
+                        // <s[>
+                        mentionLineObj.append($("<span>[</span>"));
+                        // for each mention
+                        for (let curMentionIndex = 0; curMentionIndex < curMentionList.length; curMentionIndex++) {
+                            // <mention button>
+                            {
+                                let curMention = curMentionList[curMentionIndex];
+                                let curMentionObj = $("<button></button>");
+                                mentionLineObj.append(curMentionObj);
+                                // display value
+                                curMentionObj.text(curMention["text"]);
+                                curMentionObj.attr("name", curMention["position"]);
+                                // add click event
+                                curMentionObj.click(function (e) {
+                                    alert("再等等");
+                                });
+                            }
+                            // <del mention button>
+                            {
+                                let delMentionButton = $("<button class='circleButton'>x</button>");
+                                mentionLineObj.append(delMentionButton);
+                                // add click event
+                                delMentionButton.click(function () {
+                                    alert("删除当前mentionList");
+                                });
+                            }
+                            // <semicolon between mention>
+                            mentionLineObj.append($("<span>;</span>"));
+                        }
+                        // <add new mention button>
+                        {
+                            let addNewMentionButtonObj = $("<button class='circleButton'>→</button>");
+                            mentionLineObj.append(addNewMentionButtonObj);
+                            // add click event
+                            addNewMentionButtonObj.click(function () {
+                                alert("你愁啥");
+                            });
+                        }
+                        // <s]>
+                        mentionLineObj.append($("<span>]</span>"));
+                        // <del mentionList button>
+                        {
+                            let delMentionListButtonObj = $("<button class='circleButton'>x</button>");
+                            mentionLineObj.append(delMentionListButtonObj);
+                            // add click event
+                            delMentionListButtonObj.click(function () {
+                            alert("你愁啥");
+                            });
+                            }
+                        // <br/>
+                        mentionLineObj.append($("<br/>"));
+                }
+                // <add new mentionList button>
+                {
+                    let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
+                    bigBracketObj.append(addNewMentionListButtonObj);
+                    addNewMentionListButtonObj.click(function () {
+                        alert("走着瞧");
+                    });
+                }
+            }
+            // <b]>
+            valueObj.append($("<span>]</span>"));
     // return
         return labelObj
 }
