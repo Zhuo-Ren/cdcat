@@ -240,19 +240,27 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
             logging.debug("getInstance->：kg=" + kg)
             instance["kg"] = kg
         if mention_list_action:
-            # 扩展某个现有的mention_list
-            if mention_list_action == 'extent':
-                #
+            if mention_list_action == 'del mention':
+                # edit instance
                 mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                new_node_position = ntree.str_to_position(request.form.get('mention_list[new_node_position]'))
-                #
-                instance["mention_list"][mention_list_index].append(ntree[new_node_position])
-            # 添加一个新的mention_list
-            elif mention_list_action == 'add':
+                mention_index = int(request.form.get('mention_list[mention_index]'))
+                deletedNode = instance["mention_list"][mention_list_index][mention_index]
+                del instance["mention_list"][mention_list_index][mention_index]
+                # edit node
+                deletedNode.del_label("instance")
+            elif mention_list_action == 'append mention':
+                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+                new_node_position = request.form.get('mention_list[new_node_position]')
+                new_node_position = ntree.str_to_position(new_node_position)
+                new_node = ntree[new_node_position]
+                instance["mention_list"][mention_list_index].append(new_node)
+            elif mention_list_action == 'del mentionList':
+                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+                del instance["mention_list"][mention_list_index]
+            elif mention_list_action == 'append mentionList':
                 instance["mention_list"].append([])
-
-        output = instance.output_to_dict()
-        logging.debug("getInstance<-：(success)" + str(output))
+        output = "success"
+        logging.debug("setInstance<-：(success)" + str(output))
         return jsonify(output)
 
     @app.route('/addInstance', methods=["POST"])

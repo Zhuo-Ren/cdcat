@@ -478,12 +478,21 @@ function generateRadioLabelObj(labelDict, labelValue) {
             if ($("#nodeInfoWindow")[0].contains(this)){
                 let position = $("#positionValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                setNode(position, {[labelDict["key"]]: value});
+                let r = setNode(position, {[labelDict["key"]]: value});
             }else if($("#instancInfoWindow")[0].contains(this)){
-                                                                   let id = $("#idValue").text();
-                                                                   let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                                                                   setInstance(id, {[labelDict["key"]]: value});
-                                                                   }
+                let id = $("#idValue").text();
+                let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
+                // ajax to background
+                let r = setInstance(id, {[labelDict["key"]]: value});
+                if (r != "success"){
+                    alert(r);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
+            }
         });
         labelObj.append(valueObj);
     // return
@@ -546,9 +555,19 @@ function generateListOneLabelObj(labelDict, labelValue){
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 setNode(position, {[labelDict["key"]]: value});
             }else if($("#instancInfoWindow")[0].contains(this)){
+                // prepare ajax data
                 var id = $("#pidValue").text();
                 var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                setInstance(id, {[labelDict["key"]]: value});
+                // ajax to background
+                let r = setInstance(id, {[labelDict["key"]]: value});
+                if (r != "success"){
+                    alert(r);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
             }
         });
         labelObj.append(valueObj);
@@ -661,11 +680,15 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         let id = $("#idValue").text();
                         let value = $("#" + labelDict["key"] + "Value")[0].value;
                         // ajax to background
-                        instanceInfo = setInstance(id, {[labelDict["key"]]: value});
-                        // display the new instance info in GUI
-                        instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                        instanceInfoWindow_showInstanceInfo();
-                        instanceSelectWindow_updateOneInstance(instanceInfo);
+                        let r = setInstance(id, {[labelDict["key"]]: value});
+                        if (r != "success"){
+                            alert(r);
+                            return;
+                        }
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
 
                         // The change of instance may lead to a change of nodes, so we also update the current node.
                         if ($("#nodeInfo-selectedNode").css("display") == "block"){
@@ -903,60 +926,76 @@ function generateNodesLabelObj(labelDict, labelValue){
                 // for each mentionList
                 for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
                     let curMentionList = labelValue[curMentionListIndex];
-                    // <mentionLineObj>
-                    let mentionLineObj = $("<span class='mentionLine'></span>");
-                    bigBracketObj.append(mentionLineObj);
+                    // <mentionListLineObj>
+                    let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
+                    bigBracketObj.append(mentionListLineObj);
                         // <s[>
-                        mentionLineObj.append($("<span>[</span>"));
+                        mentionListLineObj.append($("<span>[</span>"));
                         // for each mention
                         for (let curMentionIndex = 0; curMentionIndex < curMentionList.length; curMentionIndex++) {
                             // <mention button>
                             {
                                 let curMention = curMentionList[curMentionIndex];
-                                let curMentionObj = $("<button></button>");
-                                mentionLineObj.append(curMentionObj);
+                                let curMentionObj = $("<button mentionIndex='" + curMentionIndex + "'></button>");
+                                mentionListLineObj.append(curMentionObj);
                                 // display value
                                 curMentionObj.text(curMention["text"]);
                                 curMentionObj.attr("name", curMention["position"]);
                                 // add click event
                                 curMentionObj.click(function (e) {
-                                    alert("再等等");
+                                    alert("展示node信息");
                                 });
                             }
                             // <del mention button>
                             {
                                 let delMentionButton = $("<button class='circleButton'>x</button>");
-                                mentionLineObj.append(delMentionButton);
+                                mentionListLineObj.append(delMentionButton);
                                 // add click event
                                 delMentionButton.click(function () {
-                                    alert("删除当前mentionList");
+                                    // prepare ajax data
+                                    let curInstanceId = $("#idValue").text();
+                                    let newValueDict = {"mention_list": {
+                                        "action": "del mention",
+                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
+                                        "mention_index": $(this).prev().attr("mentionIndex")
+                                    }};
+                                    // ajax to background
+                                    r = setInstance(curInstanceId, newValueDict);
+                                    if (r != "success"){
+                                        alert(r);
+                                        return;
+                                    }
+                                    // refresh nodeInfoWindow
+                                    nodeInfoWindow_refresh();
+                                    // refresh instanceInfoWindow
+                                    instanceInfoWindow_refresh();
                                 });
                             }
                             // <semicolon between mention>
-                            mentionLineObj.append($("<span>;</span>"));
+                            mentionListLineObj.append($("<span>;</span>"));
                         }
                         // <add new mention button>
                         {
                             let addNewMentionButtonObj = $("<button class='circleButton'>→</button>");
-                            mentionLineObj.append(addNewMentionButtonObj);
+                            mentionListLineObj.append(addNewMentionButtonObj);
                             // add click event
                             addNewMentionButtonObj.click(function () {
                                 alert("你愁啥");
                             });
                         }
                         // <s]>
-                        mentionLineObj.append($("<span>]</span>"));
+                        mentionListLineObj.append($("<span>]</span>"));
                         // <del mentionList button>
                         {
                             let delMentionListButtonObj = $("<button class='circleButton'>x</button>");
-                            mentionLineObj.append(delMentionListButtonObj);
+                            mentionListLineObj.append(delMentionListButtonObj);
                             // add click event
                             delMentionListButtonObj.click(function () {
                             alert("你愁啥");
                             });
                             }
                         // <br/>
-                        mentionLineObj.append($("<br/>"));
+                        mentionListLineObj.append($("<br/>"));
                 }
                 // <add new mentionList button>
                 {
