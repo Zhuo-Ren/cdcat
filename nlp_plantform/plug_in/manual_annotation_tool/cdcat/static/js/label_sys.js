@@ -713,20 +713,9 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
-                        // The change of instance may lead to a change of nodes, so we also update the current node.
-                        if ($("#nodeInfo-selectedNode").css("display") == "block"){
-                            // prepare ajax data
-                            let position = $("#positionValue").text();
-                            // ajax to background
-                            let nodeInfo = getNodeByPosition(position);
-                            // display the new node info in GUI
-                            if (nodeInfo === "") {
-                                nodeInfoWindow_showNoNode();
-                            } else {
-                                nodeInfoWindow_updateNodeInfo(nodeInfo);
-                                nodeInfoWindow_showNodeInfo();
-                            }
-                        }
+                        // 暂时把更新instanceSelectWindow的任务放在这里
+                        let instanceInfo = getInstanceById(id);
+                        $("#instanceSelectWindow .instance[name='" + instanceInfo["id"] + "']").text(instanceInfo["desc"]);
                     }
                 });
 

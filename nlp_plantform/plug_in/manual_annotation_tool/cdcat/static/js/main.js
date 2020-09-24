@@ -924,7 +924,7 @@ $.ajaxSetup({
                 // refresh instanceInfoWindow
                 instanceInfoWindow_refresh();
             } else if (slotType === "instance"){
-                setInstance();
+                let r = setInstance();
                 if (r != "success"){
                     alert(langDict[r]);
                     return;
