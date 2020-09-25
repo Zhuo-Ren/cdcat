@@ -28,10 +28,10 @@ def setValue_node(node, key):
 labelTemplate = {
     "radio": setValue_radio,
     "checkbox": setValue_checkbox,
-    "list-one": setValue_list_one,
-    "list-multi": setValue_list_multi,
-    "text-readonly": setValue_text_readonly,
-    "text-input":setValue_text_input,
+    "listone": setValue_list_one,
+    "listmulti": setValue_list_multi,
+    "textreadonly": setValue_text_readonly,
+    "textinput":setValue_text_input,
     "instance": setValue_instance,
     "instances": setValue_instances,
     "node":setValue_node

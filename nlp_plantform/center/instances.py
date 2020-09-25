@@ -7,7 +7,7 @@ class Instances(dict):
         self.next_id = 0
 
     def add_instance(self, desc=None, kg=None):
-        new_instance = Instance(id=self.next_id, desc=desc, kg=kg)
+        new_instance = Instance({"id": self.next_id, "desc": desc, "kg": kg})
         self[self.next_id] = new_instance
         self.next_id = self.next_id + 1
         return new_instance

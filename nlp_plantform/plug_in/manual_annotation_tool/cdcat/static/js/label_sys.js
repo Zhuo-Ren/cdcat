@@ -35,7 +35,7 @@ labelTemplate = {
             };
         }
     },
-    "list-one":{
+    "listone":{
         "generateLabelObj_func": generateListOneLabelObj,
         "addUpdateValueFunc_func": function(labelDict) {
             return function(newValue){
@@ -60,7 +60,7 @@ labelTemplate = {
             // });
         }
     },
-    "list-multi":{
+    "listmulti":{
         "generateLabelObj_func": function(labelDict){
             return  $("<span>没实现</span>");
         },
@@ -70,7 +70,7 @@ labelTemplate = {
             };
         }
     },
-    "text-readonly":{
+    "textreadonly":{
         "generateLabelObj_func": generateTextReadonlyLabelObj,
         "addUpdateValueFunc_func": function (labelDict) {
             return function(newValue){
@@ -86,7 +86,7 @@ labelTemplate = {
             });
         }
     },
-    "text-input":{
+    "textinput":{
         "generateLabelObj_func": generateTextInputLabelObj,
         "addUpdateValueFunc_func": function (labelDict) {
             return function(newValue){
@@ -508,13 +508,13 @@ function generateRadioLabelObj(labelDict, labelValue) {
 }
 
 /**
- * This function generate a list-one type label obj.
+ * This function generate a listone type label obj.
  *
  * @example
  let labelDict = {
       "key": "type",
       "GUI_name": "type of the mention: ",
-      "value_type": "list-one",
+      "value_type": "listone",
       "value_option": [["无", "none"],["人", "PEO"],["地", "LOC"],["行为", "ACT"],["组织", "ORG"],["物", "SUB"]],
       "value_default": "none"
     };
@@ -592,13 +592,13 @@ function generateListOneLabelObj(labelDict, labelValue){
 }
 
 /**
- * This function generate a text-readonly type label obj.
+ * This function generate a textreadonly type label obj.
  *
  * @example
  let labelDict = {
         "key": "position",
         "GUI_name": "position: ",
-        "value_type": "text-readonly",
+        "value_type": "textreadonly",
         "value_default": "XXXXX"
     };
  let labelValue = "0-0-1-2";
@@ -639,13 +639,13 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
 }
 
 /**
- * This function generate a text-input type label obj.
+ * This function generate a textinput type label obj.
  *
  * @example
  let labelDict = {
     "key": "desc",
     "GUI_name": "desc: ",
-    "value_type": "text-input",
+    "value_type": "textinput",
     "value_default": "XXXXX"
  };
  let labelValue = "埃航失事客机";

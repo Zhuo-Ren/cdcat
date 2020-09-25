@@ -47,6 +47,6 @@ def input_ntree_from_sqlite(path: str, table_name: str)-> NodeTree:
         # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #
-    root = NodeTree(label_dict={}, children=news_node_list)
+    root = NodeTree(label_value={}, children=news_node_list)
     return root
 

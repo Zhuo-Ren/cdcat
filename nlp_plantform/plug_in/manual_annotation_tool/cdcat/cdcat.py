@@ -128,13 +128,13 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         logging.debug("addNode->：position=" + str(selected_nleaf_list[0]) + "-" + str(selected_nleaf_list[-1]))
         selected_nleaf_list = [ntree[i] for i in selected_nleaf_list]
         try:
-            anno_node = ntree.add_parent({}, selected_nleaf_list)
+            anno_node: NodeTree = ntree.add_parent({}, selected_nleaf_list)
         except RuntimeError:
             logging.debug("addNode->：position=" + selected_nleaf_list[0] + "-" + selected_nleaf_list[-1])
             logging.debug("addNode<-：" + "(can not add node)" + "：")
             return ""
         if anno_node is not None:
-            anno_info = anno_node.output_to_dict()
+            anno_info = anno_node.labels.nolink_labels()
             logging.debug("addNode<-：" + "(success)" + "：" + str(anno_info))
             return jsonify(anno_info)
 
@@ -156,7 +156,7 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
-            anno_info = node.label()
+            anno_info = node.labels.nolink_labels()
             anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(anno_info))
             return jsonify(anno_info)
@@ -225,13 +225,32 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
             logging.debug("setNode<-：(success)")
             return jsonify("success")
 
+    @app.route('/delNode', methods=["POST"])
+    def delNode():
+        pass
+
+    @app.route('/addInstance', methods=["POST"])
+    def addInstance():
+        position = ntree.str_to_position(request.form.get("position"))
+        if position:  # 使用快捷键，基于一个node创建instance
+            node = ntree[position]
+            logging.debug("addInstance_node->：position=" + str(position))
+            instance = instances.add_instance(desc=node.text())
+            instance["mention_list"].append([node])
+            node.add_label({"instance": instance})
+        else:  # 单纯创建一个instance
+            logging.debug("addInstance_empty->：")
+            instance = instances.add_instance()
+        return jsonify(instance.labels.nolink_labels())
+
     @app.route('/getInstance', methods=["POST"])
     def getInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("getInstance->：id=" + instance_id)
-        output = instances.get_instance(id=instance_id)[0].output_to_dict()
-        logging.debug("getInstance<-：(success)：" + str(output))
-        return jsonify(output)
+        target_instance = instances.get_instance(id=instance_id)[0]
+        instance_info = target_instance.labels.nolink_labels()
+        logging.debug("getInstance<-：(success)：" + str(instance_info))
+        return jsonify(instance_info)
 
     @app.route('/setInstance', methods=["POST"])
     def setInstance():
@@ -293,19 +312,12 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         logging.debug("setInstance<-：(success)" )
         return jsonify("success")
 
-    @app.route('/addInstance', methods=["POST"])
-    def addInstance():
-        position = ntree.str_to_position(request.form.get("position"))
-        if position:  # 使用快捷键，基于一个node创建instance
-            node = ntree[position]
-            logging.debug("addInstance_node->：position=" + str(position))
-            instance = instances.add_instance(desc=node.text())
-            instance["mention_list"].append([node])
-            node.add_label({"instance": instance})
-        else:  # 单纯创建一个instance
-            logging.debug("addInstance_empty->：")
-            instance = instances.add_instance()
-        return jsonify(instance.output_to_dict())
+    @app.route('/delInstance', methods=["POST"])
+    def delInstance():
+        instance_id = request.form.get("instance_id")
+        logging.debug("delInstance->：id=" + instance_id)
+        instance = instances.get_instance(id=instance_id)[0]
+        del instances[int(instance_id)]
 
     @app.route('/save', methods=["POST"])
     def save():

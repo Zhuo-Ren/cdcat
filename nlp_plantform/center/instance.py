@@ -1,24 +1,29 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
-from nlp_plantform.center.nodetree import NodeTree
 
 
-class Instance(dict):
+class Instance(object):
 
-    def __init__(self, id=None, desc=None, kg=None):
-        self["id"] = id
-        self["desc"] = "" if desc is None else desc
-        self["kg"] = [] if kg is None else kg
-        self["mention_list"]: List[List[NodeTree]] = [[]]
+    def __init__(self, labelsValue:Dict={}):
+        from nlp_plantform.center.instancelabels import InstanceLabels
+        self._labels = InstanceLabels(self, labelsValue)
 
-    def output_to_dict(self) -> Dict:
-        output_dict = {}
-        output_dict["desc"]: str = self["desc"]
-        output_dict["id"]: int = self["id"]
-        output_dict["kg"]: str = self["kg"]
-        output_dict["mention_list"]: List[List[NodeTree]] = []
-        for cur_mention in self["mention_list"]:
-            m = []
-            for cur_part in cur_mention:
-                m.append(cur_part.output_to_dict())
-            output_dict["mention_list"].append(m)
-        return output_dict
+    # public: labels
+    @property
+    def labels(self):
+        return self._labels
+    @labels.setter
+    def labels(self, labelsValue):
+        from nlp_plantform.center.instancelabels import InstanceLabels
+        # 析构旧label
+        del self._labels
+        # 添加新label
+        self._labels = InstanceLabels(labelsValue)
+
+
+    def output_to_infodict(self) -> dict:
+        """
+        This function return labels of this instance in dict format.
+        :return:
+        """
+        return self._labels.__str__()
+
