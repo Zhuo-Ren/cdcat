@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from typing import Dict, List, Tuple, Union  # for type hinting
-import json  # for reading the config files
 import nlp_plantform.log_config
+import json
 import logging
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config
 from nlp_plantform.center.nodetree import NodeTree
@@ -31,7 +31,6 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
     def init():
         return render_template("main.html",
                                instance_dict=instances,
-                               allowOneNodeReferToMultiInstances = config.allow_one_node_refer_to_more_than_one_instance,
                                langDict=lang_dict,
                                labelSysDict=label_sys_dict)
 
@@ -40,11 +39,25 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         """
         given the position of a target node. for each leaf node of the target node, return char and position.
 
-        :AjaxIn textNodeId: tid of the node.
+        - AjaxParam: **textNodeId** (str) [required]: postion of the target node.
+
         :return: jsonify( [{"char": char of the 0th leaf node, "position": position of the 1th leaf node}, {...}, ...] )
         """
+        # receive ajax param, type hint, and normalization
         text_node_position = request.form.get("textNodeId")
-        text_node_position = ntree.str_to_position(text_node_position)
+        logging.debug("getText->：position=" + str(text_node_position))
+        if not isinstance(text_node_position, str):
+            raise TypeError("ajax param 'textNodeId' should be in str form.")
+            logging.debug("getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
+            return jsonify("ajax param 'textNodeId' should be in str form.")
+        try:
+            text_node_position = ntree.str_to_position(text_node_position)
+        except:
+            raise RuntimeError("the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+            logging.debug("getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+            return jsonify("the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+        logging.debug("getText--：the node text is:" + ntree[text_node_position].text())
+        #
         text_unit_list = []
         for cur_nleaf in ntree[text_node_position].all_nleaves():
             p = [str(i) for i in cur_nleaf.position()]
@@ -53,9 +66,7 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                 "position": "-".join(p)
             })
         #
-        logging.debug("getText->：position=" + str(text_node_position) + "：" + ntree[text_node_position].text())
         logging.debug("getText<-：" + "(success)" + "：" + str(text_unit_list))
-        #
         return jsonify(text_unit_list)
 
     @app.route('/getCatalogue', methods=["POST"])
@@ -114,7 +125,6 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
                 else:
                     content.append(walk_to_file(cur_node))
             return content
-
         # 获取目录结构
         content = walk_to_file(ntree)
         # 返回目录结构
@@ -122,21 +132,49 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
 
     @app.route('/addNode', methods=["POST"])
     def addNode():
-        selected_nleaf_list = request.form.getlist("childrenNodePositionList[]")
-        selected_nleaf_list = [i.split("-") for i in selected_nleaf_list]
-        selected_nleaf_list = [[int(j) for j in i] for i in selected_nleaf_list]
-        logging.debug("addNode->：position=" + str(selected_nleaf_list[0]) + "-" + str(selected_nleaf_list[-1]))
-        selected_nleaf_list = [ntree[i] for i in selected_nleaf_list]
+        """
+        Given a position list of a range of child nodes, this function create a parent node for those child nodes.
+
+        - AjaxParam: **childrenNodePositionList** (List[str]) [required]: position list of a range of child nodes.
+
+        :return:
+        """
+        # ajax in
         try:
-            anno_node: NodeTree = ntree.add_parent({}, selected_nleaf_list)
-        except RuntimeError:
-            logging.debug("addNode->：position=" + selected_nleaf_list[0] + "-" + selected_nleaf_list[-1])
-            logging.debug("addNode<-：" + "(can not add node)" + "：")
+            children_node_position_list = request.form.getlist("childrenNodePositionList[]")
+            logging.debug("addNode->：childrenNodePositionList=" + str(children_node_position_list))
+        except:
+            raise RuntimeError("lose the param 'childrenNodePositionList'")
+            logging.debug("addNode--:Error: " + "lose the param 'childrenNodePositionList'")
+            logging.debug("addNode<-：" + "(failed):" + " ''")
             return ""
-        if anno_node is not None:
-            anno_info = anno_node.labels.nolink_labels()
-            logging.debug("addNode<-：" + "(success)" + "：" + str(anno_info))
-            return jsonify(anno_info)
+        # param normalization
+        try:
+            children_node_position_list = [i.split("-") for i in children_node_position_list]
+            children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
+            children_node_list = [ntree[i] for i in children_node_position_list]
+        except:
+            raise RuntimeError("Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            logging.debug("addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            logging.debug("addNode<-：" + "(failed):" + " ''")
+            return ""
+        logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
+        # create new node
+        try:
+            new_node: NodeTree = ntree.add_parent({}, children_node_list)
+        except RuntimeError:
+            logging.debug("addNode<-Error：" + "can not create the new node.")
+            logging.debug("addNode<-：" + "(failed):" + " ''")
+            return ""
+        if new_node is None:
+            logging.debug("addNode<-Error：" + "can not create the new node.")
+            logging.debug("addNode<-：" + "(failed):" + " ''")
+            return ""
+        # ajax out
+        else:
+            new_node_info = new_node.labels.readable()
+            logging.debug("addNode<-：" + "(success):" + str(new_node_info))
+            return jsonify(new_node_info)
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
@@ -156,7 +194,7 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
-            anno_info = node.labels.nolink_labels()
+            anno_info = node.labels.readable()
             anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(anno_info))
             return jsonify(anno_info)
@@ -241,14 +279,14 @@ def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
         else:  # 单纯创建一个instance
             logging.debug("addInstance_empty->：")
             instance = instances.add_instance()
-        return jsonify(instance.labels.nolink_labels())
+        return jsonify(instance.labels.readable())
 
     @app.route('/getInstance', methods=["POST"])
     def getInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("getInstance->：id=" + instance_id)
         target_instance = instances.get_instance(id=instance_id)[0]
-        instance_info = target_instance.labels.nolink_labels()
+        instance_info = target_instance.labels.readable()
         logging.debug("getInstance<-：(success)：" + str(instance_info))
         return jsonify(instance_info)
 

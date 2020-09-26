@@ -70,14 +70,16 @@ class NodeLabels(dict):
             output_dict.update({cur_label_key: self[cur_label_key].output_to_infodict()})
         return str(output_dict)
 
-    def nolink_labels(self):
-        nolink_labels = {}
-        for (label_key,label_config) in NodeLabels.config.items():
-            if "linkto" in label_config:
-                pass
-            else:
-                nolink_labels.update({label_key: self[label_key]})
-        return nolink_labels
+    def readable(self, nolink=False):
+        info_dict = {}
+        if nolink == False:
+            for (label_key, label_config) in NodeLabels.config.items():
+                info_dict.update({label_key: self[label_key].readable()})
+        else:
+            for (label_key,label_config) in NodeLabels.config.items():
+                if "linkto" not in label_config:
+                    info_dict.update({label_key: self[label_key].readable()})
+        return info_dict
 
 
 

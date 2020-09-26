@@ -1,17 +1,21 @@
 class labeltype_radio(str):
-    pass
+    def readable(self):
+        return  self
 
 
 class labeltype_listone(str):
-    pass
+    def readable(self):
+        return  self
 
 
 class labeltype_readonly(str):
-    pass
+    def readable(self):
+        return  self
 
 
 class labeltype_textinput(str):
-    pass
+    def readable(self):
+        return  self
 
 from nlp_plantform.center.instance import Instance
 class labeltype_instance(Instance):
@@ -21,9 +25,12 @@ class labeltype_instance(Instance):
     def __del__(self):
         print("析构")
 
+    def readable(self):
+        return  self.labels.readable(nolink=True)
 
 class labeltype_nodes(list):
-    pass
+    def readable(self):
+        return [[node.labels.readable(nolink=True) for node in nodeList] for nodeList in self]
 
 
 labeltypes = {

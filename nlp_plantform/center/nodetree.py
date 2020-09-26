@@ -36,7 +36,7 @@ class NodeTree(ParentedTree):
                 child._parent = self
         # load label
         from nlp_plantform.center.nodelabels import NodeLabels
-        self._labels = NodeLabels(label_value)
+        self._labels = NodeLabels(owner=self, label_value=label_value)
 
     # getter setter---------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ class NodeTree(ParentedTree):
         # 析构旧label
         del self._labels
         # 添加新label
-        self._labels = NodeLabels(labelsValue)
+        self._labels = NodeLabels(owner=self, label_Value=labelsValue)
 
     def get_label(self):
         """
