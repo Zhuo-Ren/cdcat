@@ -6,12 +6,12 @@ import logging
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.instances import Instances
+from nlp_plantform.center.instancepool import InstancePool
 from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
 from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat.label_sys import labelTemplate
 
-def cdcat(ntree: NodeTree, instances: Instances, unit_level: Dict) -> None :
+def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
     """
     This is a manual annotation tool for cross-document coreference.
 

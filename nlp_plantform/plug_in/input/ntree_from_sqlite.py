@@ -1,3 +1,4 @@
+from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_from_string_plaintext_form
 from  dbsql.dbsql_sqlite import DbSql
@@ -30,23 +31,28 @@ def input_ntree_from_sqlite(path: str, table_name: str)-> NodeTree:
         response = DbSql.selectRow(table_name)
     finally:
         DbSql.disconnectDataBase()
-    news_list = [{"date":i[16:19], "title":i[15], "source":i[13], "text":i[19]} for i in response]
+
+    # 读取每一行中的指定列
+    news_list : List[Dict]= [{"date":i[16:19], "title":i[15], "source":i[13], "text":i[19]} for i in response]
     """
     语料列表，每一行就是一条新闻。
     """
+
     # 按行读取语料列表，生成新闻节点列表
     news_node_list = []
     for cur_news in news_list:
-        # 读取语料，形成新闻节点
+        # 形成新闻节点
         cur_news_node = input_from_string_plaintext_form(cur_news["text"])
-        cur_news_node.add_label({"date": cur_news["date"], "source": cur_news["source"]})
-        cur_news_node.add_label({"article": True})   # 表示这个一个文章，在cdcat中单独显示。
+        cur_news_node.labels.update({"date": cur_news["date"], "source": cur_news["source"]})
+        cur_news_node.labels.update({"article": True})   # 表示这个一个文章，在cdcat中单独显示。
+        # 形成标题节点
         cur_title_node = input_from_string_plaintext_form(cur_news["title"]+"\n")
-        cur_title_node.add_label({"title": True})
+        cur_title_node.labels.update({"title": True})
+        # 把标题节点添加到新闻节点
         cur_news_node.insert(0, cur_title_node)
         # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #
-    root = NodeTree(label_value={}, children=news_node_list)
+    root = NodeTree(labels_dict={}, children=news_node_list)
     return root
 

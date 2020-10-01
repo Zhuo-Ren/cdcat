@@ -8,49 +8,62 @@ from nltk.tree import ParentedTree
 
 
 class NodeTree(ParentedTree):
-    def __init__(self, label_value:Union[None, Dict], children:Union[None, Dict]):
+    def __init__(self, labels_dict: Dict = None, children: Union[None, Dict] = None):
         """
         Initial a node based on labels and children.
 
         - Every label in label_sys.js will be added to this node. The value of label is given by label_dict, if not the
           default value in label_sys.ja will be use.
 
-        :param label_value: label dict of this node.
+        :param labels_dict: label dict of this node.
         :param children: children of this node.
         """
-        # private
-        self._labels = None
-        self._parent = None
-
-        # type hint
+        # param check: children
         if not isinstance(children, list):
             raise TypeError("param 'children' should be a list.")
-        if label_value is not None:
-            if not isinstance(label_value, dict):
-                raise TypeError("param label_dict should be None or a dict.")
+
+        # param check: labels_dict
+        if labels_dict is None:
+            labels_dict = {}  # 防止默认值为可变元素
+        if not isinstance(labels_dict, dict):
+            raise TypeError("param label_dict should be None or a dict.")
+
+        # private: _parent
+        self._parent = None
+
+        # private: _labels
+        from nlp_plantform.center.labels import NodeLabels
+        self._labels: NodeLabels = NodeLabels(owner=self, labels_dict=labels_dict)
 
         # load children
         list.__init__(self, children)
         for child in self:
             if isinstance(child, NodeTree):
                 child._parent = self
-        # load label
-        from nlp_plantform.center.nodelabels import NodeLabels
-        self._labels = NodeLabels(owner=self, label_value=label_value)
 
-    # getter setter---------------------------------------------------------------------------------
+    def get_parent(self) -> Union[None, "NodeTree"]:
+        return self._parent
+    parent = get_parent
+
+    def set_parent(self, new_parent, new_index):
+        raise TypeError("tree obj does not support set_parent, "
+                        "tree_obj.set_parent(parent, index) should be"
+                        "replaced with parent.insert(index, tree_obj)"
+                        "or parent[index]=tree_obj"
+                        "or del parent[index]")
+    _setparent = set_parent
 
     # public: labels
     @property
     def labels(self):
         return self._labels
     @labels.setter
-    def labels(self, labelsValue):
-        from nlp_plantform.center.nodelabels import NodeLabels
+    def labels(self, labels_dict):
+        from nlp_plantform.center.labels import NodeLabels
         # 析构旧label
-        del self._labels
+        self._labels.clear()
         # 添加新label
-        self._labels = NodeLabels(owner=self, label_Value=labelsValue)
+        self._labels = NodeLabels(owner=self, labels_dict=labels_dict)
 
     def get_label(self):
         """
@@ -77,29 +90,22 @@ class NodeTree(ParentedTree):
         :param label: the node label (typically a string)
         :type label: any
         """
-        self._labels = label
+        self.labels = label
 
-    def add_label(self, label):
-        self._labels.update(label)
+    def add_label(self, label_dict) -> None:
+        """
+        Add label.
 
-    def del_label(self, key):
-        del self._labels[key]
+        :param label_dict: For example: {label_key: label_value, ...}
+        """
+        self._labels.update(label_dict)
 
-    def get_parent(self) -> Union[None, "NodeTree"]:
-        return self._parent
-    parent = get_parent
-
-    def set_parent(self, new_parent, new_index):
-        raise TypeError("tree obj does not support set_parent, "
-                        "tree_obj.set_parent(parent, index) should be"
-                        "replaced with parent.insert(index, tree_obj)"
-                        "or parent[index]=tree_obj"
-                        "or del parent[index]")
-    _setparent = set_parent
+    def del_label(self, label_key):
+        del self._labels[label_key]
 
     # obj operations-------------------------------------------
     def __eq__(self, other):
-        return (id(self) == id(other))
+        return id(self) == id(other)
 
     def __lt__(self, other):
         if not isinstance(other, NodeTree):
@@ -279,7 +285,7 @@ class NodeTree(ParentedTree):
         list.insert(self, index, value)
 
     def pop(self, index=-1):
-        assert isinstance(index,int)
+        assert isinstance(index, int)
         # 修改自己
         child = list.pop(self, index)
         # 修改孩子
@@ -313,7 +319,8 @@ class NodeTree(ParentedTree):
         ``ptree.parent.index(ptree)``, since the ``index()`` method
         returns the first child that is equal to its argument.
         """
-        if self._parent is None: return None
+        if self._parent is None:
+            return None
         for i, child in enumerate(self._parent):
             if child is self: return i
         assert False, 'expected to find self in self._parent!'

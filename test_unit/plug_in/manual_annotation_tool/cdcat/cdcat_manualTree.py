@@ -2,14 +2,14 @@ from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_f
 from nlp_plantform.plug_in.process.add_from_list_of_token import add_from_list_of_token
 from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 from nlp_plantform.center.nodetree import NodeTree
-from nlp_plantform.center.instances import Instances
+from nlp_plantform.center.instancepool import InstancePool
 
 # init
 pass
 
 # input
 root = input_from_string_plaintext_form("我爱北京天安门。I like apple. Tiananmen is my favourite!")
-instances = Instances()
+instances = InstancePool()
 
 # 分词
 add_from_list_of_token(
