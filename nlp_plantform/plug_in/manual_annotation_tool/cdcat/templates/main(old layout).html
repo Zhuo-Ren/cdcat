@@ -169,6 +169,83 @@
 </head>
 <body>
     <div id="centerWindow">
+        <div id="contentWindow">
+<!--            <ul id="browser" class="filetree">-->
+<!--                <li><span>Folder 1</span>-->
+<!--                    <ul>-->
+<!--                        <li><span>Item 1.1</span>-->
+<!--                            <ul>-->
+<!--                                <li><span>Item 1.1.1</span></li>-->
+<!--                            </ul>-->
+<!--                        </li>-->
+<!--                        <li><span>Folder 2</span>-->
+<!--                            <ul>-->
+<!--                                <li><span>Subfolder 2.1</span>-->
+<!--                                    <ul id="folder21">-->
+<!--                                        <li><span class="file">File 2.1.1</span></li>-->
+<!--                                        <li><span class="file">File 2.1.2</span></li>-->
+<!--                                    </ul>-->
+<!--                                </li>-->
+<!--                                <li><span>Subfolder 2.2</span>-->
+<!--                                    <ul>-->
+<!--                                        <li><span>File 2.2.1</span></li>-->
+<!--                                        <li><span>File 2.2.2</span></li>-->
+<!--                                    </ul>-->
+<!--                                </li>-->
+<!--                            </ul>-->
+<!--                        </li>-->
+<!--                        <li class="closed"><span>Folder 3 (closed at start)</span>-->
+<!--                            <ul>-->
+<!--                                <li><span>File 3.1</span></li>-->
+<!--                            </ul>-->
+<!--                        </li>-->
+<!--                        <li><span>File 4</span></li>-->
+<!--                    </ul>-->
+<!--                </li>-->
+<!--            </ul>-->
+        </div>
+        <div id="nodeInfoWindow">
+            <div id="nodeInfo-noSelect">
+                <p>{{langDict["no mention selected."]}}</p>
+            </div>
+            <div id="nodeInfo-noNode">
+                <button>{{langDict["create a node for current mention."]}}</button>
+            </div>
+            <div id="nodeInfo-selectedNode">
+                <span>
+                    {{langDict["current node"]}}
+                    <button class="circleButton">x</button>
+                </span>
+
+<!--                <span id="positionKey"> position =</span>-->
+<!--                 <span id="positionValue">XXXXX</span>-->
+<!--                <div id="nodeInfo-token">-->
+<!--                    <span id="tokenKey">&nbsp &nbsp token =</span>-->
+<!--                    <span id="tokenValue">-->
+<!--                        <input type = "radio" name = "token" value = "true" />True-->
+<!--                        <input type = "radio" name = "token" value = "false" checked/>False-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--                <div id="nodeInfo-semanticType">-->
+<!--                    <span id="semanticTypeKey">&nbsp &nbsp mention.type =</span>-->
+<!--                    <span id="semanticTypeValue">-->
+<!--                    <select>-->
+<!--                        <option value="none" selected>无</option>-->
+<!--                        <option value="peo">人</option>-->
+<!--                        <option value="org">组织</option>-->
+<!--                        <option value="addr">地点</option>-->
+<!--                        <option value="act">行为</option>-->
+<!--                        <option value="sub">物</option>-->
+<!--                    </select>-->
+<!--                </span>-->
+<!--                </div>-->
+<!--                <div id="nodeInfo-instance">-->
+<!--                    <span id="instanceKey">&nbsp &nbsp coref.instance =</span>-->
+<!--                    <button id="instanceValue">none</button>-->
+<!--                    <span>(double click to edit)</span>-->
+<!--                </div>-->
+            </div>
+        </div>
         <div id="textWindow">
             <ul>
                 <li><a href="#textTab1">{{langDict["major text window"]}}</a></li>
@@ -199,117 +276,7 @@
             </div>
         </div>
     </div>
-    <div id="contentWindow">
-        <!--            <ul id="browser" class="filetree">-->
-        <!--                <li><span>Folder 1</span>-->
-        <!--                    <ul>-->
-        <!--                        <li><span>Item 1.1</span>-->
-        <!--                            <ul>-->
-        <!--                                <li><span>Item 1.1.1</span></li>-->
-        <!--                            </ul>-->
-        <!--                        </li>-->
-        <!--                        <li><span>Folder 2</span>-->
-        <!--                            <ul>-->
-        <!--                                <li><span>Subfolder 2.1</span>-->
-        <!--                                    <ul id="folder21">-->
-        <!--                                        <li><span class="file">File 2.1.1</span></li>-->
-        <!--                                        <li><span class="file">File 2.1.2</span></li>-->
-        <!--                                    </ul>-->
-        <!--                                </li>-->
-        <!--                                <li><span>Subfolder 2.2</span>-->
-        <!--                                    <ul>-->
-        <!--                                        <li><span>File 2.2.1</span></li>-->
-        <!--                                        <li><span>File 2.2.2</span></li>-->
-        <!--                                    </ul>-->
-        <!--                                </li>-->
-        <!--                            </ul>-->
-        <!--                        </li>-->
-        <!--                        <li class="closed"><span>Folder 3 (closed at start)</span>-->
-        <!--                            <ul>-->
-        <!--                                <li><span>File 3.1</span></li>-->
-        <!--                            </ul>-->
-        <!--                        </li>-->
-        <!--                        <li><span>File 4</span></li>-->
-        <!--                    </ul>-->
-        <!--                </li>-->
-        <!--            </ul>-->
-    </div>
-    <div id="eastWindow">
-        <div id="annotationWindow">
-            <div id="nodeInfoWindow">
-                <div id="nodeInfo-noSelect">
-                    <p>{{langDict["no mention selected."]}}</p>
-                </div>
-                <div id="nodeInfo-noNode">
-                    <button>{{langDict["create a node for current mention."]}}</button>
-                </div>
-                <div id="nodeInfo-selectedNode">
-                <span>
-                    {{langDict["current node"]}}
-                    <button class="circleButton">x</button>
-                </span>
-
-                    <!--                <span id="positionKey"> position =</span>-->
-                    <!--                 <span id="positionValue">XXXXX</span>-->
-                    <!--                <div id="nodeInfo-token">-->
-                    <!--                    <span id="tokenKey">&nbsp &nbsp token =</span>-->
-                    <!--                    <span id="tokenValue">-->
-                    <!--                        <input type = "radio" name = "token" value = "true" />True-->
-                    <!--                        <input type = "radio" name = "token" value = "false" checked/>False-->
-                    <!--                    </span>-->
-                    <!--                </div>-->
-                    <!--                <div id="nodeInfo-semanticType">-->
-                    <!--                    <span id="semanticTypeKey">&nbsp &nbsp mention.type =</span>-->
-                    <!--                    <span id="semanticTypeValue">-->
-                    <!--                    <select>-->
-                    <!--                        <option value="none" selected>无</option>-->
-                    <!--                        <option value="peo">人</option>-->
-                    <!--                        <option value="org">组织</option>-->
-                    <!--                        <option value="addr">地点</option>-->
-                    <!--                        <option value="act">行为</option>-->
-                    <!--                        <option value="sub">物</option>-->
-                    <!--                    </select>-->
-                    <!--                </span>-->
-                    <!--                </div>-->
-                    <!--                <div id="nodeInfo-instance">-->
-                    <!--                    <span id="instanceKey">&nbsp &nbsp coref.instance =</span>-->
-                    <!--                    <button id="instanceValue">none</button>-->
-                    <!--                    <span>(double click to edit)</span>-->
-                    <!--                </div>-->
-                </div>
-            </div>
-            <div id="instancInfoWindow">
-                <div id="instanceInfo-noInstance"style="display: block">select a instance to show it's info.</div>
-                <div id="instanceInfo-selectedInstance">
-                <span>
-                    {{langDict["current instance"]}}
-                    <button class="circleButton">x</button>
-                </span>
-                    <!--                <div id="instanceInfo-id" style="display: none">-->
-                    <!--                    <span id="idKey">id=</span>-->
-                    <!--                    <span id="idValue"> </span>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-desc" style="display: none">-->
-                    <!--                    <span id="descKey">desc= </span>-->
-                    <!--                    <input id="descValue" type="text" value="" />-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-kg"  style="display: none">-->
-                    <!--                    <span id="kgKey">kg=</span>-->
-                    <!--                    <input id="kgValue" type="text" value="none"/>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-mentionLists"  style="display: none">-->
-                    <!--                    <span id="mentionListsKey">mentionList=</span>-->
-                    <!--                    <div id="mentionListsValue">-->
-                    <!--    -->
-                    <!--                    </div>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                </div>
-            </div>
-        </div>
+    <div id="instanceWindow">
         <div id="instanceSelectWindow">
             <div id="searchInstance">
                 <input style="width: 85%">
@@ -318,11 +285,42 @@
             <button id="addInstancePlus" class="circleButton">+</button>
             <button id="addInstanceArrow" class="circleButton">→</button>
             <div id="allInstanceDiv">
-                <!--                {% for i in instance_dict: %}-->
-                <!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->
-                <!--                        {{instance_dict[i]["desc"]}}-->
-                <!--                    </button>-->
-                <!--                {% endfor %}-->
+<!--                {% for i in instance_dict: %}-->
+<!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->
+<!--                        {{instance_dict[i]["desc"]}}-->
+<!--                    </button>-->
+<!--                {% endfor %}-->
+            </div>
+        </div>
+        <div id="instancInfoWindow">
+            <div id="instanceInfo-noInstance"style="display: block">select a instance to show it's info.</div>
+            <div id="instanceInfo-selectedInstance">
+                <span>
+                    {{langDict["current instance"]}}
+                    <button class="circleButton">x</button>
+                </span>
+<!--                <div id="instanceInfo-id" style="display: none">-->
+<!--                    <span id="idKey">id=</span>-->
+<!--                    <span id="idValue"> </span>-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-desc" style="display: none">-->
+<!--                    <span id="descKey">desc= </span>-->
+<!--                    <input id="descValue" type="text" value="" />-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-kg"  style="display: none">-->
+<!--                    <span id="kgKey">kg=</span>-->
+<!--                    <input id="kgValue" type="text" value="none"/>-->
+<!--                    <hr/>-->
+<!--                </div>-->
+<!--                <div id="instanceInfo-mentionLists"  style="display: none">-->
+<!--                    <span id="mentionListsKey">mentionList=</span>-->
+<!--                    <div id="mentionListsValue">-->
+<!--    -->
+<!--                    </div>-->
+<!--                    <hr/>-->
+<!--                </div>-->
             </div>
         </div>
     </div>

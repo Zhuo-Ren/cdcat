@@ -1,35 +1,29 @@
 $(document).ready(function () {
     // OUTER-LAYOUT
     $('body').layout({
-        center__paneSelector:	    "#centerWindow",
-        east__paneSelector:		"#instanceWindow",
-        east__size:				450,
+        center__paneSelector:	"#centerWindow",
+        east__paneSelector:		"#eastWindow",
+        west__paneSelector:     "#contentWindow",
+        west__size:				200,  // size of west window
+        east__size:				600,  // size of east window
         spacing_open:			    8,  // ALL panes
         spacing_closed:			12, // ALL panes
         north__maxSize:			200,
         south__maxSize:			200,
-        center__childOptions: {
-            center__paneSelector: "#textWindow",
-            south__paneSelector: "#nodeInfoWindow",
-            west__paneSelector: "#contentWindow",
-            south__size: 250,
-            west__size:200,
-            spacing_open: 8,  // ALL panes
-            spacing_closed: 12 // ALL panes
-        },
         east__childOptions: {
-            center__paneSelector: "#instanceSelectWindow",
-            south__paneSelector: "#instancInfoWindow",
-            south__size: 330,
+            center__paneSelector: "#annotationWindow",
+            east__paneSelector: "#instanceSelectWindow",
+            east__size: 300,    // size of east window
             spacing_open: 8,  // ALL panes
             spacing_closed: 12,// ALL panes
+            center__childOptions: {
+                center__paneSelector: "#nodeInfoWindow",
+                south__paneSelector: "#instanceInfoWindow",
+                south__size: 400,
+                spacing_open: 8,  // ALL panes
+                spacing_closed: 12,// ALL panes
+            }
         }
-        // ,
-        // onresize : (function(){
-        //     var h = $(".textWindow").height()
-        //     alert(h)
-        //     $(".textTab").height("50px");
-        // })()
     });
 
 });
