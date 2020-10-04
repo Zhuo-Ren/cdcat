@@ -8,7 +8,6 @@ This program:
 from nlp_plantform.config import data_path
 from nlp_plantform.center.instancepool import InstancePool
 from nlp_plantform.plug_in.input.ntree_from_sqlite import input_ntree_from_sqlite
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 
 
 # input
@@ -16,4 +15,5 @@ ntree = input_ntree_from_sqlite(data_path + "\main.sqlite", "websiteTabel")  # ç
 instances = InstancePool()
 
 # annotate those text with CDCAT
+from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 cdcat(ntree, instances, {"article": True})

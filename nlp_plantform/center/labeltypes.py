@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Union  # for type hinting
 
 def regiest_cofigured_label_types():
     from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config as cdcat_config
-    from nlp_plantform.center.labels import NodeLabels,InstanceLabels
+    from nlp_plantform.center.labels import NodeLabels, InstanceLabels
     import json
     with open(cdcat_config.label_sys_dict_path, 'r', encoding='utf8') as labelf:
         label_sys_dict = json.load(labelf)
@@ -164,9 +164,9 @@ class LabelType(object):
         self.key = key
 
         # private: value
-        self._value = self.empty_vlaue
+        self._value = self.empty_value
         if value is None:
-            self._value = self.empty_vlaue
+            self._value = self.empty_value
         else:
             self.value = value
             "这里将调用子类中定义的value的setter，将包含同步功能如果需要的话。"
@@ -220,19 +220,70 @@ class LabelType(object):
     def readable(self):
         return self.value
 
+    def ajax_process(self, ajax_param):
+        pass
+
 
 class LabelTypeRadio(LabelType):
-    def __init__(self, owner, key, value: Union[None, str]=None):
-        super().__init__(self, owner, key, value)
+    def __init__(self, owner, key, value: Union[None, str] = None):
         # public
         self.empty_value = None
+        #
+        super().__init__(owner=owner, key=key, value=value)
+
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            self.value = ajax_param
 
 
 class LabelTypeCheckbox(LabelType):
     def __init__(self, owner, key, value: Union[None, List[str]]=None):
-        super().__init__(self, owner, key, value)
         # public
         self.empty_value = []
+        #
+        super().__init__(self, owner, key, value)
+
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            self.value = ajax_param
 
 
 class LabelTypeMenuOne(LabelType):
@@ -241,12 +292,58 @@ class LabelTypeMenuOne(LabelType):
         # public
         self.empty_value = None
 
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            self.value = ajax_param
+
 
 class LabelTypeMenuMulti(LabelType):
     def __init__(self, owner, key, value: Union[None, List[str]]=None):
         super().__init__(self, owner, key, value)
         # public
         self.empty_value = []
+
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            self.value = ajax_param
 
 
 class LabelTypeTextReadonly(LabelType):
@@ -255,6 +352,25 @@ class LabelTypeTextReadonly(LabelType):
         # public
         self.empty_value = None
 
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        raise RuntimeError("A TextReadonly label receive a edit ajax quire.")
+
 
 class LabelTypeTextInput(LabelType):
     def __init__(self, owner, key, value: Union[None, str]=None):
@@ -262,10 +378,33 @@ class LabelTypeTextInput(LabelType):
         # public
         self.empty_value = None
 
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            self.value = ajax_param
+
 
 class LabelTypeNode(LabelType):
     from nlp_plantform.center.nodetree import NodeTree
-    def __init__(self, owner, key, value: Union[None, NodeTree]=None):
+    def __init__(self, owner, key, value: Union[None, NodeTree] =None):
         # param check
         from nlp_plantform.center.nodetree import NodeTree
         if isinstance(value, NodeTree)or (value is None):
@@ -274,7 +413,6 @@ class LabelTypeNode(LabelType):
         self.empty_value = None
         #
         super().__init__(self, owner, key, value)
-
 
     # public: value
     from nlp_plantform.center.nodetree import NodeTree
@@ -336,6 +474,37 @@ class LabelTypeNode(LabelType):
             return None
         else:
             return  self.value.readable(nolink=True)
+
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if ajax_param is None:
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            # get node
+            start_position = ajax_param["start"]
+            end_position = ajax_param["end"]
+            node = root_node.is_annotated(root_node, start_position, end_position)
+            if node is None:
+                return "no such node."
+            #
+            self.value = node
+            return True
 
 
 class LabelTypeInstance(LabelType):
@@ -410,6 +579,32 @@ class LabelTypeInstance(LabelType):
             return None
         else:
             return  self.value.readable(nolink=True)
+
+    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_plantform.center.instancepool import InstancePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     root_node: NodeTree = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param root_node: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if ajax_param is None:
+            self.value_empty()
+            del self.owner_labels[self.config["key"]]
+        else:
+            # get instance
+            new_instance = instance_pool.get_instance({"id": ajax_param["instance"]})[0]
+            self.value = new_instance
+            return True
 
 
 class LabelTypeNodeList(LabelType):

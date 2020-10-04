@@ -48,7 +48,7 @@
         .curSlot{
             background: red;
         }
-        #contentWindow{
+        #catalogueWindow{
             background-color: white;
         }
         .circleButton{
@@ -65,9 +65,9 @@
     <script>
     $(function(){
         <!--页面初始化(动态部分)-->
-            // #contentWindow--Load content
+            // #catalogueWindow--Load content
             let catalogueInfo = getCatalogue();
-            contentWindow_updateContent(catalogueInfo);
+            catalogueWindow_updateContent(catalogueInfo);
 
             // #nodeInfoWindow--Load node labels
             nodeInfoWindow_addLabels();
@@ -199,7 +199,7 @@
             </div>
         </div>
     </div>
-    <div id="contentWindow">
+    <div id="catalogueWindow">
         <!--            <ul id="browser" class="filetree">-->
         <!--                <li><span>Folder 1</span>-->
         <!--                    <ul>-->

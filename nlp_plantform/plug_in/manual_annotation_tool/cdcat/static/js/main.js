@@ -8,25 +8,40 @@ $.ajaxSetup({
     async : false
 });
 
+function PythonStyleToJsStyle(data){
+    if (!(data instanceof Object)){
+        alert(langDict("Data is not a js Object"))
+    }
+    for(let key in data){
+        if (data[key] instanceof Object){
+            data[key] = PythonStyleToJsStyle(data[key])
+        }else{
+            if (data[key] == null){
+                data[key] = undefined
+            }
+        }
+    }
+    return data
+}
 
 // <!-- ui interface -->
     /**
-     *  In contentWindow, scroll to the given element.
+     *  In catalogueWindow, scroll to the given element.
      *
      */
-    function contentWindow_scroll(){}
+    function catalogueWindow_scroll(){}
     /**
-     * In contentWindow, set content based on *contentArray*.
+     * In catalogueWindow, set content based on *contentArray*.
      */
-    function contentWindow_updateContent(contentArray){
+    function catalogueWindow_updateContent(contentArray){
         //
-        contentWindow = $("#contentWindow")
-        contentWindow.empty();
+        catalogueWindow = $("#catalogueWindow")
+        catalogueWindow.empty();
         // 创建根目录
         var contentRoot = $("<ul></ul>");
         contentRoot.attr("id", "browser");
         contentRoot.addClass("filetree");
-        contentWindow.append(contentRoot);
+        catalogueWindow.append(contentRoot);
         // 添加目录到根目录
         /**
          * Add the content to a <ul> element.
@@ -310,36 +325,73 @@ $.ajaxSetup({
         $("#nodeInfo-selectedNode").css("display", "block");
     }
     function nodeInfoWindow_addLabels(){
-        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
-            curLabelDict = labelSysDict["node"][curLabelIndex];
+        // add positionObj <div>
+        let positionObj = nodeInfoWindow_generatePositionObj()
+        $("#nodeInfo-selectedNode").append(positionObj);
+        // add labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            let curLabelDict = labelSysDict["node"][curLabelIndex];
             //generate label obj
-            curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
+            let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
             $("#nodeInfo-selectedNode").append(curLabelObj);
             //add event to label obj
-            labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
+                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
             //add updateValueFunc to label (in labelSysDict)
-            curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
-            labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
+                // labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
         }
     }
     function nodeInfoWindow_showCannotAddNode(){
         alert(langDict["can not add node based on current mention."])
     }
+    function nodeInfoWindow_generatePositionObj(position){
+        let positionObj = $(" <div id='nodeInfo-position'></div>");
+        positionObj.css("padding-left","10px");
+        // keyObj <span>
+        let keyObj = $("<span id='positionKey'>position: </span>");
+        positionObj.append(keyObj);
+        // valueObj <span>
+        let valueObj = $("<span id='positionValue'></span>");
+        let innerText = undefined;
+        // if given a value, display the value
+        if (position != undefined) {
+            innerText = position;
+        }else{
+            innerText = "XXXX";
+        }
+        valueObj.text(innerText);
+        positionObj.append(valueObj);
+        //
+        return positionObj
+    }
+    /**
+     * This function update the info in nodeInfoWindow.
+     *
+     * @param nodeInfo: A node info dict. Each item is a property or a label.
+     *   The disappear of a label in the dict means annotators never label the label.
+     *   Also,{"label_key": undefined} means annotators never label the label.
+     */
     function nodeInfoWindow_updateNodeInfo(nodeInfo){
-        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
-            // get the label data ready
-            let curLabelDict = labelSysDict["node"][curLabelIndex];
-            let newValue = undefined;
-            if(curLabelDict["key"] in nodeInfo) {
-                newValue = nodeInfo[curLabelDict["key"]];
-            }else{
-                newValue = undefined;
-            }
-            let curLabelTypeDict = labelTemplate[curLabelDict["value_type"]];
-            // generate a new label obj based on new value
-            let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelDict, newValue);
+        // update position
+            // get the position data ready
+            let position = nodeInfo["position"];
+            // generate new positionObj
+            let positionObj = nodeInfoWindow_generatePositionObj(position);
             // replace the old label obj
-            $("#nodeInfo-" + curLabelDict["key"]).replaceWith(labelObj);
+            $("#nodeInfo-position").replaceWith(positionObj);
+        // update labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            // get the label data ready
+            let curLabelConfig = labelSysDict["node"][curLabelIndex];
+            let newValue = undefined;
+            if(curLabelConfig["key"] in nodeInfo) {
+                newValue = nodeInfo[curLabelConfig["key"]];
+            }
+            // generate a new label obj based on new value
+            let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
+            let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
+            // replace the old label obj
+            $("#nodeInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
         }
     }
     function nodeInfoWindow_refresh(){
@@ -456,10 +508,10 @@ $.ajaxSetup({
             curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
             $("#instanceInfo-selectedInstance").append(curLabelObj);
             //add event to label obj
-            labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
+                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
             //add updateValueFunc to label (in labelSysDict)
-            curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
-            labelSysDict["instance"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
+                // labelSysDict["instance"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
         }
     }
     function instanceInfoWindow_updateInstanceInfo(instanceInfo){
@@ -613,38 +665,20 @@ $.ajaxSetup({
         return nodeInfo;
     }
     function addNodeByChildren(childrenNodePositionList){
+        let r = undefined
         $.post(
             "/addNode",
             {
                 childrenNodePositionList: childrenNodePositionList
             },
             function (data, status) {
-                // 区分是否为标注对象
-                if (data === ""){
-                    nodeInfoWindow_showCannotAddNode();
-                }else {
-                    // 更新标注信息
-                    nodeInfoWindow_updateNodeInfo(data);
-                    // 显示标注信息
-                    nodeInfoWindow_showNodeInfo(data);
-                    // 重新加载文本
-                    getText(
-                        majorTextWindow_getCurArticleNodePosition(),
-                        function (returnData, status, requireData) {
-                            majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
-                            majorTextWindow_updateText(returnData, 0);
-                            majorTextWindow_show(returnData);
-                        }
-                    )
-                   // 高亮选中文本
-                    if (SelectedElementIndexList != undefined){
-                        let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-                        majorTextWindow_hightlightElement(selectedElement);
-                    }
-
-                }
+                r = data
             }
         );
+        if (r[0] == "success"){
+            r[1] = PythonStyleToJsStyle(r[1])
+        }
+        return r
     }
     function getInstanceById(id){
         let r = undefined;
@@ -735,40 +769,72 @@ $.ajaxSetup({
 
     // textWindow: 选中一段文本
     function textMouseup(){
-        // 清除上次的选区效果
-        if (SelectedElementIndexList !== undefined) {
-            let selectedElementsBefore = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-            for (var i = 0; i < selectedElementsBefore.length; i++) {
-                selectedElementsBefore[i][0].style = "color: black";
+        let slotNum = $(".slot").length
+        // just select a mention
+        if (slotNum == 0){
+            // 清除上次的选区效果
+            if (SelectedElementIndexList !== undefined) {
+                let selectedElementsBefore = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                for (let i = 0; i < selectedElementsBefore.length; i++) {
+                    selectedElementsBefore[i][0].style = "color: black";
+                }
+            }
+            // 获取这次的选区，并更新全局变量
+            SelectedElementIndexList = majorTextWindow_getSelectedIndexFromGui();
+            // 如果没选中任何内容
+            if (SelectedElementIndexList === undefined) {
+                nodeInfoWindow_showNoSelect();
+            }
+            // 如果选中了某些内容
+            else {
+                // 把选区的index转换成element，因为用起来方便
+                let selectedElementsNow = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                // 选中效果
+                majorTextWindow_hightlightElement(selectedElementsNow);
+                // 请求注释信息，并显示
+                getNodeByChildren(
+                    selectedElementsNow[0].attr("id"),
+                    selectedElementsNow[selectedElementsNow.length-1].attr("id"),
+                    function(data){
+                        // 区分是否为标注对象
+                        if (data === "") {
+                            nodeInfoWindow_showNoNode();
+                        } else {
+                            nodeInfoWindow_updateNodeInfo(data);
+                            nodeInfoWindow_showNodeInfo();
+                        }
+                    }
+                )
             }
         }
-        // 获取这次的选区，并更新全局变量
-        SelectedElementIndexList = majorTextWindow_getSelectedIndexFromGui();
-        // 如果没选中任何内容
-        if (SelectedElementIndexList === undefined) {
-            nodeInfoWindow_showNoSelect();
-        }
-        // 如果选中了某些内容
-        else {
-            // 把选区的index转换成element，因为用起来方便
-            let selectedElementsNow = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-            // 选中效果
-            majorTextWindow_hightlightElement(selectedElementsNow);
-            // 请求注释信息，并显示
-            getNodeByChildren(
-                selectedElementsNow[0].attr("id"),
-                selectedElementsNow[selectedElementsNow.length-1].attr("id"),
-                function(data){
-                    // 区分是否为标注对象
-                    if (data === "") {
-                        nodeInfoWindow_showNoNode();
-                    } else {
-                        nodeInfoWindow_updateNodeInfo(data);
-                        nodeInfoWindow_showNodeInfo();
-                    }
+        // select a mention, get the corresponding node, and fill current slot with the node.
+        else if(slotNum == 1){
+            // 获取这次的选区，并更新全局变量
+            let curSelectedIndex = majorTextWindow_getSelectedIndexFromGui();
+            // 如果没选中任何内容
+            if (curSelectedIndex === undefined) {
+                return
+            }
+            // 如果选中了某些内容
+            else {
+                // 把选区的index转换成element，因为用起来方便
+                let selectedElements = majorTextWindow_getSelectedElementFromIndex(curSelectedIndex);
+                // 选中效果
+                    // r = $(".slot").update(selectedElements)
+                    let r =1
+                // 请求注释信息，并显示
+                if (r == "success"){
+                    // 取消鼠标特效
+                    // 刷新
+                    nodeInfoWindow_refresh()
+                    instanceInfoWindow_refresh()
                 }
-            )
+            }
+
+        }else{
+            alert(langDict["Error: More than one slots are to be filled."])
         }
+
     }
 
     // nodeInfoWindow: 单击“添加标注对象”按钮
@@ -778,11 +844,37 @@ $.ajaxSetup({
             // 把选区的index转换成position（因为flask接口要求position）
             let selectedElementPositionList = [];
             let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-            for (i=0; i<selectedElement.length; i++){
+            for (let i=0; i<selectedElement.length; i++){
                 selectedElementPositionList[i] = selectedElement[i].attr("id");
             }
             // 向后台发送操作请求
-            addNodeByChildren(selectedElementPositionList);
+            let r = addNodeByChildren(selectedElementPositionList);
+            // 区分是否为标注对象
+            if (r[0] != "success"){
+                nodeInfoWindow_showCannotAddNode();
+                alert(langDict[r[1]])
+            }else {
+                let newNodeInfo = r[1]
+                // 更新标注信息
+                nodeInfoWindow_updateNodeInfo(newNodeInfo);
+                // 显示标注信息
+                nodeInfoWindow_showNodeInfo(newNodeInfo);
+                // 重新加载文本
+                getText(
+                    majorTextWindow_getCurArticleNodePosition(),
+                    function (returnData, status, requireData) {
+                        majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
+                        majorTextWindow_updateText(returnData, 0);
+                        majorTextWindow_show(returnData);
+                    }
+                );
+                // 高亮选中文本
+                if (SelectedElementIndexList != undefined){
+                    let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                    majorTextWindow_hightlightElement(selectedElement);
+                }
+
+            }
         }
         // 当前没有选中任何指称
         else{

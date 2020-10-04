@@ -9,9 +9,11 @@ from nlp_plantform.center.instance import Instance
 from nlp_plantform.center.instancepool import InstancePool
 from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
 from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat.label_sys import labelTemplate
+from nlp_plantform.center.labeltypes import regiest_cofigured_label_types
 
-def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
+regiest_cofigured_label_types()
+
+def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None:
     """
     This is a manual annotation tool for cross-document coreference.
 
@@ -48,14 +50,18 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
         logging.debug("getText->：position=" + str(text_node_position))
         if not isinstance(text_node_position, str):
             raise TypeError("ajax param 'textNodeId' should be in str form.")
-            logging.debug("getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
+            logging.debug(
+                "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
             text_node_position = ntree.str_to_position(text_node_position)
         except:
-            raise RuntimeError("the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
-            logging.debug("getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
-            return jsonify("the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+            raise RuntimeError(
+                "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+            logging.debug(
+                "getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
+            return jsonify(
+                "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
         logging.debug("getText--：the node text is:" + ntree[text_node_position].text())
         #
         text_unit_list = []
@@ -117,7 +123,7 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
                         is_file = False
                 except:
                     is_file = False
-                if is_file :
+                if is_file:
                     content.append((
                         ntree.position_to_str(cur_node.position()),
                         cur_node.text()[0:7]
@@ -125,6 +131,7 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
                 else:
                     content.append(walk_to_file(cur_node))
             return content
+
         # 获取目录结构
         content = walk_to_file(ntree)
         # 返回目录结构
@@ -154,8 +161,10 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
             children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
             children_node_list = [ntree[i] for i in children_node_position_list]
         except:
-            raise RuntimeError("Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
-            logging.debug("addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            raise RuntimeError(
+                "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            logging.debug(
+                "addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
             return ""
         logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
@@ -172,13 +181,14 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
             return ""
         # ajax out
         else:
-            new_node_info = new_node.labels.readable()
-            logging.debug("addNode<-：" + "(success):" + str(new_node_info))
-            return jsonify(new_node_info)
+            new_node_info = new_node.readable()
+            new_node_info.update({"test": None})
+            logging.debug("addNode<-：" + str(["success", new_node_info]))
+            return jsonify(["success", new_node_info])
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
-        # get params(for js function "getNodeByPositon")
+        # get params(for js function "getNodeByPosition")
         position = ntree.str_to_position(request.form.get("position"))
         # get params(for js function "getNodeByChild")
         start_position = ntree.str_to_position(request.form.get("start"))
@@ -215,53 +225,50 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
             logging.debug("getNode<-：\"\"")
             return jsonify("can not find node based on given position.")
         elif isinstance(node, NodeTree):
-            for cur_label_dict in label_sys_dict["node"]:
-                if cur_label_dict["key"] in request.form:
-                    cur_label_new_value = request.form.get(cur_label_dict["key"])
-                    cur_label_set_value_func = labelTemplate[cur_label_dict["value_type"]]
-                    cur_label_set_value_func(node, cur_label_dict["key"])
-            if request.form.get("token")!=None:
-                logging.debug("setNode->：token=" + request.form.get("token"))
-                if request.form.get("token") == 'false':
-                    del node.get_label()["token"]
-                elif request.form.get("token") == 'true':
-                    node.add_label({"token": True})
-            if request.form.get("type")!=None:
-                logging.debug("setNode->：type=" + request.form.get("type"))
-                if request.form.get("type") == 'none':
-                    del node.get_label()["type"]
-                else:
-                    node.add_label({"type": request.form.get("type")})
-            if request.form.get("instance")!=None:
-                logging.debug("setNode->：instance=" + request.form.get("instance"))
-                new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-                # 操作合理性检测（node原来的instance是否和新instance一致）
-                if "instance" in node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-                    old_instance = node.get_label()["instance"]
-                    if old_instance == new_instance:
-                        return jsonify("can not build a reference relation between cur node and cur instance, because is already existing.")
-                if "instance" not in node.get_label():
-                    node.add_label({"instance": new_instance})
-                    new_instance["mention_list"].append([node])
-                else:
-                    # edit old instance
-                    old_instance = node.get_label()["instance"]
-                    mentionLists = old_instance["mention_list"]
-                    for mentionList in mentionLists:
-                        if node in mentionList:
-                            mentionList.remove(node)
-                    old_instance["mention_list"] = mentionLists
-                    if request.form.get("instance")=="":
-                        # edit node
-                        node.del_label("instance")
-                    else:
-                        # edit new instance
-                        new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-                        new_instance["mention_list"].append([node])
-                        # edit node
-                        node.add_label({"instance": new_instance})
-            logging.debug("setNode<-：(success)")
-            return jsonify("success")
+            cur_labels = node.labels
+            # 对每一个定制标签
+            for cur_label_key in cur_labels.config.keys():
+                # 如果前台修改了当前标签
+                if cur_label_key in request.form:
+                    cur_label_ajax_parm = request.form.get(cur_label_key)
+                    #
+                    if cur_label_key not in cur_labels:
+                        from nlp_plantform.center.labeltypes import labeltypes
+                        cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
+                    cur_labels[cur_label_key] = cur_labels[cur_label_key]
+                    cur_labels[cur_label_key].ajax_process(cur_label_ajax_parm, ntree, instances)
+            logging.debug("setNode<-：" + str(["success", node.readable()]))
+            return jsonify(str(["success", node.readable()]))
+
+            # if request.form.get("instance") != None:
+            #     logging.debug("setNode->：instance=" + request.form.get("instance"))
+            #     new_instance = instances.get_instance(id=request.form.get("instance"))[0]
+            #     # 操作合理性检测（node原来的instance是否和新instance一致）
+            #     if "instance" in node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+            #         old_instance = node.get_label()["instance"]
+            #         if old_instance == new_instance:
+            #             return jsonify(
+            #                 "can not build a reference relation between cur node and cur instance, because is already existing.")
+            #     if "instance" not in node.get_label():
+            #         node.add_label({"instance": new_instance})
+            #         new_instance["mention_list"].append([node])
+            #     else:
+            #         # edit old instance
+            #         old_instance = node.get_label()["instance"]
+            #         mentionLists = old_instance["mention_list"]
+            #         for mentionList in mentionLists:
+            #             if node in mentionList:
+            #                 mentionList.remove(node)
+            #         old_instance["mention_list"] = mentionLists
+            #         if request.form.get("instance") == "":
+            #             # edit node
+            #             node.del_label("instance")
+            #         else:
+            #             # edit new instance
+            #             new_instance = instances.get_instance(id=request.form.get("instance"))[0]
+            #             new_instance["mention_list"].append([node])
+            #             # edit node
+            #             node.add_label({"instance": new_instance})
 
     @app.route('/delNode', methods=["POST"])
     def delNode():
@@ -329,7 +336,8 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
                 if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
                     old_instance = cur_node.get_label()["instance"]
                     if old_instance == new_instance:
-                        return jsonify("can not build a reference relation between cur node and cur instance, because is already existing.")
+                        return jsonify(
+                            "can not build a reference relation between cur node and cur instance, because is already existing.")
                 # edit new instance
                 instance["mention_list"][mention_list_index].append(cur_node)
                 # edit old instance
@@ -347,7 +355,7 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
                 del instance["mention_list"][mention_list_index]
             elif mention_list_action == 'append mentionList':
                 instance["mention_list"].append([])
-        logging.debug("setInstance<-：(success)" )
+        logging.debug("setInstance<-：(success)")
         return jsonify("success")
 
     @app.route('/delInstance', methods=["POST"])
@@ -365,4 +373,3 @@ def cdcat(ntree: NodeTree, instances: InstancePool, unit_level: Dict) -> None :
 
     app.run(debug=True)
     print("请在浏览器中打开http://127.0.0.1:5000/ ")
-

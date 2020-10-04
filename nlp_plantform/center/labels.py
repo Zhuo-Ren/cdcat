@@ -11,7 +11,6 @@ class Labels(dict):
     # statistic: type_class
     owner_type_class = None
 
-
     def __init__(self, owner: owner_type_class, labels_dict: Dict = {}):
         """
         Init a labels obj.
@@ -42,7 +41,6 @@ class Labels(dict):
         for cur_label_key, cur_label_value in labels_dict.items():
             self[cur_label_key] = cur_label_value
 
-
     def __setitem__(self, key, value):
         # param check (如果这个label是定制label，那么需要验证一下)
         from nlp_plantform.center.labeltypes import labeltypes
@@ -64,7 +62,7 @@ class Labels(dict):
         from nlp_plantform.center.labeltypes import labeltypes
         if key in labeltypes:
             self[key].value_empty()
-        super().__delitem__(self, key)
+        super().__delitem__(key)
 
     def clear(self):
         for cur_label_key, cur_label_value in self:
@@ -76,7 +74,7 @@ class Labels(dict):
             raise TypeError
         #
         for new_label_key, new_label_value in new_labels_dict.items():
-           self[new_label_key] = new_label_value
+            self[new_label_key] = new_label_value
 
     def pop(self, key):
         old_label_value = self[key]
@@ -84,14 +82,14 @@ class Labels(dict):
         return old_label_value
 
     def popitem(self) -> Tuple:
-        (k, v) = super().popitem(self)
-        v.value_empty
+        raise RuntimeError("这个方法不让用了。")
 
     def readable(self, nolink=False):
         info_dict = {}
         if nolink == False:
             for (label_key, label_config) in self.config.items():
-                info_dict.update({label_key: self[label_key].readable()})
+                if label_key in self:
+                    info_dict.update({label_key: self[label_key].readable()})
         else:
             for (label_key, label_config) in self.config.items():
                 if "linkto" not in label_config:

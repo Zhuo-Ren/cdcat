@@ -69,8 +69,8 @@ class NodeTree(ParentedTree):
         """
         Return the node label of the tree.
 
-            >>> t = Tree.fromstring('(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))')
-            >>> t.get_label()
+            t = Tree.fromstring('(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))')
+            t.get_label()
             'S'
 
         :return: the node label (typically a string)
@@ -284,7 +284,7 @@ class NodeTree(ParentedTree):
         # 修改自己
         list.insert(self, index, value)
 
-    def pop(self, index=-1):
+#     def pop(self, index=-1):
         assert isinstance(index, int)
         # 修改自己
         child = list.pop(self, index)
@@ -980,9 +980,9 @@ class NodeTree(ParentedTree):
         if not deep: return type(self)(self._labels, self)
         else: return type(self).convert(self)
 
-    def output_to_infodict(self):
+    def readable(self):
         output_dict = {}
-        output_dict.update(self.get_label())
+        output_dict.update(self.labels.readable())
         output_dict["parent_position"] = self.get_parent().position(output_type="string")
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())

@@ -3,7 +3,7 @@ $(document).ready(function () {
     $('body').layout({
         center__paneSelector:	"#centerWindow",
         east__paneSelector:		"#eastWindow",
-        west__paneSelector:     "#contentWindow",
+        west__paneSelector:     "#catalogueWindow",
         west__size:				200,  // size of west window
         east__size:				600,  // size of east window
         spacing_open:			    8,  // ALL panes

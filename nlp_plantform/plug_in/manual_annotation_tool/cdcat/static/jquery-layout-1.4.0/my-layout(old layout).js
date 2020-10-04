@@ -11,7 +11,7 @@ $(document).ready(function () {
         center__childOptions: {
             center__paneSelector: "#textWindow",
             south__paneSelector: "#nodeInfoWindow",
-            west__paneSelector: "#contentWindow",
+            west__paneSelector: "#catalogueWindow",
             south__size: 250,
             west__size:200,
             spacing_open: 8,  // ALL panes
