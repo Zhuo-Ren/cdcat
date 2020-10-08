@@ -28,7 +28,7 @@ class Instance(object):
         """
 
         # public： desc
-        self.desc: str = ""
+        self.desc: str = str(self.id)
         """
         The describe of this instance. Initial with "", not a None.
         """

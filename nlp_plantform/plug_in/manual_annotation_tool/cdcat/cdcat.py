@@ -204,7 +204,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
-            anno_info = node.labels.readable()
+            anno_info = node.readable()
             anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(["success", anno_info]))
             return jsonify(["success", anno_info])
@@ -277,6 +277,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     def addInstance():
         position = root_node.str_to_position(request.form.get("position"))
         if position:  # 使用快捷键，基于一个node创建instance
+            # 因为→键的实现改成了模拟多次点击，所以这一段逻辑暂时用不到了。
             node = root_node[position]
             logging.debug("addInstance_node->：position=" + str(position))
             instance = instance_pool.add_instance({"desc": node.text()})

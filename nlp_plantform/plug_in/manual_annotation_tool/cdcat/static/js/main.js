@@ -1070,7 +1070,7 @@ function PythonStyleToJsStyle(data){
     // instanceSelectWindow: 单击“→”按钮
     function addInstanceArrowButtonClick(){
         // 如果curNode不存在
-        if ($("#nodeInfo-path").css("display") == "none"){
+        if ($("#nodeInfo-selectedNode").css("display") == "none"){
             // 如果有选中一个mention，只差创建node
             if ($("#nodeInfo-noNode").css("display") == "block"){
                 $("#nodeInfo-noNode").click();
@@ -1081,32 +1081,18 @@ function PythonStyleToJsStyle(data){
                 return;
             }
         }
-        // 如果curNode存在
-            // 如果curNode已指向一个instance
-            if($("#instanceValue").attr("name") !== ""){
-
-                // if (allowOneNodeReferToMultiInstances == False){
-                //     alert(langDict["Current node is already referenced to a instance, " +
-                //         "You can't add a new instance based on current node, because this action will make one node " +
-                //         "reference to two different instance."]);
-                //     return;
-                // }
-            }
-            // curNode也没有指向instance
-            addInstance_node(
-                function (data) {
-                    instanceInfoWindow_showInstanceInfo(data);
-                    instanceSelectWindow_updateOneInstance(data);
-                    //
-                    nodeInstance = $("#instanceValue");
-                    nodeInstance.attr("name", data["id"]);
-                    if (data["desc"]){
-                        nodeInstance.text(data["desc"]);
-                    }else{
-                        nodeInstance.text("none");
-                    }
-                }
-            )
+        // 现在curNode存在了
+        {
+            // 先新建instance
+            $("#addInstancePlus").click();
+            // 再把curNode指向curInstance
+            $("#mention_listValue").children("div").children(":last").prev().prev().click();
+            // 初始化curInstance的desc
+            let r = getNodeByPosition($("#positionValue").text());
+            let nodeText = r[1]["text"];
+            $("#descValue").attr("value", nodeText);
+            $("#descValue").change();
+        }
     }
     // // instanceSelectWindow: 单击实例
     function instanceClick(instanceElement){

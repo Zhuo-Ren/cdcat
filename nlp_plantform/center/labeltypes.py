@@ -55,29 +55,31 @@ class AutoSyncList(list):
     def owner_obj(self):
         return self.owner_labels.owner
 
-    def append(self, object) -> None:
+    def append(self, icon) -> None:
+        stock = self  # stock砧木; icon接穗
         # append一个AutoSyncList
-        if isinstance(object, AutoSyncList):
+        if isinstance(icon, AutoSyncList):
             # sync new value
             "同步工作将由新AutoSyncList对象的构造函数完成。"
             # append
-            super().append(AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
+            super().append(AutoSyncList(owner=stock, init_value=icon, type_limit=stock.type_limit))
         # append一个对象
         else:
-            if self.type_limit is not None:
-                if not isinstance(object, self.type_limit):
+            if stock.type_limit is not None:
+                if not isinstance(icon, stock.type_limit):
                     raise TypeError
             # sync new value
-            linked_label_key = self.owner_label.config["linkto"]
-            if linked_label_key not in object.labels:
-                # 如果前台修改的这个标签还没有创建，要先创建空标签
+            stock_label = stock.owner_label
+            icon_label_key = stock_label.config["linkto"]
+            if icon_label_key not in icon.labels:
+                # 如果前台修改的这个标签，在接穗中还没有创建，要先创建空标签
                 from nlp_plantform.center.labeltypes import labeltypes
-                cur_label_class = labeltypes[object.labels.config[linked_label_key]["value_type"]]
-                object.labels[linked_label_key] = cur_label_class(owner=object.labels, key=linked_label_key, value=None)
-            linked_label = object.labels[linked_label_key]
-            linked_label.sync_add(self.owner_obj)
+                cur_label_class = labeltypes[icon.labels.config[icon_label_key]["value_type"]]
+                icon.labels[icon_label_key] = cur_label_class(owner=icon.labels, key=icon_label_key, value=None)
+            icon_label = icon.labels[icon_label_key]
+            icon_label.sync_add(stock.owner_obj)
             # append
-            super().append(object)
+            super().append(icon)
 
     def insert(self, index: int, object) -> None:
         if isinstance(object, AutoSyncList, list):
