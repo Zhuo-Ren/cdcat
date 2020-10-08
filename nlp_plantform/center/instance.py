@@ -27,6 +27,12 @@ class Instance(object):
         The id of this instance. Start from 0.
         """
 
+        # public： desc
+        self.desc: str = ""
+        """
+        The describe of this instance. Initial with "", not a None.
+        """
+
         # private: _labels
         from nlp_plantform.center.labels import InstanceLabels
         self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=labels_dict)
@@ -67,4 +73,5 @@ class Instance(object):
         """
         r = self._labels.readable()
         r["id"] = str(self.id)
+        r["desc"] = self.desc
         return r

@@ -476,11 +476,16 @@ function PythonStyleToJsStyle(data){
         // 挂事件
         newInstanceObj.click(function() {
             let instanceIdStr = this.name;
-            let instanceInfo = getInstanceById(instanceIdStr);
-            instanceInfoWindow_updateInstanceInfo(instanceInfo);
-            instanceInfoWindow_showInstanceInfo();
-            instanceSelectWindow_updateOneInstance(instanceInfo);
-        })
+            let r = getInstanceById(instanceIdStr);
+            if (r[0] != "success"){
+                alert(langDict[r[1]]);
+            }else{
+                let instanceInfo = r[1]
+                instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                instanceInfoWindow_showInstanceInfo();
+                instanceSelectWindow_updateOneInstance(instanceInfo);
+            }
+        });
         //
         return newInstanceObj
     }
@@ -502,6 +507,13 @@ function PythonStyleToJsStyle(data){
         $("#instanceInfo-selectedInstance").css("display", "none");
     }
     function instanceInfoWindow_addLabels(){
+        // add idObj <div>
+        let idObj = instanceInfoWindow_generateIdObj();
+        $("#instanceInfo-selectedInstance").append(idObj);
+        // add descObj <div>
+        let descObj = instanceInfoWindow_generateDescObj();
+        $("#instanceInfo-selectedInstance").append(descObj);
+        // add labels
         for(let curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
             let curLabelDict = labelSysDict["instance"][curLabelIndex];
             //generate label obj
@@ -541,7 +553,14 @@ function PythonStyleToJsStyle(data){
         //     mentionListsValue.append(curMentionLine)
         // }
         // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
-        for(curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
+        // update id
+        let idObj = instanceInfoWindow_generateIdObj(instanceInfo["id"]);
+        $("#instanceInfo-id").replaceWith(idObj);
+        // update desc
+        let descObj = instanceInfoWindow_generateDescObj(instanceInfo["desc"]);
+        $("#instanceInfo-desc").replaceWith(descObj);
+        // update labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
             // get the label data ready
             let curLabelDict = labelSysDict["instance"][curLabelIndex];
             let newValue = undefined;
@@ -557,16 +576,103 @@ function PythonStyleToJsStyle(data){
             $("#nodeInfo-" + curLabelDict["key"]).replaceWith(labelObj);
         }
     }
+    function instanceInfoWindow_generateIdObj(id){
+        // idObj <div>
+        let idObj = undefined;
+        {
+            idObj = $(" <div id='instanceInfo-id'></div>");
+            idObj.css("padding-left","10px");
+            // keyObj <span>
+            {
+                let keyObj = $("<span id='idKey'>id: </span>");
+                idObj.append(keyObj);
+            }
+            // valueObj <span>
+            {
+                let valueObj = $("<span id='idValue'></span>");
+                let innerText = undefined;
+                if ((id == undefined)||(id == null)||(id == "")) {
+                    innerText = "XXXX";
+                }else{
+                    innerText = id
+                }
+                valueObj.text(innerText);
+                idObj.append(valueObj);
+            }
+        }
+        //
+        return idObj
+    }
+    function instanceInfoWindow_generateDescObj(desc){
+        let labelObj = undefined;
+        // labelObj <div>
+        {
+            labelObj = $(" <div id='instanceInfo-desc'></div>");
+            labelObj.css("padding-left","10px");
+            // keyObj <span>
+            {
+                let keyObj = $("<span id='descKey'>desc: </span>");
+                labelObj.append(keyObj);
+            }
+            // valueObj <span>
+            {
+                let valueObj = $("<input id='descValue' type='text'></input>");
+                labelObj.append(valueObj);
+                // display the label value
+                {
+                    let inputText = undefined;
+                    // if given a value, display the value
+                    if (desc != undefined) {
+                        inputText =  desc;
+                    }
+                    // // if no value given, display the default value
+                    // else if (labelDict["value_default"] != undefined){
+                    //     inputText = labelDict["value_default"];
+                    // }
+                    // // if no given value and no default value
+                    // else{
+                    //     inputText = "";
+                    // }
+                    valueObj.attr("value", inputText);
+                }
+                // add change event
+                valueObj.change(function() {
+                    // prepare ajax data
+                    let id = $("#idValue").text();
+                    let value = $("#descValue")[0].value;
+                    // ajax to background
+                    let r = setInstance(id, {"desc": value});
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                        // refresh the instance button in instanceSelectWindow
+                        let instance_button_obj = $("#allInstanceDiv button[name='" + id + "']");
+                        instance_button_obj.text(value);
+                    }
+                });
+            }
+
+        }
+        // return
+        return labelObj
+    }
     function instanceInfoWindow_refresh(){
         if ($("#instanceInfo-selectedInstance").css("display") == "block"){
             // prepare ajax data
             let instanceId = $("#idValue").text();
             // ajax to background
-            let instanceInfo = getInstanceById(instanceId);
+            let r = getInstanceById(instanceId);
             // display the new instance info in GUI
-            if (instanceInfo === "") {
+            if (r[0] != "success"){
                 instanceInfoWindow_showNoInstance();
-            } else {
+                alert(langDict[r[1]]);
+            }else{
+                let instanceInfo = r[1];
                 instanceInfoWindow_updateInstanceInfo(instanceInfo);
             }
         }

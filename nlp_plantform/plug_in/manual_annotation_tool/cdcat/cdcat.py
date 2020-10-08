@@ -296,71 +296,101 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     def getInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("getInstance->：id=" + instance_id)
-        target_instance = instance_pool.get_instance(id=instance_id)[0]
-        instance_info = target_instance.labels.readable()
-        logging.debug("getInstance<-：(success)：" + str(instance_info))
-        return jsonify(instance_info)
+        target_instance = instance_pool.get_instance(info_dict={"id":instance_id})[0]
+        instance_info = target_instance.readable()
+        logging.debug("getInstance<-：" + str(["success", instance_info]))
+        return jsonify(["success", instance_info])
 
     @app.route('/setInstance', methods=["POST"])
     def setInstance():
-        # 获取参数
-        id = int(request.form.get("id"))
-        desc = request.form.get("desc")
-        kg = request.form.get("kg")
-        mention_list_action = request.form.get("mention_list[action]")
-        #
-        instance = instance_pool.get_instance(id=id)[0]
-        logging.debug("setInstance->：id=" + str(id) + "：" + instance["desc"])
-        #
-        if desc:
-            logging.debug("getInstance->：desc=" + desc)
-            instance["desc"] = desc
-        if kg:
-            logging.debug("getInstance->：kg=" + kg)
-            instance["kg"] = kg
-        if mention_list_action:
-            if mention_list_action == 'del mention':
-                # edit instance
-                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                mention_index = int(request.form.get('mention_list[mention_index]'))
-                deletedNode = instance["mention_list"][mention_list_index][mention_index]
-                del instance["mention_list"][mention_list_index][mention_index]
-                # if instance["mention_list"][mention_list_index] == []:  # 删除空mentionList
-                #     if len(instance["mention_list"]) > 1:  # 如果空mentionList是最后一个mentionList，就不删
-                #         del instance["mention_list"][mention_list_index]
-                # edit node
-                deletedNode.del_label("instance")
-            elif mention_list_action == 'append mention':
-                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                cur_node_position = request.form.get('mention_list[new_node_position]')
-                cur_node_position = root_node.str_to_position(cur_node_position)
-                cur_node = root_node[cur_node_position]
-                new_instance = instance
-                # 操作合理性检测（node原来的instance是否和新instance一致）
-                if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-                    old_instance = cur_node.get_label()["instance"]
-                    if old_instance == new_instance:
-                        return jsonify(
-                            "can not build a reference relation between cur node and cur instance, because is already existing.")
-                # edit new instance
-                instance["mention_list"][mention_list_index].append(cur_node)
-                # edit old instance
-                if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-                    old_instance = cur_node.get_label()["instance"]
-                    mentionLists = old_instance["mention_list"]
-                    for mentionList in mentionLists:
-                        if cur_node in mentionList:
-                            mentionList.remove(cur_node)
-                    old_instance["mention_list"] = mentionLists
-                # edit node
-                cur_node.add_label({'instance': instance})
-            elif mention_list_action == 'del mentionList':
-                mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-                del instance["mention_list"][mention_list_index]
-            elif mention_list_action == 'append mentionList':
-                instance["mention_list"].append([])
-        logging.debug("setInstance<-：(success)")
-        return jsonify("success")
+        id = request.form.get("id")
+        logging.debug("setInstance->：id=" + id)
+        id = int(id)
+        instance = instance_pool.get_instance(info_dict={"id": id})[0]
+        if instance is None:
+            logging.debug("setInstance--：no such instance")
+            logging.debug("setInstance<-：", str(["failed", "no such instance."]))
+            return jsonify(["failed", "no such instance."])
+        elif isinstance(instance, Instance):
+            # 对固定标签desc
+            if "desc" in request.form:
+                instance.desc = request.form.get("desc")
+            # 对每一个定制标签
+            cur_labels = instance.labels
+            for cur_label_key in cur_labels.config.keys():
+                # 如果前台修改了当前标签
+                if cur_label_key in request.form:
+                    cur_label_ajax_parm = request.form.get(cur_label_key)
+                    # 如果前台修改的这个标签还没有创建，要先创建空标签
+                    if cur_label_key not in cur_labels:
+                        from nlp_plantform.center.labeltypes import labeltypes
+                        cur_label_class = labeltypes[cur_labels.config[cur_label_key]["value_type"]]
+                        cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
+                    # 根据前台信息，修改当前标签
+                    cur_label = cur_labels[cur_label_key]
+                    cur_label.ajax_process(cur_label_ajax_parm, root_node, instance_pool)
+
+            logging.debug("setInstance<-：" + str(["success", instance.readable()]))
+            return jsonify(["success", instance.readable()])
+
+        # # 获取参数
+        # id = int(request.form.get("id"))
+        # desc = request.form.get("desc")
+        # kg = request.form.get("kg")
+        # mention_list_action = request.form.get("mention_list[action]")
+        # #
+        # instance = instance_pool.get_instance(id=id)[0]
+        # logging.debug("setInstance->：id=" + str(id) + "：" + instance["desc"])
+        # #
+        # if desc:
+        #     logging.debug("getInstance->：desc=" + desc)
+        #     instance["desc"] = desc
+        # if kg:
+        #     logging.debug("getInstance->：kg=" + kg)
+        #     instance["kg"] = kg
+        # if mention_list_action:
+        #     if mention_list_action == 'del mention':
+        #         # edit instance
+        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+        #         mention_index = int(request.form.get('mention_list[mention_index]'))
+        #         deletedNode = instance["mention_list"][mention_list_index][mention_index]
+        #         del instance["mention_list"][mention_list_index][mention_index]
+        #         # if instance["mention_list"][mention_list_index] == []:  # 删除空mentionList
+        #         #     if len(instance["mention_list"]) > 1:  # 如果空mentionList是最后一个mentionList，就不删
+        #         #         del instance["mention_list"][mention_list_index]
+        #         # edit node
+        #         deletedNode.del_label("instance")
+        #     elif mention_list_action == 'append mention':
+        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+        #         cur_node_position = request.form.get('mention_list[new_node_position]')
+        #         cur_node_position = root_node.str_to_position(cur_node_position)
+        #         cur_node = root_node[cur_node_position]
+        #         new_instance = instance
+        #         # 操作合理性检测（node原来的instance是否和新instance一致）
+        #         if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+        #             old_instance = cur_node.get_label()["instance"]
+        #             if old_instance == new_instance:
+        #                 return jsonify(
+        #                     "can not build a reference relation between cur node and cur instance, because is already existing.")
+        #         # edit new instance
+        #         instance["mention_list"][mention_list_index].append(cur_node)
+        #         # edit old instance
+        #         if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
+        #             old_instance = cur_node.get_label()["instance"]
+        #             mentionLists = old_instance["mention_list"]
+        #             for mentionList in mentionLists:
+        #                 if cur_node in mentionList:
+        #                     mentionList.remove(cur_node)
+        #             old_instance["mention_list"] = mentionLists
+        #         # edit node
+        #         cur_node.add_label({'instance': instance})
+        #     elif mention_list_action == 'del mentionList':
+        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
+        #         del instance["mention_list"][mention_list_index]
+        #     elif mention_list_action == 'append mentionList':
+        #         instance["mention_list"].append([])
+        # logging.debug("setInstance<-：(success)")
+        # return jsonify("success")
 
     @app.route('/delInstance', methods=["POST"])
     def delInstance():

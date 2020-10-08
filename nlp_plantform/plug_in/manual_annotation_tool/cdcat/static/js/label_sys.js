@@ -572,14 +572,16 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                 var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
-                if (r != "success"){
-                    alert(langDict[r]);
+                // GUI update
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
                     return;
+                }else{
+                    // refresh nodeInfoWindow
+                    nodeInfoWindow_refresh();
+                    // refresh instanceInfoWindow
+                    instanceInfoWindow_refresh();
                 }
-                // refresh nodeInfoWindow
-                nodeInfoWindow_refresh();
-                // refresh instanceInfoWindow
-                instanceInfoWindow_refresh();
             }
         });
         labelObj.append(valueObj);
@@ -654,16 +656,22 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
  * @return {Jquery.HtmlElement}
  */
 function generateTextInputLabelObj(labelDict, labelValue){
+    let labelObj = undefined;
     // labelObj <div>
-        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+    {
+        labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
         labelObj.css("padding-left","10px");
         // keyObj <span>
+        {
             let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
             labelObj.append(keyObj);
+        }
         // valueObj <span>
+        {
             let valueObj = $("<input id='" + labelDict["key"] + "Value' type='text'></input>");
             labelObj.append(valueObj);
             // display the label value
+            {
                 let inputText = undefined;
                 // if given a value, display the value
                 if (labelValue != undefined) {
@@ -677,46 +685,46 @@ function generateTextInputLabelObj(labelDict, labelValue){
                 // else{
                 //     inputText = "";
                 // }
-                valueObj.attr("value", inputText)
+                valueObj.attr("value", inputText);
+            }
             // add change event
-                valueObj.change(function() {
-                    // if the changed label belongs to a node
-                    if ($("#nodeInfoWindow")[0].contains(this)){
-                        let position = $("#positionValue").text();
-                        let value = $("#" + labelDict["key"] + "Value")[0].value;
-                        let r = setNode(position, {[labelDict["key"]]: value});
-                        if (r[0] != "success"){
-                            alert(langDict[r[1]]);
-                            return;
-                        }else{
-                            // refresh nodeInfoWindow
-                            nodeInfoWindow_refresh();
-                            // refresh instanceInfoWindow
-                            instanceInfoWindow_refresh();
-                        }
-                    }
-                    // if the changed label belongs to a instance
-                    else if($("#instanceInfoWindow")[0].contains(this)){
-                        // prepare ajax data
-                        let id = $("#idValue").text();
-                        let value = $("#" + labelDict["key"] + "Value")[0].value;
-                        // ajax to background
-                        let r = setInstance(id, {[labelDict["key"]]: value});
-                        if (r != "success"){
-                            alert(langDict[r]);
-                            return;
-                        }
+            valueObj.change(function() {
+                // if the changed label belongs to a node
+                if ($("#nodeInfoWindow")[0].contains(this)){
+                    let position = $("#positionValue").text();
+                    let value = $("#" + labelDict["key"] + "Value")[0].value;
+                    let r = setNode(position, {[labelDict["key"]]: value});
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
                         // refresh nodeInfoWindow
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
-                        // 暂时把更新instanceSelectWindow的任务放在这里
-                        let instanceInfo = getInstanceById(id);
-                        $("#instanceSelectWindow .instance[name='" + instanceInfo["id"] + "']").text(instanceInfo["desc"]);
                     }
-                });
+                }
+                // if the changed label belongs to a instance
+                else if($("#instanceInfoWindow")[0].contains(this)){
+                    // prepare ajax data
+                    let id = $("#idValue").text();
+                    let value = $("#" + labelDict["key"] + "Value")[0].value;
+                    // ajax to background
+                    let r = setInstance(id, {[labelDict["key"]]: value});
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                }
+            });
+        }
 
-
+    }
     // return
     return labelObj
 }
@@ -817,14 +825,16 @@ function generateInstanceLabelObj(labelDict, labelValue){
                         }
                         // ajax
                         let r = setNode(curNodePosition,newValueDict);
-                        if (r != "success"){
-                            alert(langDict[r]);
+                        // GUI update
+                        if (r[0] != "success"){
+                            alert(langDict[r[1]]);
                             return;
+                        }else{
+                            // refresh nodeInfoWindow
+                            nodeInfoWindow_refresh();
+                            // refresh instanceInfoWindow
+                            instanceInfoWindow_refresh();
                         }
-                        // refresh nodeInfoWindow
-                        nodeInfoWindow_refresh();
-                        // refresh instanceInfoWindow
-                        instanceInfoWindow_refresh();
                     });
             // setInstanceByCurInstanceButtonObj <button>
                 let setInstanceByCurInstanceButtonObj = $("<button id='" + labelDict["key"] + "CI\' class='circleButton'>cI</button>");
@@ -843,14 +853,16 @@ function generateInstanceLabelObj(labelDict, labelValue){
                         let newValue = {[labelDict["key"]]: curInstanceId};
                         // ajax
                         let r = setNode(curNodePosition,newValue);
-                        if (r != "success"){
-                            alert(langDict[r]);
+                        // GUI update
+                        if (r[0] != "success"){
+                            alert(langDict[r[1]]);
                             return;
+                        }else{
+                            // refresh nodeInfoWindow
+                            nodeInfoWindow_refresh();
+                            // refresh instanceInfoWindow
+                            instanceInfoWindow_refresh();
                         }
-                        // refresh nodeInfoWindow
-                        nodeInfoWindow_refresh();
-                        // refresh instanceInfoWindow
-                        instanceInfoWindow_refresh();
                         });
             // setInstanceBySelectButtonObj <button>
                 let setInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton'>☞</button>");
@@ -975,14 +987,16 @@ function generateNodeListLabelObj(labelDict, labelValue){
                                         }};
                                     // ajax to background
                                     r = setInstance(curInstanceId, newValueDict);
-                                    if (r != "success"){
-                                        alert(langDict[r]);
+                                    // GUI update
+                                    if (r[0] != "success"){
+                                        alert(langDict[r[1]]);
                                         return;
+                                    }else{
+                                        // refresh nodeInfoWindow
+                                        nodeInfoWindow_refresh();
+                                        // refresh instanceInfoWindow
+                                        instanceInfoWindow_refresh();
                                     }
-                                    // refresh nodeInfoWindow
-                                    nodeInfoWindow_refresh();
-                                    // refresh instanceInfoWindow
-                                    instanceInfoWindow_refresh();
                                 });
                             }
                             // <semicolon between mention>
@@ -1008,15 +1022,17 @@ function generateNodeListLabelObj(labelDict, labelValue){
                                     }
                                 };
                                 // ajax to background
-                                r = setInstance(curInstanceId, newValueDict);
-                                if (r != "success"){
-                                    alert(langDict[r]);
+                                let r = setInstance(curInstanceId, newValueDict);
+                                // GUI update
+                                if (r[0] != "success"){
+                                    alert(langDict[r[1]]);
                                     return;
+                                }else{
+                                    // refresh nodeInfoWindow
+                                    nodeInfoWindow_refresh();
+                                    // refresh instanceInfoWindow
+                                    instanceInfoWindow_refresh();
                                 }
-                                // refresh nodeInfoWindow
-                                nodeInfoWindow_refresh();
-                                // refresh instanceInfoWindow
-                                instanceInfoWindow_refresh();
                             });
                         }
                         // <s]>
@@ -1041,15 +1057,17 @@ function generateNodeListLabelObj(labelDict, labelValue){
                                     }
                                 };
                                 // ajax to background
-                                r = setInstance(curInstanceId, newValueDict);
-                                if (r != "success"){
-                                    alert(langDict[r]);
+                                let r = setInstance(curInstanceId, newValueDict);
+                                // GUI update
+                                if (r[0] != "success"){
+                                    alert(langDict[r[1]]);
                                     return;
+                                }else{
+                                    // refresh nodeInfoWindow
+                                    nodeInfoWindow_refresh();
+                                    // refresh instanceInfoWindow
+                                    instanceInfoWindow_refresh();
                                 }
-                                // refresh nodeInfoWindow
-                                nodeInfoWindow_refresh();
-                                // refresh instanceInfoWindow
-                                instanceInfoWindow_refresh();
                             });
 
                         }
