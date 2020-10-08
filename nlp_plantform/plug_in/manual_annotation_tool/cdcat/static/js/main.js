@@ -399,11 +399,12 @@ function PythonStyleToJsStyle(data){
             // prepare ajax data
             let nodePosition = $("#positionValue").text();
             // ajax to background
-            let nodeInfo = getNodeByPosition(nodePosition);
+            let r = getNodeByPosition(nodePosition);
             // display the new node info in GUI
-            if (nodeInfo === "") {
+            if (r[0] != "success") {
                 nodeInfoWindow_showNoNode();
             } else {
+                let nodeInfo = r[1];
                 nodeInfoWindow_updateNodeInfo(nodeInfo);
             }
         }
@@ -734,7 +735,7 @@ function PythonStyleToJsStyle(data){
      * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getNodeByPosition(nodePosition, callback){
+    function getNodeByPosition(nodePosition){
         let nodeInfo = undefined;
         $.post(
             "/getNode",
@@ -752,10 +753,10 @@ function PythonStyleToJsStyle(data){
      *
      * @param startNodePosition {string} Position string of the first node.
      * @param endNodePosition {string} Position string of the last node.
-     * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getNodeByChildren(startNodePosition, endNodePosition, callback){
+    function getNodeByChildren(startNodePosition, endNodePosition){
+        let r = undefined;
         $.post(
             "/getNode",
             {
@@ -763,9 +764,10 @@ function PythonStyleToJsStyle(data){
                 end: endNodePosition
             },
             function (data, status) {
-                callback(data);
+                r = data;
             }
         );
+        return r
     }
     function setNode(position, newValueDict){
         let nodeInfo = undefined;
@@ -907,19 +909,17 @@ function PythonStyleToJsStyle(data){
                 // 选中效果
                 majorTextWindow_hightlightElement(selectedElementsNow);
                 // 请求注释信息，并显示
-                getNodeByChildren(
+                let r = getNodeByChildren(
                     selectedElementsNow[0].attr("id"),
                     selectedElementsNow[selectedElementsNow.length-1].attr("id"),
-                    function(data){
-                        // 区分是否为标注对象
-                        if (data === "") {
-                            nodeInfoWindow_showNoNode();
-                        } else {
-                            nodeInfoWindow_updateNodeInfo(data);
-                            nodeInfoWindow_showNodeInfo();
-                        }
-                    }
-                )
+                );
+                // 区分是否为标注对象
+                if (r[0] != "success") {
+                    nodeInfoWindow_showNoNode();
+                } else {
+                    nodeInfoWindow_updateNodeInfo(r[1]);
+                    nodeInfoWindow_showNodeInfo();
+                }
             }
         }
         // select a mention, get the corresponding node, and fill current slot with the node.
@@ -932,17 +932,19 @@ function PythonStyleToJsStyle(data){
             }
             // 如果选中了某些内容
             else {
-                // 把选区的index转换成element，因为用起来方便
+                // 取消鼠标特效
+
+                // 尝试获取选区对应的node
                 let selectedElements = majorTextWindow_getSelectedElementFromIndex(curSelectedIndex);
-                // 选中效果
-                    // r = $(".slot").update(selectedElements)
-                    let r =1
-                // 请求注释信息，并显示
-                if (r == "success"){
-                    // 取消鼠标特效
-                    // 刷新
-                    nodeInfoWindow_refresh()
-                    instanceInfoWindow_refresh()
+                let r = getNodeByChildren(
+                    selectedElements[0].attr("id"),
+                    selectedElements[selectedElements.length-1].attr("id"),
+                );
+                // 如果获取到了node，就调用slot元素的处理函数
+                if (r[0] == "success"){
+                    $(".slot")[0].fillSlot(r[1]["position"]);
+                }else{
+                    alert(langDict[r[1]]);
                 }
             }
 

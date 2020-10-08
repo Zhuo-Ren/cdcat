@@ -119,6 +119,7 @@ class AutoSyncList(list):
         if not isinstance(value, self.type_limit):
             raise TypeError
         #
+        success_flag = False
         for item_index in range(len(self)):
             # 如果item是list
             if isinstance(self[item_index], AutoSyncList):

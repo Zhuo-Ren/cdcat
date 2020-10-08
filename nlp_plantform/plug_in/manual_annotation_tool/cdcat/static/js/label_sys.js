@@ -877,7 +877,7 @@ function generateInstanceLabelObj(labelDict, labelValue){
                     }
                 });
                 // add fill slot function
-                setInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){
+                setInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){  // html dom对象能存方法，jquery dom对象不行
                     // prepare ajax data
                     let curNodePosition = $("#positionValue").text();
                     let newValue = {[labelDict["key"]]: selectedInstanceId};
@@ -1042,6 +1042,48 @@ function generateNodeListLabelObj(labelDict, labelValue){
             {
                 let fingerButtonObj = $("<button class='circleButton'>☞</button>");
                 insideObj.append(fingerButtonObj);
+                fingerButtonObj.click(function(){
+                    if ($(".slot").length == 0){
+                        fingerButtonObj.addClass("slot");
+                        // 上特效
+                        document.body.style.cursor = "help";
+                        fingerButtonObj.css("background", "red");
+                    }
+                });
+                // add fill slot function
+                fingerButtonObj[0].fillSlot = function(selectedNodePosition){
+                    // prepare ajax data
+                    let curInstanceId = $("#idValue").text();
+                    let targetObjIndex = [];
+                    let cur_obj = $(this);
+                    while (cur_obj.parent().parent().attr("index") != undefined){
+                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                        cur_obj = cur_obj.parent().parent();
+                    }
+                    let infoDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "append",
+                            "targetObjIndex": targetObjIndex,
+                            "child": selectedNodePosition
+                        })
+                    };
+                    // ajax
+                    let r = setInstance(curInstanceId,infoDict);
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        fingerButtonObj.removeClass("slot");
+                        // 去特效
+                        document.body.style.cursor = "";
+                        fingerButtonObj.css("background", "white");
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                };
             }
             // [+]按钮
             {

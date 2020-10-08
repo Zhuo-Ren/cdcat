@@ -206,14 +206,13 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             logging.debug("getNode--：get the input node:" + node.text())
             anno_info = node.labels.readable()
             anno_info["position"] = node.position(output_type="string")
-            logging.debug("getNode<-：" + str(anno_info))
-            return jsonify(anno_info)
+            logging.debug("getNode<-：" + str(["success", anno_info]))
+            return jsonify(["success", anno_info])
         # return(failed)
         else:
-            logging.debug("getNode--：no such node.")
-            logging.debug("getNode<-：\"\"")
+            logging.debug("getNode<-:" + str(["failed", "no such node."]))
             #
-            return ""
+            return jsonify(["failed", "no such node."])
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
