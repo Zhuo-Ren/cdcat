@@ -26,7 +26,7 @@ class AutoSyncList(list):
         self.type_limit = type_limit
 
         # init
-        if isinstance(init_value, AutoSyncList,list):
+        if isinstance(init_value, (AutoSyncList, list)):
             for i in init_value:
                 self.append(i)  # self.append will sync the linked label
         else:
@@ -54,11 +54,11 @@ class AutoSyncList(list):
         return self.owner_labels.owner
 
     def append(self, object) -> None:
-        if isinstance(object, AutoSyncList, list):
+        if isinstance(object, (AutoSyncList, list)):
             # sync new value
             "同步工作将由新AutoSyncList对象的构造函数完成。"
             # append
-            super().append(self, AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
+            super().append(AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
         else:
             if self.type_limit is not None:
                 if not isinstance(object, self.type_limit):
@@ -67,14 +67,14 @@ class AutoSyncList(list):
             linked_label = object._value.labels[self.config["linkto"]]
             linked_label.sync_add(self.owner_obj)
             # append
-            super().append(self, object)
+            super().append(object)
 
     def insert(self, index: int, object) -> None:
         if isinstance(object, AutoSyncList, list):
             # sync new value
             "同步工作将由新AutoSyncList对象的构造函数完成。"
             # append
-            super().insert(self, index, AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
+            super().insert(index, AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
         else:
             if self.type_limit is not None:
                 if not isinstance(object, self.type_limit):
@@ -83,7 +83,7 @@ class AutoSyncList(list):
             linked_label = object._value.labels[self.config["linkto"]]
             linked_label.sync_add(self.owner_obj)
             # append
-            super().insert(self, index, object)
+            super().insert(index, object)
 
     def clear(self):
         # sync old value
@@ -94,7 +94,7 @@ class AutoSyncList(list):
                 linked_label = i.labels[self.owner_label.config["linkto"]]
                 linked_label.sync_del(self.owner_obj)
         #
-        super().clear(self)
+        super().clear()
 
     def sync_add(self, value) -> bool:
         # param check
@@ -260,7 +260,7 @@ class LabelTypeCheckbox(LabelType):
         # public
         self.empty_value = []
         #
-        super().__init__(self, owner, key, value)
+        super().__init__(owner, key, value)
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
@@ -288,9 +288,10 @@ class LabelTypeCheckbox(LabelType):
 
 class LabelTypeMenuOne(LabelType):
     def __init__(self, owner, key, value: Union[None, str]=None):
-        super().__init__(self, owner, key, value)
-        # public
+        # public: empty_value
         self.empty_value = None
+        #
+        super().__init__(owner, key, value)
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
@@ -318,9 +319,10 @@ class LabelTypeMenuOne(LabelType):
 
 class LabelTypeMenuMulti(LabelType):
     def __init__(self, owner, key, value: Union[None, List[str]]=None):
-        super().__init__(self, owner, key, value)
-        # public
+        # public: empty_value
         self.empty_value = []
+        #
+        super().__init__(owner, key, value)
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
@@ -348,9 +350,11 @@ class LabelTypeMenuMulti(LabelType):
 
 class LabelTypeTextReadonly(LabelType):
     def __init__(self, owner, key, value: Union[None, str]=None):
-        super().__init__(self, owner, key, value)
-        # public
+        # public: empty_value
         self.empty_value = None
+        #
+        super().__init__(owner, key, value)
+
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
@@ -374,9 +378,11 @@ class LabelTypeTextReadonly(LabelType):
 
 class LabelTypeTextInput(LabelType):
     def __init__(self, owner, key, value: Union[None, str]=None):
-        super().__init__(self, owner, key, value)
-        # public
+        # public: empty_value
         self.empty_value = None
+        #
+        super().__init__(owner, key, value)
+
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
@@ -412,7 +418,7 @@ class LabelTypeNode(LabelType):
         # public
         self.empty_value = None
         #
-        super().__init__(self, owner, key, value)
+        super().__init__(owner, key, value)
 
     # public: value
     from nlp_plantform.center.nodetree import NodeTree
@@ -514,10 +520,10 @@ class LabelTypeInstance(LabelType):
         from nlp_plantform.center.instance import Instance
         if isinstance(value, Instance)or (value is None):
             raise TypeError
-        # public
+        # public: empty_value
         self.empty_value = None
         #
-        super().__init__(self, owner, key, value)
+        super().__init__(owner, key, value)
 
     # public: value
     from nlp_plantform.center.instance import Instance
@@ -618,10 +624,12 @@ class LabelTypeNodeList(LabelType):
         :param key: The key of this label in config_label_sys.json
         :param value: A obj that represent the label value.
         """
-        super().__init__(self, owner, key, value)
-        # public
+        # public: empty_value
         from nlp_plantform.center.nodetree import NodeTree
         self.empty_value = AutoSyncList(owner=self, init_value=[], type_limit=NodeTree)
+        #
+        super().__init__(owner, key, value)
+
 
     # public: value
     @property

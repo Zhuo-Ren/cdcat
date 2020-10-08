@@ -19,7 +19,7 @@ $(document).ready(function () {
         },
         east__childOptions: {
             center__paneSelector: "#instanceSelectWindow",
-            south__paneSelector: "#instancInfoWindow",
+            south__paneSelector: "#instanceInfoWindow",
             south__size: 330,
             spacing_open: 8,  // ALL panes
             spacing_closed: 12,// ALL panes

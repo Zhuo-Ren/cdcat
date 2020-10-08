@@ -17,7 +17,7 @@ labelTemplate = {
             //         let position = $("#positionValue").text();
             //         let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
             //         setNode(position, {[labelDict["key"]]: value});
-            //     }else if($("#instancInfoWindow")[0].contains(this)){
+            //     }else if($("#instanceInfoWindow")[0].contains(this)){
             //         let id = $("#idValue").text();
             //         let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
             //         setInstance(id, {[labelDict["key"]]: value});
@@ -35,8 +35,8 @@ labelTemplate = {
             };
         }
     },
-    "listone":{
-        "generateLabelObj_func": generateListOneLabelObj,
+    "menuone":{
+        "generateLabelObj_func": generateMenuOneLabelObj,
         "addUpdateValueFunc_func": function(labelDict) {
             return function(newValue){
                 // if (newValue != undefined) {
@@ -52,7 +52,7 @@ labelTemplate = {
             //         var position = $("#positionValue").text();
             //         let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
             //         setNode(position, {[labelDict["key"]]: value});
-            //     }else if($("#instancInfoWindow")[0].contains(this)){
+            //     }else if($("#instanceInfoWindow")[0].contains(this)){
             //         var id = $("#pidValue").text();
             //         var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
             //         setInstance(id, {[labelDict["key"]]: value});
@@ -60,14 +60,9 @@ labelTemplate = {
             // });
         }
     },
-    "listmulti":{
+    "menumulti":{
         "generateLabelObj_func": function(labelDict){
             return  $("<span>没实现</span>");
-        },
-        "addUpdateValueFunc_func": function (labelDict) {
-            return function(newValue){
-                alert("没实现")
-            };
         }
     },
     "textreadonly":{
@@ -102,7 +97,7 @@ labelTemplate = {
             //         setNode(position, {[labelDict["key"]]: value});
             //     }
             //     // if the changed label belongs to a instance
-            //     else if($("#instancInfoWindow")[0].contains(this)){
+            //     else if($("#instanceInfoWindow")[0].contains(this)){
             //         // prepare ajax data
             //         let id = $("#idValue").text();
             //         let value = $("#" + labelDict["key"] + "Value")[0].value;
@@ -261,18 +256,13 @@ labelTemplate = {
             // });
         }
     },
-    "instances":{
+    "instancelist":{
         "generateLabelObj_func": function(labelDict){
             return  $("<span>没实现</span>");
-        },
-        "addUpdateValueFunc_func": function (labelDict) {
-            return function(newValue){
-                alert("没实现")
-            };
         }
     },
-    "nodes": {
-        "generateLabelObj_func": generateNodesLabelObj,
+    "nodelist": {
+        "generateLabelObj_func": generateNodeListLabelObj,
         // function(labelDict){
         //     reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
         //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
@@ -459,19 +449,22 @@ function generateRadioLabelObj(labelDict, labelValue) {
         // valueObj <span>
         let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
             // optionObj <span><input type="radio" name="XXX" value="XXX">XXX</span>
-            for (optionIndex = 0; optionIndex < labelDict["value_option"].length; optionIndex++) { curOption = labelDict["value_option"][optionIndex];
+            for (optionIndex = 0; optionIndex < labelDict["value_option"].length; optionIndex++)
+            {
+                let curOption = labelDict["value_option"][optionIndex];
                 curOptionObj = $("<input type = 'radio' name = '" + labelDict["key"] + "' value = '" + curOption[1] + "' /><span>"+curOption[0]+" </span>");
                 // if given a value, display the value
                 if (labelValue != undefined){
                     if (labelValue == curOption[1]){
                         curOptionObj[0].checked = true;
                     }
-                // if no value given, display the default value
-                }else if (labelDict["value_default"] != undefined){
-                    if (labelDict["value_default"] == curOption[1]){
-                        curOptionObj[0].checked = true;
-                    }
                 }
+                // // if no value given, display the default value
+                // else if (labelDict["value_default"] != undefined){
+                //     if (labelDict["value_default"] == curOption[1]){
+                //         curOptionObj[0].checked = true;
+                //     }
+                // }
                 valueObj.append(curOptionObj);
             }
         valueObj.change(function() {
@@ -479,27 +472,29 @@ function generateRadioLabelObj(labelDict, labelValue) {
                 let position = $("#positionValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 let r = setNode(position, {[labelDict["key"]]: value});
-                if (r != "success"){
-                    alert(langDict[r]);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
                     return;
+                }else{
+                    // refresh nodeInfoWindow
+                    nodeInfoWindow_refresh();
+                    // refresh instanceInfoWindow
+                    instanceInfoWindow_refresh();
                 }
-                // refresh nodeInfoWindow
-                nodeInfoWindow_refresh();
-                // refresh instanceInfoWindow
-                instanceInfoWindow_refresh();
-            }else if($("#instancInfoWindow")[0].contains(this)){
+            }else if($("#instanceInfoWindow")[0].contains(this)){
                 let id = $("#idValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
-                if (r != "success"){
-                    alert(langDict[r]);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
                     return;
+                }else{
+                    // refresh nodeInfoWindow
+                    nodeInfoWindow_refresh();
+                    // refresh instanceInfoWindow
+                    instanceInfoWindow_refresh();
                 }
-                // refresh nodeInfoWindow
-                nodeInfoWindow_refresh();
-                // refresh instanceInfoWindow
-                instanceInfoWindow_refresh();
             }
         });
         labelObj.append(valueObj);
@@ -508,18 +503,18 @@ function generateRadioLabelObj(labelDict, labelValue) {
 }
 
 /**
- * This function generate a listone type label obj.
+ * This function generate a MenuOne type label obj.
  *
  * @example
  let labelDict = {
       "key": "type",
       "GUI_name": "type of the mention: ",
-      "value_type": "listone",
+      "value_type": "MenuOne",
       "value_option": [["无", "none"],["人", "PEO"],["地", "LOC"],["行为", "ACT"],["组织", "ORG"],["物", "SUB"]],
       "value_default": "none"
     };
  let labelValue = "ORG";
- let labelObj = generateListOneLabelObj(labelDict, labelValue);
+ let labelObj = generateMenuOneLabelObj(labelDict, labelValue);
  *
  * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name", "value_option".
  *   Optional items include "value_default".
@@ -527,7 +522,7 @@ function generateRadioLabelObj(labelDict, labelValue) {
  *   display the default value in *labelDict* if not given.
  * @return {Jquery.HtmlElement}
  */
-function generateListOneLabelObj(labelDict, labelValue){
+function generateMenuOneLabelObj(labelDict, labelValue){
     // labelObj <div>
     let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
     labelObj.css("padding-left","10px");
@@ -548,12 +543,12 @@ function generateListOneLabelObj(labelDict, labelValue){
                             optionObj[0].selected = true;
                         }
                     }
-                    // if no value given, display the default value
-                    else if (labelDict["value_default"] != undefined){
-                        if (curOption[1] == labelDict["value_default"]){
-                            optionObj[0].selected = true;
-                        }
-                    }
+                    // // if no value given, display the default value
+                    // else if (labelDict["value_default"] != undefined){
+                    //     if (curOption[1] == labelDict["value_default"]){
+                    //         optionObj[0].selected = true;
+                    //     }
+                    // }
                     selectObj.append(optionObj);
                 }
             valueObj.append(selectObj);
@@ -562,15 +557,16 @@ function generateListOneLabelObj(labelDict, labelValue){
                 var position = $("#positionValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 let r = setNode(position, {[labelDict["key"]]: value});
-                if (r != "success"){
-                    alert(langDict[r]);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
                     return;
+                }else{
+                    // refresh nodeInfoWindow
+                    nodeInfoWindow_refresh();
+                    // refresh instanceInfoWindow
+                    instanceInfoWindow_refresh();
                 }
-                // refresh nodeInfoWindow
-                nodeInfoWindow_refresh();
-                // refresh instanceInfoWindow
-                instanceInfoWindow_refresh();
-            }else if($("#instancInfoWindow")[0].contains(this)){
+            }else if($("#instanceInfoWindow")[0].contains(this)){
                 // prepare ajax data
                 var id = $("#pidValue").text();
                 var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
@@ -624,14 +620,14 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
             if (labelValue != undefined) {
                 innerText =  labelValue;
             }
-            // if no value given, display the default value
-            else if (labelDict["value_default"] != undefined){
-                innerText = labelDict["value_default"];
-            }
-            // if no given value and no default value
-            else{
-                innerText = "";
-            }
+            // // if no value given, display the default value
+            // else if (labelDict["value_default"] != undefined){
+            //     innerText = labelDict["value_default"];
+            // }
+            // // if no given value and no default value
+            // else{
+            //     innerText = "";
+            // }
             valueObj.text(innerText);
         labelObj.append(valueObj);
     // return
@@ -673,14 +669,14 @@ function generateTextInputLabelObj(labelDict, labelValue){
                 if (labelValue != undefined) {
                     inputText =  labelValue;
                 }
-                // if no value given, display the default value
-                else if (labelDict["value_default"] != undefined){
-                    inputText = labelDict["value_default"];
-                }
-                // if no given value and no default value
-                else{
-                    inputText = "";
-                }
+                // // if no value given, display the default value
+                // else if (labelDict["value_default"] != undefined){
+                //     inputText = labelDict["value_default"];
+                // }
+                // // if no given value and no default value
+                // else{
+                //     inputText = "";
+                // }
                 valueObj.attr("value", inputText)
             // add change event
                 valueObj.change(function() {
@@ -689,17 +685,18 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         let position = $("#positionValue").text();
                         let value = $("#" + labelDict["key"] + "Value")[0].value;
                         let r = setNode(position, {[labelDict["key"]]: value});
-                        if (r != "success"){
-                            alert(langDict[r]);
+                        if (r[0] != "success"){
+                            alert(langDict[r[1]]);
                             return;
+                        }else{
+                            // refresh nodeInfoWindow
+                            nodeInfoWindow_refresh();
+                            // refresh instanceInfoWindow
+                            instanceInfoWindow_refresh();
                         }
-                        // refresh nodeInfoWindow
-                        nodeInfoWindow_refresh();
-                        // refresh instanceInfoWindow
-                        instanceInfoWindow_refresh();
                     }
                     // if the changed label belongs to a instance
-                    else if($("#instancInfoWindow")[0].contains(this)){
+                    else if($("#instanceInfoWindow")[0].contains(this)){
                         // prepare ajax data
                         let id = $("#idValue").text();
                         let value = $("#" + labelDict["key"] + "Value")[0].value;
@@ -768,20 +765,25 @@ function generateInstanceLabelObj(labelDict, labelValue){
                         }
                         instanceId = labelValue["id"];
                     }
-                    // if no value given, display the default value
-                    else if (labelDict["value_default"] != undefined){
-                        if (labelDict["value_default"]["desc"]==""){
-                            inputText = '　';
-                        }else{
-                            inputText = labelDict["value_default"]["desc"];
-                        }
-                        instanceId = labelDict["value_default"]["id"];
-                    }
-                    // if no given value and no default value
+                    // if no value given
                     else{
                         inputText = '　';
-                        instanceId = "";
+                        instanceId = ""
                     }
+                    // // if no value given, display the default value
+                    // else if (labelDict["value_default"] != undefined){
+                    //     if (labelDict["value_default"]["desc"]==""){
+                    //         inputText = '　';
+                    //     }else{
+                    //         inputText = labelDict["value_default"]["desc"];
+                    //     }
+                    //     instanceId = labelDict["value_default"]["id"];
+                    // }
+                    // // if no given value and no default value
+                    // else{
+                    //     inputText = '　';
+                    //     instanceId = "";
+                    // }
                     instanceButtonObj.text(inputText);
                     instanceButtonObj.attr("name", instanceId);
                 // add click event
@@ -824,32 +826,39 @@ function generateInstanceLabelObj(labelDict, labelValue){
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
                     });
-        // ArrowObj <button>
-            let arrowObj = $("<button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>");
-            labelObj.append(arrowObj);
-            // add click event
-                arrowObj.click(function(){
-                    // prepare ajax data
-                    let curNodePosition = $("#positionValue").text();
-                    let curInstanceId = undefined;
-                    if ($("#instanceInfo-selectedInstance").css("display") == "block") {
-                        curInstanceId = $("#idValue").text();
-                    }else{
-                        alert(langDict["can not build a reference relation between cur node and cur instance, because no instance are selected."]);
-                        return;
-                    }
-                    let newValue = {[labelDict["key"]]: curInstanceId};
-                    // ajax
-                    let r = setNode(curNodePosition,newValue);
-                    if (r != "success"){
-                        alert(langDict[r]);
-                        return;
-                    }
-                    // refresh nodeInfoWindow
-                    nodeInfoWindow_refresh();
-                    // refresh instanceInfoWindow
-                    instanceInfoWindow_refresh();
-                    });
+            // setInstanceByCurInstanceButtonObj <button>
+                let setInstanceByCurInstanceButtonObj = $("<button id='" + labelDict["key"] + "CI\' class='circleButton'>cI</button>");
+                valueObj.append(setInstanceByCurInstanceButtonObj);
+                // add click event
+                    setInstanceByCurInstanceButtonObj.click(function(){
+                        // prepare ajax data
+                        let curNodePosition = $("#positionValue").text();
+                        let curInstanceId = undefined;
+                        if ($("#instanceInfo-selectedInstance").css("display") == "block") {
+                            curInstanceId = $("#idValue").text();
+                        }else{
+                            alert(langDict["can not build a reference relation between cur node and cur instance, because no instance are selected."]);
+                            return;
+                        }
+                        let newValue = {[labelDict["key"]]: curInstanceId};
+                        // ajax
+                        let r = setNode(curNodePosition,newValue);
+                        if (r != "success"){
+                            alert(langDict[r]);
+                            return;
+                        }
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                        });
+            // setInstanceBySelectButtonObj <button>
+                let setInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton'>☞</button>");
+                valueObj.append(setInstanceBySelectButtonObj);
+                // add click event
+                setInstanceBySelectButtonObj.click(function(){
+
+                });
     // return
         return labelObj
 }
@@ -874,7 +883,7 @@ function generateInstanceLabelObj(labelDict, labelValue){
         {"position": "5-2-0", "text":"两家航空公司"}
     ]
  ]
- let labelObj = generateNodesLabelObj(labelDict, labelValue);
+ let labelObj = generateNodeListLabelObj(labelDict, labelValue);
  *
  * @param {Array} labelDict **[Required]** Info of the label. Required items included "key", "GUI_name". Optional items
  *   include "value_default".
@@ -882,7 +891,7 @@ function generateInstanceLabelObj(labelDict, labelValue){
  *   display the default value in *labelDict* if not given.
  * @return {Jquery.HtmlElement}
  */
-function generateNodesLabelObj(labelDict, labelValue){
+function generateNodeListLabelObj(labelDict, labelValue){
     // function(labelDict){
         //     reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
         //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
@@ -914,25 +923,26 @@ function generateNodesLabelObj(labelDict, labelValue){
                 bigBracketObj.css("padding-left", "10px");
                 // calc the value
                 {
-                    // if given a value, display the value
-                    if (labelValue != undefined) {
-                        //labelValue = labelValue
-                    }
-                    // if no value given, display the default value
-                    else if (labelDict["value_default"] != undefined) {
-                        labelValue = labelDict["value_default"];
-                    }
-                    // if no given value and no default value
-                    else {
-                        labelValue = [[]];
-                    }
+                    // // if given a value, display the value
+                    // if (labelValue != undefined) {
+                    //     //labelValue = labelValue
+                    // }
+                    // // if no value given, display the default value
+                    // else if (labelDict["value_default"] != undefined) {
+                    //     labelValue = labelDict["value_default"];
+                    // }
+                    // // if no given value and no default value
+                    // else {
+                    //     labelValue = [[]];
+                    // }
                 }
                 // for each mentionList
-                for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
-                    let curMentionList = labelValue[curMentionListIndex];
-                    // <mentionListLineObj>
-                    let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
-                    bigBracketObj.append(mentionListLineObj);
+                if (labelValue != undefined){
+                    for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
+                        let curMentionList = labelValue[curMentionListIndex];
+                        // <mentionListLineObj>
+                        let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
+                        bigBracketObj.append(mentionListLineObj);
                         // <s[>
                         mentionListLineObj.append($("<span>[</span>"));
                         // for each mention
@@ -1045,15 +1055,16 @@ function generateNodesLabelObj(labelDict, labelValue){
                         }
                         // <br/>
                         mentionListLineObj.append($("<br/>"));
+                    }
                 }
                 // <add new mentionList button>
-                // {
-                //     let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
-                //     bigBracketObj.append(addNewMentionListButtonObj);
-                //     addNewMentionListButtonObj.click(function () {
-                //         alert("走着瞧");
-                //     });
-                // }
+                {
+                    let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
+                    bigBracketObj.append(addNewMentionListButtonObj);
+                    addNewMentionListButtonObj.click(function () {
+                        alert("走着瞧");
+                    });
+                }
             }
             // <b]>
             valueObj.append($("<span>]</span>"));

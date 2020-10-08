@@ -471,7 +471,7 @@ function PythonStyleToJsStyle(data){
                 newInstanceObj.text('　');
             }
         } else {
-            newInstanceObj.text(labelSysDict["instance"][1]["value_default"]);  //[1]是desc标签的描述数组
+            newInstanceObj.text('　');
         }
         // 挂事件
         newInstanceObj.click(function() {
@@ -937,12 +937,18 @@ function PythonStyleToJsStyle(data){
     // instanceSelectWindow: 单击“+”按钮
     function addInstancePlusButtonClick(){
         // ajax to background
-        let instanceInfo = addInstance_empty();
-        // add instance obj in instanceSelectWindow
-        instanceSelectWindow_updateOneInstance(instanceInfo);
-        // show instance info in nstanceInfoWindow
-        instanceInfoWindow_showInstanceInfo();
-        instanceInfoWindow_updateInstanceInfo(instanceInfo);
+        let r = addInstance_empty();
+        if (r[0] != "success"){
+            alert(langDict[r[1]])
+            return
+        }else{
+            let instanceInfo = r[1]
+            // add instance obj in instanceSelectWindow
+            instanceSelectWindow_updateOneInstance(instanceInfo);
+            // show instance info in instanceInfoWindow
+            instanceInfoWindow_showInstanceInfo();
+            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+        }
     }
     // instanceSelectWindow: 单击“→”按钮
     function addInstanceArrowButtonClick(){

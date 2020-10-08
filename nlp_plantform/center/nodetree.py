@@ -284,7 +284,7 @@ class NodeTree(ParentedTree):
         # 修改自己
         list.insert(self, index, value)
 
-#     def pop(self, index=-1):
+    def pop(self, index=-1):
         assert isinstance(index, int)
         # 修改自己
         child = list.pop(self, index)

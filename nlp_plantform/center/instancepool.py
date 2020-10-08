@@ -9,7 +9,7 @@ class InstancePool(dict):
         The id of next instance in this instance pool. Id of instance start of 0. The latest instance id is self。next_id - 1
         """
 
-    def add_instance(self, info_dict):
+    def add_instance(self, info_dict=None):
         new_instance = Instance(instance_pool=self, labels_dict=info_dict)
         return new_instance
 

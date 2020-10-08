@@ -168,14 +168,13 @@
     </script>
 </head>
 <body>
-    <div id="centerWindow">
-        <div id="textWindow">
-            <ul>
-                <li><a href="#textTab1">{{langDict["major text window"]}}</a></li>
-                <li><a href="#textTab2">{{langDict["minor text window"]}}</a></li>
-            </ul>
-            <div class="ui-layout-content">
-                <div id="textTab1" class="textTab" name="notext">
+    <div id="textWindow">
+        <ul>
+            <li><a href="#textTab1">{{langDict["major text window"]}}</a></li>
+            <li><a href="#textTab2">{{langDict["minor text window"]}}</a></li>
+        </ul>
+        <div class="ui-layout-content">
+            <div id="textTab1" class="textTab" name="notext">
 <!--                    {% for cur_text_unit in text_unit_list %}-->
 <!--                        {% if cur_text_unit["char"] in ["\n","\r"] %}-->
 <!--                            <div id= {{cur_text_unit["position"]}} class="char">-->
@@ -192,10 +191,9 @@
 <!--                            </div>-->
 <!--                        {% endif %}-->
 <!--                    {% endfor %}-->
-                </div>
-                <div id="textTab2" class="textTab">
-                    <p>minor window is to show a mention in mentionList of a instance.</p>
-                </div>
+            </div>
+            <div id="textTab2" class="textTab">
+                <p>minor window is to show a mention in mentionList of a instance.</p>
             </div>
         </div>
     </div>
@@ -278,7 +276,7 @@
                     <!--                </div>-->
                 </div>
             </div>
-            <div id="instancInfoWindow">
+            <div id="instanceInfoWindow">
                 <div id="instanceInfo-noInstance"style="display: block">select a instance to show it's info.</div>
                 <div id="instanceInfo-selectedInstance">
                 <span>
