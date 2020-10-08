@@ -931,313 +931,165 @@ function generateInstanceLabelObj(labelDict, labelValue){
  * @return {Jquery.HtmlElement}
  */
 function generateNodeListLabelObj(labelDict, labelValue){
-    // function(labelDict){
-        //     reStr =     "<div id='nodeInfo-" + labelDict["key"] + "'>" +
-        //                 "   <span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>" +
-        //                 "   <span id='" + labelDict["key"] + "Value'> " +
-        //                 "       <button class='circleButton' name='addList'>x</button>" +
-        //                 "   </span>" +
-        //                 "   <button id='" + labelDict["key"] + "Arrow\' class='circleButton'>←</button>" +
-        //                 "</div>";
-        //     reObj = $(reStr);
-        //     reObj.css("padding-left","10px");
-        //     return reObj
-        // },
-    // <labelObj>
-        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
-        labelObj.css("padding-left","10px");
-        // <keyObj>
-            let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
-            labelObj.append(keyObj);
-        // <valueObj>
-            let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
-            labelObj.append(valueObj);
+    let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+    labelObj.css("padding-left","10px");
+    // <keyObj>
+        let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
+        labelObj.append(keyObj);
+    // <valueObj>
+        let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
+        labelObj.append(valueObj);
 
-            function generateNodeListIter(nodeList){
-                // param check
-                if (! Array.isArray(nodeList)){
-                    throw new Error(langDict["Call generateNodeListIter on a un-array obj."])
-                }
+        function generateNodeListIter(nodeList){
+            // param check
+            if (! Array.isArray(nodeList)){
+                throw new Error(langDict["Call generateNodeListIter on a un-array obj."])
+            }
+            //
+            let insideObj = $("<div></div>");
+            insideObj.css("padding-left","10px");
+            for (let itemIndex = 0; itemIndex<nodeList.length; itemIndex++){
                 //
-                let curListObj = $("<span class='mentionList'></span>");
+                let curItem = nodeList[itemIndex];
+                // 如果是nodeList
+                if (Array.isArray(curItem)){
+                    let curItemObj = $("<span class='mentionList'></span>");
+                    curItemObj.attr("index", String(itemIndex));
+                    insideObj.append(curItemObj);
                     // 左中括号
-                    curListObj.append($("<span>[</span>"));
-                    // 中间的东西
-                        let insideObj = $("<div></div>");
-                        insideObj.css("padding-left","10px");
-                        curListObj.append(insideObj);
-                        for (let itemIndex = 0; itemIndex<nodeList.length; itemIndex++){
-                            //
-                                let curItem = nodeList[itemIndex];
-                                // 如果是nodeList
-                                if (Array.isArray(curItem)){
-                                    let curItemObj = generateNodeListIter(curItem);
-                                    curItemObj.attr("index", String(itemIndex));
-                                    insideObj.append(curItemObj);
-                                    insideObj.append($("<span>,</span><br/>"));
-                                }
-                                // 如果是node
-                                else{
-                                    let curItemObj = $("<button index='" + String(itemIndex) + "'>" + curItem["text"] + "</button>");
-                                    insideObj.append(curItemObj);
-                                    let delItemButton = $("<button class='circleButton'>x</button>");
-                                    insideObj.append(delItemButton);
-                                    insideObj.append($("<span>,</span><br/>"));
-                                }
-                        }
-                        //
-                        let curNodeButtonObj = $("<button class='circleButton'>cN</button>");
-                        insideObj.append(curNodeButtonObj);
-                        curNodeButtonObj.click(function(){
-                            let curInstanceId = $("#idValue").text();
-                            let targetObjIndex = [];
-                            let cur_obj = $(this);
-                            while (cur_obj.parent().parent().attr("index") != undefined){
-                                targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
-                                cur_obj = cur_obj.parent().parent();
-                            }
-                            let curNodePosition = undefined;
-                            if ($("#nodeInfo-selectedNode").css("display") == "block"){
-                                curNodePosition = $("#positionValue").text();
-                            }
-                            else{
-                                alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
-                                return;
-                            }
-                            let infoDict = {
-                                [labelDict["key"]]: JSON.stringify({
-                                    "action": "append",
-                                    "targetObjIndex": targetObjIndex,
-                                    "child": curNodePosition
-                                })
-                            };
-                            let r = setInstance(curInstanceId, infoDict);
-                            if (r[0] != "success"){
-                                alert(langDict[r[1]]);
-                                return
-                            }else{
-                                nodeInfoWindow_refresh();
-                                instanceInfoWindow_refresh();
-                            }
-
-                        });
-                        //
-                        let fingerButtonObj = $("<button class='circleButton'>☞</button>");
-                        insideObj.append(fingerButtonObj);
-                        //
-                        let newListButtonObj = $("<button class='circleButton'>[+]</button>");
-                        insideObj.append(newListButtonObj);
-                        newListButtonObj.click(function(){
-                            let curInstanceId = $("#idValue").text();
-                            let targetObjIndex = [];
-                            let cur_obj = $(this);
-                            while (cur_obj.parent().parent().attr("index") != undefined){
-                                targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
-                                cur_obj = cur_obj.parent().parent();
-                            }
-                            let infoDict = {
-                                [labelDict["key"]]: JSON.stringify({
-                                    "action": "append",
-                                    "targetObjIndex": targetObjIndex,
-                                    "child": "newList"
-                                })
-                            };
-                            let r = setInstance(curInstanceId, infoDict);
-                            if (r[0] != "success"){
-                                alert(langDict[r[1]]);
-                                return
-                            }else{
-                                nodeInfoWindow_refresh();
-                                instanceInfoWindow_refresh();
-                            }
-
-                        });
-                        //
-                        insideObj.append($("<br/>"));
+                    curItemObj.append($("<span>[</span>"));
+                    // 中间
+                    curItemObj.append(generateNodeListIter(curItem));
+                    insideObj.append(curItemObj);
                     // 右中括号
-                    curListObj.append($("<span>]</span>"));
-                    //
-                    let delCurListButtonObj = $("<button class='circleButton'>x</button>");
-                    curListObj.append(delCurListButtonObj);
-                return curListObj
-            }
+                    curItemObj.append($("<span>]</span>"));
+                }
+                // 如果是node
+                else{
+                    let curItemObj = $("<button>" + curItem["text"] + "</button>");
+                    curItemObj.attr("index", String(itemIndex));
+                    insideObj.append(curItemObj);
+                }
+                let delItemButton = $("<button class='circleButton'>x</button>");
+                insideObj.append(delItemButton);
+                delItemButton.click(function(){
+                    let curInstanceId = $("#idValue").text();
+                    let cur_obj = $(this).prev();
+                    let targetObjIndex = [parseInt(cur_obj.attr("index"))];
+                    while (cur_obj.parent().parent().attr("index") != undefined){
+                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                        cur_obj = cur_obj.parent().parent();
+                    }
+                    let infoDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "del",
+                            "targetObjIndex": targetObjIndex,
+                        })
+                    };
+                    let r = setInstance(curInstanceId, infoDict);
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return
+                    }else{
+                        nodeInfoWindow_refresh();
+                        instanceInfoWindow_refresh();
+                    }
 
-            // 如果nodeList标签的值是空，那么改成[]。这样才能显示操作按钮。
-            // 不用担心这里改了以后和后台数据不一致，因为nodeListLabel的value_empty就是[]。
-            if ((labelValue == undefined)||(labelValue == null)){
-                labelValue = [];
+                });
+                //
+                insideObj.append($("<span>,</span><br/>"));
             }
-            //
-            if (labelValue){
-                let nodeListObj = generateNodeListIter(labelValue);
-                nodeListObj.children(":last").css("display", "none");
-                valueObj.append(nodeListObj);
+            // cN按钮
+            {
+                let curNodeButtonObj = $("<button class='circleButton'>cN</button>");
+                insideObj.append(curNodeButtonObj);
+                curNodeButtonObj.click(function(){
+                    let curInstanceId = $("#idValue").text();
+                    let targetObjIndex = [];
+                    let cur_obj = $(this);
+                    while (cur_obj.parent().parent().attr("index") != undefined){
+                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                        cur_obj = cur_obj.parent().parent();
+                    }
+                    let curNodePosition = undefined;
+                    if ($("#nodeInfo-selectedNode").css("display") == "block"){
+                        curNodePosition = $("#positionValue").text();
+                    }
+                    else{
+                        alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
+                        return;
+                    }
+                    let infoDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "append",
+                            "targetObjIndex": targetObjIndex,
+                            "child": curNodePosition
+                        })
+                    };
+                    let r = setInstance(curInstanceId, infoDict);
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return
+                    }else{
+                        nodeInfoWindow_refresh();
+                        instanceInfoWindow_refresh();
+                    }
+
+                });
+
             }
-            // 取消最外层中括号后的del button
-            // $("#mention_listValue").children(":first").children(":last").css("display", "none");
+            //finger按钮
+            {
+                let fingerButtonObj = $("<button class='circleButton'>☞</button>");
+                insideObj.append(fingerButtonObj);
+            }
+            // [+]按钮
+            {
+                let newListButtonObj = $("<button class='circleButton'>[+]</button>");
+                insideObj.append(newListButtonObj);
+                newListButtonObj.click(function(){
+                    let curInstanceId = $("#idValue").text();
+                    let targetObjIndex = [];
+                    let cur_obj = $(this);
+                    while (cur_obj.parent().parent().attr("index") != undefined){
+                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                        cur_obj = cur_obj.parent().parent();
+                    }
+                    let infoDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "append",
+                            "targetObjIndex": targetObjIndex,
+                            "child": "newList"
+                        })
+                    };
+                    let r = setInstance(curInstanceId, infoDict);
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return
+                    }else{
+                        nodeInfoWindow_refresh();
+                        instanceInfoWindow_refresh();
+                    }
+                });
+            }
+            return insideObj
+        }
 
-
-            // // <b[>
-            // valueObj.append($("<span>[</span>"));
-            // valueObj.append($("<br>/"));
-            // // <bigBracketObj>
-            // {
-            //     let bigBracketObj = $("<div name='bigBracket'></div>");
-            //     valueObj.append(bigBracketObj);
-            //     bigBracketObj.css("padding-left", "10px");
-            //     // calc the value
-            //     {
-            //         // // if given a value, display the value
-            //         // if (labelValue != undefined) {
-            //         //     //labelValue = labelValue
-            //         // }
-            //         // // if no value given, display the default value
-            //         // else if (labelDict["value_default"] != undefined) {
-            //         //     labelValue = labelDict["value_default"];
-            //         // }
-            //         // // if no given value and no default value
-            //         // else {
-            //         //     labelValue = [[]];
-            //         // }
-            //     }
-            //     // for each mentionList
-            //     if (labelValue != undefined){
-            //         for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
-            //             let curMentionList = labelValue[curMentionListIndex];
-            //             // <mentionListLineObj>
-            //             let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
-            //             bigBracketObj.append(mentionListLineObj);
-            //             // <s[>
-            //             mentionListLineObj.append($("<span>[</span>"));
-            //             // for each mention
-            //             for (let curMentionIndex = 0; curMentionIndex < curMentionList.length; curMentionIndex++) {
-            //                 // <mention button>
-            //                 {
-            //                     let curMention = curMentionList[curMentionIndex];
-            //                     let curMentionObj = $("<button mentionIndex='" + curMentionIndex + "'></button>");
-            //                     mentionListLineObj.append(curMentionObj);
-            //                     // display value
-            //                     curMentionObj.text(curMention["text"]);
-            //                     curMentionObj.attr("name", curMention["position"]);
-            //                     // add click event
-            //                     curMentionObj.click(function (e) {
-            //                         alert("展示node信息");
-            //                     });
-            //                 }
-            //                 // <del mention button>
-            //                 {
-            //                     let delMentionButton = $("<button class='circleButton' name='delMentionButton'>x</button>");
-            //                     mentionListLineObj.append(delMentionButton);
-            //                     // add click event
-            //                     delMentionButton.click(function () {
-            //                         // prepare ajax data
-            //                         let curInstanceId = $("#idValue").text();
-            //                         let newValueDict = {"mention_list": {
-            //                                 "action": "del mention",
-            //                                 "mention_list_index":$(this).parent().attr("mentionListIndex"),
-            //                                 "mention_index": $(this).prev().attr("mentionIndex")
-            //                             }};
-            //                         // ajax to background
-            //                         r = setInstance(curInstanceId, newValueDict);
-            //                         // GUI update
-            //                         if (r[0] != "success"){
-            //                             alert(langDict[r[1]]);
-            //                             return;
-            //                         }else{
-            //                             // refresh nodeInfoWindow
-            //                             nodeInfoWindow_refresh();
-            //                             // refresh instanceInfoWindow
-            //                             instanceInfoWindow_refresh();
-            //                         }
-            //                     });
-            //                 }
-            //                 // <semicolon between mention>
-            //                 mentionListLineObj.append($("<span>;</span>"));
-            //             }
-            //             // <append new mention button>
-            //             {
-            //                 let appendNewMentionButtonObj = $("<button class='circleButton'>→</button>");
-            //                 mentionListLineObj.append(appendNewMentionButtonObj);
-            //                 // add click event
-            //                 appendNewMentionButtonObj.click(function () {
-            //                     if ($("#nodeInfo-selectedNode").css("display") != "block"){
-            //                         alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
-            //                         return
-            //                     }
-            //                     // prepare ajax data
-            //                     let curInstanceId = $("#idValue").text();
-            //                     let newValueDict = {
-            //                         "mention_list":{
-            //                             "action": "append mention",
-            //                             "mention_list_index":$(this).parent().attr("mentionListIndex"),
-            //                             "new_node_position": $("#positionValue").text()
-            //                         }
-            //                     };
-            //                     // ajax to background
-            //                     let r = setInstance(curInstanceId, newValueDict);
-            //                     // GUI update
-            //                     if (r[0] != "success"){
-            //                         alert(langDict[r[1]]);
-            //                         return;
-            //                     }else{
-            //                         // refresh nodeInfoWindow
-            //                         nodeInfoWindow_refresh();
-            //                         // refresh instanceInfoWindow
-            //                         instanceInfoWindow_refresh();
-            //                     }
-            //                 });
-            //             }
-            //             // <s]>
-            //             mentionListLineObj.append($("<span>]</span>"));
-            //             // <del mentionList button>
-            //             {
-            //                 let delMentionListButtonObj = $("<button class='circleButton' name='delMentionListButton'>x</button>");
-            //                 mentionListLineObj.append(delMentionListButtonObj);
-            //                 // add click event
-            //                 delMentionListButtonObj.click(function () {
-            //                     let delButtonList = mentionListLineObj.children("[name=delMentionButton]");
-            //                     for (let curDelButtonIndex = 0; curDelButtonIndex < delButtonList.length; curDelButtonIndex++){
-            //                         let curDelButtonObj = delButtonList[curDelButtonIndex];
-            //                         curDelButtonObj.click();
-            //                     }
-            //                     //prepare ajax data
-            //                     let curInstanceId = $("#idValue").text();
-            //                     let newValueDict = {
-            //                         "mention_list":{
-            //                             "action": "del mentionList",
-            //                             "mention_list_index":$(this).parent().attr("mentionListIndex"),
-            //                         }
-            //                     };
-            //                     // ajax to background
-            //                     let r = setInstance(curInstanceId, newValueDict);
-            //                     // GUI update
-            //                     if (r[0] != "success"){
-            //                         alert(langDict[r[1]]);
-            //                         return;
-            //                     }else{
-            //                         // refresh nodeInfoWindow
-            //                         nodeInfoWindow_refresh();
-            //                         // refresh instanceInfoWindow
-            //                         instanceInfoWindow_refresh();
-            //                     }
-            //                 });
-            //
-            //             }
-            //             // <br/>
-            //             mentionListLineObj.append($("<br/>"));
-            //         }
-            //     }
-            //     // <add new mentionList button>
-            //     {
-            //         let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
-            //         bigBracketObj.append(addNewMentionListButtonObj);
-            //         addNewMentionListButtonObj.click(function () {
-            //             alert("走着瞧");
-            //         });
-            //     }
-            // }
-            // // <b]>
-            // valueObj.append($("<span>]</span>"));
-    // return
-        return labelObj
+        // 如果nodeList标签的值是空，那么改成[]。这样才能显示操作按钮。
+        // 不用担心这里改了以后和后台数据不一致，因为nodeListLabel的value_empty就是[]。
+        if ((labelValue == undefined)||(labelValue == null)){
+            labelValue = [];
+        }
+        //
+        if (labelValue){
+            // 左中括号
+            valueObj.append($("<span>[</span>"));
+            // 中间的东西
+            valueObj.append(generateNodeListIter(labelValue));
+            // 左中括号
+            valueObj.append($("<span>]</span>"));
+            // 隐藏最后一个删除按钮，因为最外层大括号不能删。
+            // nodeListObj.children(":last").css("display", "none");
+        }
+    return labelObj
 }

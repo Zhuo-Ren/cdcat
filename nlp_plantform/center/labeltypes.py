@@ -56,11 +56,13 @@ class AutoSyncList(list):
         return self.owner_labels.owner
 
     def append(self, object) -> None:
+        # append一个AutoSyncList
         if isinstance(object, AutoSyncList):
             # sync new value
             "同步工作将由新AutoSyncList对象的构造函数完成。"
             # append
             super().append(AutoSyncList(owner=self, init_value=object, type_limit=self.type_limit))
+        # append一个对象
         else:
             if self.type_limit is not None:
                 if not isinstance(object, self.type_limit):
@@ -712,11 +714,12 @@ class LabelTypeNodeList(LabelType):
     def ajax_process(self, ajax_param, root_node, instance_pool):
         ajax_param = eval(ajax_param)
         action = ajax_param["action"]
+        target_obj_index = ajax_param["targetObjIndex"]
+        target_obj = self.value
+        for i in target_obj_index:
+            target_obj = target_obj[i]
+        # append操作
         if action == 'append':
-            target_obj_index = ajax_param["targetObjIndex"]
-            target_obj = self.value
-            for i in target_obj_index:
-                target_obj = target_obj[i]
             child = ajax_param["child"]
             # append一个空list
             if child == "newList":
@@ -726,9 +729,37 @@ class LabelTypeNodeList(LabelType):
                 from nlp_plantform.center.nodetree import NodeTree
                 child_node_position =  NodeTree.str_to_position(child)
                 child_node = root_node[child_node_position]
-                target_obj.append(child_node)
+                # 如果node已经在label的value中了，那么不让重复添加
+                def flat(l):
+                    for k in l:
+                        if not isinstance(k, AutoSyncList):
+                            yield k
+                        else:
+                            yield from flat(k)
+                flatted = list(flat(self.value))
+                if child_node in flatted:
+                    return "can not append a obj which already in label value."
+                else:
+                    target_obj.append(child_node)
+        # del操作
         elif action == 'del':
-            pass
+            # 获得target_obj是它父亲的第几个孩子
+            childe_index = target_obj_index[-1]
+            # 获得target_obj的父亲
+            parent_obj = self.value
+            for i in target_obj_index[:-1]:
+                parent_obj = parent_obj[i]
+            # del一个AutoSyncList
+            if isinstance(target_obj, AutoSyncList):
+                target_obj.clear()  # 通过clear提供同步功能
+                del parent_obj[childe_index]
+            # del一个node
+            else:
+                linked_obj = target_obj
+                linked_key = self.config["linkto"]
+                linked_obj.labels[linked_key].sync_del(self.owner_obj)
+                del parent_obj[childe_index]
+
 
 labeltypes = {
     "radio":        LabelTypeRadio,

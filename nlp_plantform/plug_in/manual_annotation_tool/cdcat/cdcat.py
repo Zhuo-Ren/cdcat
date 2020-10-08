@@ -329,7 +329,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                         cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
                     # 根据前台信息，修改当前标签
                     cur_label = cur_labels[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_param, root_node, instance_pool)
+                    r = cur_label.ajax_process(cur_label_ajax_param, root_node, instance_pool)
+                    if r is not None:
+                        logging.debug("setInstance<-：" + str(["failed", r]))
+                        return jsonify(["failed", r])
 
             logging.debug("setInstance<-：" + str(["success", instance.readable()]))
             return jsonify(["success", instance.readable()])
