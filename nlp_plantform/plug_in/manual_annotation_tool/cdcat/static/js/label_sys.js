@@ -988,6 +988,39 @@ function generateNodeListLabelObj(labelDict, labelValue){
                         //
                         let curNodeButtonObj = $("<button class='circleButton'>cN</button>");
                         insideObj.append(curNodeButtonObj);
+                        curNodeButtonObj.click(function(){
+                            let curInstanceId = $("#idValue").text();
+                            let targetObjIndex = [];
+                            let cur_obj = $(this);
+                            while (cur_obj.parent().parent().attr("index") != undefined){
+                                targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                                cur_obj = cur_obj.parent().parent();
+                            }
+                            let curNodePosition = undefined;
+                            if ($("#nodeInfo-selectedNode").css("display") == "block"){
+                                curNodePosition = $("#positionValue").text();
+                            }
+                            else{
+                                alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
+                                return;
+                            }
+                            let infoDict = {
+                                [labelDict["key"]]: JSON.stringify({
+                                    "action": "append",
+                                    "targetObjIndex": targetObjIndex,
+                                    "child": curNodePosition
+                                })
+                            };
+                            let r = setInstance(curInstanceId, infoDict);
+                            if (r[0] != "success"){
+                                alert(langDict[r[1]]);
+                                return
+                            }else{
+                                nodeInfoWindow_refresh();
+                                instanceInfoWindow_refresh();
+                            }
+
+                        });
                         //
                         let fingerButtonObj = $("<button class='circleButton'>☞</button>");
                         insideObj.append(fingerButtonObj);

@@ -56,7 +56,7 @@ class AutoSyncList(list):
         return self.owner_labels.owner
 
     def append(self, object) -> None:
-        if isinstance(object, (AutoSyncList, list)):
+        if isinstance(object, AutoSyncList):
             # sync new value
             "同步工作将由新AutoSyncList对象的构造函数完成。"
             # append
@@ -66,7 +66,13 @@ class AutoSyncList(list):
                 if not isinstance(object, self.type_limit):
                     raise TypeError
             # sync new value
-            linked_label = object._value.labels[self.config["linkto"]]
+            linked_label_key = self.owner_label.config["linkto"]
+            if linked_label_key not in object.labels:
+                # 如果前台修改的这个标签还没有创建，要先创建空标签
+                from nlp_plantform.center.labeltypes import labeltypes
+                cur_label_class = labeltypes[object.labels.config[linked_label_key]["value_type"]]
+                object.labels[linked_label_key] = cur_label_class(owner=object.labels, key=linked_label_key, value=None)
+            linked_label = object.labels[linked_label_key]
             linked_label.sync_add(self.owner_obj)
             # append
             super().append(object)
@@ -580,7 +586,7 @@ class LabelTypeInstance(LabelType):
         if self.value != value:
             raise RuntimeError
         #
-        self.value = self.empty_value
+        self._value = self.empty_value
 
     def sync_add(self, value: Instance) -> None:
         # param check
@@ -588,7 +594,7 @@ class LabelTypeInstance(LabelType):
         if not isinstance(value, Instance):
             raise TypeError("param 'value' should be a Instance obj")
         #
-        self.value = value
+        self._value = value
 
     def readable(self):
         if self.value == self.empty_value:
@@ -717,7 +723,10 @@ class LabelTypeNodeList(LabelType):
                 target_obj.append(AutoSyncList(owner=target_obj))
             # append一个node
             else:
-                pass
+                from nlp_plantform.center.nodetree import NodeTree
+                child_node_position =  NodeTree.str_to_position(child)
+                child_node = root_node[child_node_position]
+                target_obj.append(child_node)
         elif action == 'del':
             pass
 
