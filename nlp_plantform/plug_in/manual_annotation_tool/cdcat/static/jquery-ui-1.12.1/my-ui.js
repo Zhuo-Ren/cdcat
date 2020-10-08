@@ -1,4 +1,4 @@
 $(function() {
     $("#textWindow").tabs();
-    $("#instancInfoWindow").tabs();
+    $("#instanceInfoWindow").tabs();
 });

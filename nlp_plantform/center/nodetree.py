@@ -8,73 +8,38 @@ from nltk.tree import ParentedTree
 
 
 class NodeTree(ParentedTree):
-    def __init__(self, label_dict, children=None):
-        # 静态成员
-        self._label = None
+    def __init__(self, labels_dict: Dict = None, children: Union[None, Dict] = None):
         """
-        token semanticType instance pos
-        
+        Initial a node based on labels and children.
+
+        - Every label in label_sys.js will be added to this node. The value of label is given by label_dict, if not the
+          default value in label_sys.ja will be use.
+
+        :param labels_dict: label dict of this node.
+        :param children: children of this node.
         """
+        # param check: children
+        if not isinstance(children, list):
+            raise TypeError("param 'children' should be a list.")
+
+        # param check: labels_dict
+        if labels_dict is None:
+            labels_dict = {}  # 防止默认值为可变元素
+        if not isinstance(labels_dict, dict):
+            raise TypeError("param label_dict should be None or a dict.")
+
+        # private: _parent
         self._parent = None
 
-        # 类型检测
-        if children is None:
-            raise TypeError("%s: Expected a node value and child list "
-                                % type(self).__name__)
-        if isinstance(children, string_types):
-            raise TypeError("%s() argument 2 should be a list, not a "
-                            "string" % type(self).__name__)
-        # 孩子类型一致性检测
-        """
-        all_children_are_same_type = True
-        for index, child in enumerate(children):
-            if index == 0:
-                pass
-            else:
-                if isinstance(children[index - 1], ntree) ^ isinstance(children[index], ntree):
-                    all_children_are_same_type = False
-        if not all_children_are_same_type:
-            raise RuntimeError("All child should be same type: tree or not")
-        """
+        # private: _labels
+        from nlp_plantform.center.labels import NodeLabels
+        self._labels: NodeLabels = NodeLabels(owner=self, labels_dict=labels_dict)
 
-        # 初始化自己
+        # load children
         list.__init__(self, children)
-        self._label = label_dict
-        # 修改孩子
         for child in self:
             if isinstance(child, NodeTree):
                 child._parent = self
-
-    # getter setter
-    def get_label(self):
-        """
-        Return the node label of the tree.
-
-            >>> t = Tree.fromstring('(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))')
-            >>> t.get_label()
-            'S'
-
-        :return: the node label (typically a string)
-        :rtype: any
-        """
-        return self._label
-
-    def set_label(self, label):
-        """
-        Set the node label of the tree.
-
-            >>> t = Tree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
-            >>> t.set_label("T")
-            >>> print(t)
-            (T (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))
-
-        :param label: the node label (typically a string)
-        :type label: any
-        """
-        self._label = label
-
-    def add_label(self, label):
-        self._label.update(label)
 
     def get_parent(self) -> Union[None, "NodeTree"]:
         return self._parent
@@ -88,9 +53,59 @@ class NodeTree(ParentedTree):
                         "or del parent[index]")
     _setparent = set_parent
 
+    # public: labels
+    @property
+    def labels(self):
+        return self._labels
+    @labels.setter
+    def labels(self, labels_dict):
+        from nlp_plantform.center.labels import NodeLabels
+        # 析构旧label
+        self._labels.clear()
+        # 添加新label
+        self._labels = NodeLabels(owner=self, labels_dict=labels_dict)
+
+    def get_label(self):
+        """
+        Return the node label of the tree.
+
+            t = Tree.fromstring('(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))')
+            t.get_label()
+            'S'
+
+        :return: the node label (typically a string)
+        :rtype: any
+        """
+        return self._labels
+
+    def set_label(self, label):
+        """
+        Set the node label of the tree.
+
+            >>> t = Tree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
+            >>> t.set_label("T")
+            >>> print(t)
+            (T (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))
+
+        :param label: the node label (typically a string)
+        :type label: any
+        """
+        self.labels = label
+
+    def add_label(self, label_dict) -> None:
+        """
+        Add label.
+
+        :param label_dict: For example: {label_key: label_value, ...}
+        """
+        self._labels.update(label_dict)
+
+    def del_label(self, label_key):
+        del self._labels[label_key]
+
     # obj operations-------------------------------------------
     def __eq__(self, other):
-        return (id(self) == id(other))
+        return id(self) == id(other)
 
     def __lt__(self, other):
         if not isinstance(other, NodeTree):
@@ -99,7 +114,7 @@ class NodeTree(ParentedTree):
             # so we need to be able to compare with non-trees:
             return self.__class__.__name__ < other.__class__.__name__
         elif self.__class__ is other.__class__:
-            return (self._label, list(self)) < (other._label, list(other))
+            return (self._labels, list(self)) < (other._label, list(other))
         else:
             return self.__class__.__name__ < other.__class__.__name__
 
@@ -270,7 +285,7 @@ class NodeTree(ParentedTree):
         list.insert(self, index, value)
 
     def pop(self, index=-1):
-        assert isinstance(index,int)
+        assert isinstance(index, int)
         # 修改自己
         child = list.pop(self, index)
         # 修改孩子
@@ -304,7 +319,8 @@ class NodeTree(ParentedTree):
         ``ptree.parent.index(ptree)``, since the ``index()`` method
         returns the first child that is equal to its argument.
         """
-        if self._parent is None: return None
+        if self._parent is None:
+            return None
         for i, child in enumerate(self._parent):
             if child is self: return i
         assert False, 'expected to find self in self._parent!'
@@ -497,11 +513,11 @@ class NodeTree(ParentedTree):
         :rtype: list(Production)
         """
 
-        if not isinstance(self._label, string_types):
+        if not isinstance(self._labels, string_types):
             raise TypeError(
                 'Productions can only be generated from trees having node labels that are strings')
 
-        prods = [Production(Nonterminal(self._label), _child_names(self))]
+        prods = [Production(Nonterminal(self._labels), _child_names(self))]
         for child in self:
             if isinstance(child, NodeTree):
                 prods += child.productions()
@@ -593,7 +609,7 @@ class NodeTree(ParentedTree):
             if isinstance(child, NodeTree):
                 pos.extend(child.pos())
             else:
-                pos.append((child, self._label))
+                pos.append((child, self._labels))
         return pos
     pos = all_leaves_label
 
@@ -956,17 +972,20 @@ class NodeTree(ParentedTree):
         """
         if isinstance(tree, NodeTree):
             children = [cls.convert(child) for child in tree]
-            return cls(tree._label, children)
+            return cls(tree._labels, children)
         else:
             return tree
 
     def copy(self, deep=False):
-        if not deep: return type(self)(self._label, self)
+        if not deep: return type(self)(self._labels, self)
         else: return type(self).convert(self)
 
-    def output_to_dict(self):
+    def readable(self, nolink=False):
         output_dict = {}
-        output_dict.update(self.get_label())
+        if nolink == True:
+            output_dict.update(self.labels.readable(nolink=True))
+        else:
+            output_dict.update(self.labels.readable())
         output_dict["parent_position"] = self.get_parent().position(output_type="string")
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())
@@ -1130,7 +1149,7 @@ class NodeTree(ParentedTree):
 
     def __repr__(self):
         childstr = ", ".join(unicode_repr(c) for c in self)
-        return '%s(%s, [%s])' % (type(self).__name__, unicode_repr(self._label), childstr)
+        return '%s(%s, [%s])' % (type(self).__name__, unicode_repr(self._labels), childstr)
 
     def _repr_png_(self):
         """
@@ -1201,10 +1220,10 @@ class NodeTree(ParentedTree):
             return s
 
         # If it doesn't fit on one line, then write it on multi-lines.
-        if isinstance(self._label, string_types):
-            s = '%s%s%s' % (parens[0], self._label, nodesep)
+        if isinstance(self._labels, string_types):
+            s = '%s%s%s' % (parens[0], self._labels, nodesep)
         else:
-            s = '%s%s%s' % (parens[0], unicode_repr(self._label), nodesep)
+            s = '%s%s%s' % (parens[0], unicode_repr(self._labels), nodesep)
         for child in self:
             if isinstance(child, NodeTree):
                 s += '\n'+' '*(indent+2)+child.pformat(margin, indent+2,
@@ -1251,11 +1270,11 @@ class NodeTree(ParentedTree):
                 childstrs.append('%s' % child)
             else:
                 childstrs.append(unicode_repr(child))
-        if isinstance(self._label, string_types):
-            return '%s%s%s %s%s' % (parens[0], self._label, nodesep,
+        if isinstance(self._labels, string_types):
+            return '%s%s%s %s%s' % (parens[0], self._labels, nodesep,
                                     " ".join(childstrs), parens[1])
         else:
-            return '%s%s%s %s%s' % (parens[0], unicode_repr(self._label), nodesep,
+            return '%s%s%s %s%s' % (parens[0], unicode_repr(self._labels), nodesep,
                                     " ".join(childstrs), parens[1])
 
     # statistic------------------------------------------------------
@@ -1273,7 +1292,7 @@ def _child_names(tree):
     names = []
     for child in tree:
         if isinstance(child, NodeTree):
-            names.append(Nonterminal(child._label))
+            names.append(Nonterminal(child._labels))
         else:
             names.append(child)
     return names

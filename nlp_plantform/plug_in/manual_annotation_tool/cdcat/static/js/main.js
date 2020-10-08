@@ -1,38 +1,47 @@
-// 全局变量。用于单击实例和双击实例的计时器
-var clickFlag = null;
 // 全局变量。array of html elements。选中的文本所对应的元素的数组。
-var selectedElements = 0
-var selectedIndex = undefined
-// 全局变量。记录正在填充的实例槽。
-var curTriggerInstanceSlot = undefined;
-// 全局变量。记录被选中的实例。
-var curSelectedInstance = undefined;
+// var selectedElements = 0;
+// var selectedIndex = undefined;
+var SelectedElementIndexList  = undefined;
 
 // 设置ajax不要异步执行
 $.ajaxSetup({
     async : false
 });
 
-
+function PythonStyleToJsStyle(data){
+    if (!(data instanceof Object)){
+        alert(langDict("Data is not a js Object"))
+    }
+    for(let key in data){
+        if (data[key] instanceof Object){
+            data[key] = PythonStyleToJsStyle(data[key])
+        }else{
+            if (data[key] == null){
+                data[key] = undefined
+            }
+        }
+    }
+    return data
+}
 
 // <!-- ui interface -->
     /**
-     *  In contentWindow, scroll to the given element.
+     *  In catalogueWindow, scroll to the given element.
      *
      */
-    function contentWindow_scroll(){}
+    function catalogueWindow_scroll(){}
     /**
-     * In contentWindow, set content based on *contentArray*.
+     * In catalogueWindow, set content based on *contentArray*.
      */
-    function contentWindow_updateContent(contentArray){
+    function catalogueWindow_updateContent(contentArray){
         //
-        contentWindow = $("#contentWindow")
-        contentWindow.empty();
+        catalogueWindow = $("#catalogueWindow")
+        catalogueWindow.empty();
         // 创建根目录
         var contentRoot = $("<ul></ul>");
         contentRoot.attr("id", "browser");
         contentRoot.addClass("filetree");
-        contentWindow.append(contentRoot);
+        catalogueWindow.append(contentRoot);
         // 添加目录到根目录
         /**
          * Add the content to a <ul> element.
@@ -102,10 +111,14 @@ $.ajaxSetup({
         });
     }
 
-    function majorTextWindow_getSelected(){
+    /**
+     * In majorTextWindow, user can select a range of chars. This function return a list of index of those chars.
+     * @return {Array} ["index string of the 1th selected char", "index string of the 2th selected char", ...]
+     */
+    function majorTextWindow_getSelectedIndexFromGui(){
         // 如果没选中任何内容
         if (window.getSelection().toString() === "") {
-            selectedIndex = undefined;
+            return undefined
         }
         // 如果选中了某些内容
         else {
@@ -163,7 +176,7 @@ $.ajaxSetup({
                 startDiv = t;
             }
             // 遍历选区，得到element列表
-            selectedElements = new Array(0);
+            let selectedElements = new Array(0);
             var selectedText = "";
             var curDiv = startDiv;
             while (true) {
@@ -185,19 +198,43 @@ $.ajaxSetup({
                 selectedElements.pop();
                 selectedText = selectedText.slice(0, selectedText.length - 1);
             }
-            // translate selectedElements to selectedIndex.
+            // translate selectedElements to SelectedElementIndexList.
             // It is because after the reloading of majorTextWindow, the elements in selectedElements are disabled.
-            selectedIndex = [];
+            let selectedElementIndexList = [];
             for (i=0; i<selectedElements.length; i++){
                 curElement = selectedElements[i];
                 index = $(curElement.parentElement).children().index(curElement);
-                selectedIndex.push(index);
+                selectedElementIndexList.push(index);
             }
+            return selectedElementIndexList
         }
     }
-    function majorTextWindow_hightlightSelectedMention(){
-        for (var i = 0; i < selectedIndex.length; i++) {
-            $("#textTab1").children()[selectedIndex[i]].style = "color: red";
+
+    /**
+     * Given a list of indexs, this function return a list of jquery.HtmlElements corresponding to the indexs. This
+     * function will not check whether the given index belong to current article. So, the global variable that records
+     * the selected index should be cleaned when changing the article.
+     * @param {Array} selectedElementIndexList:["0-0-1", "0-0-2", ...]
+     * @return {Array} A list of jquery.HtmlElements corresponding to the given indexs.
+     */
+    function majorTextWindow_getSelectedElementFromIndex(selectedElementIndexList){
+        let selectedElementList = [];
+        for (var i = 0; i < selectedElementIndexList.length; i++) {
+            let curElement = $("#textTab1").children()[selectedElementIndexList[i]];
+            selectedElementList.push($(curElement));
+        }
+        return selectedElementList
+    }
+    /**
+     * Given a list of jquery.HtmlElement in majorTextWindow, this function highlights them.
+     * This function will not check whether the given elements really belong to majorTextWindow. The elements will be
+     * highlighted as long as they are existing.
+     *
+     * @param elementList
+     */
+    function majorTextWindow_hightlightElement(elementList){
+        for (var i = 0; i < elementList.length; i++) {
+            elementList[i][0].style = "color: red";
         }
     }
     /**
@@ -282,33 +319,94 @@ $.ajaxSetup({
         $("#nodeInfo-noNode").css("display", "block");
         $("#nodeInfo-selectedNode").css("display", "none");
     }
+    function nodeInfoWindow_showNodeInfo() {
+        $("#nodeInfo-noSelect").css("display", "none");
+        $("#nodeInfo-noNode").css("display", "none");
+        $("#nodeInfo-selectedNode").css("display", "block");
+    }
+    function nodeInfoWindow_addLabels(){
+        // add positionObj <div>
+        let positionObj = nodeInfoWindow_generatePositionObj()
+        $("#nodeInfo-selectedNode").append(positionObj);
+        // add labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            let curLabelDict = labelSysDict["node"][curLabelIndex];
+            //generate label obj
+            let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
+            $("#nodeInfo-selectedNode").append(curLabelObj);
+            //add event to label obj
+                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
+            //add updateValueFunc to label (in labelSysDict)
+                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
+                // labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+        }
+    }
     function nodeInfoWindow_showCannotAddNode(){
         alert(langDict["can not add node based on current mention."])
     }
-    function nodeInfoWindow_addLabels(){
-        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
-            curLabelDict = labelSysDict["node"][curLabelIndex];
-            //generate label obj
-            curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
-            $("#nodeInfo-selectedNode").append(curLabelObj);
-            //add change event to label obj
-            labelTemplate[curLabelDict["value_type"]]["addValueChangeEvent_func"](curLabelDict);
-            //add updateValueFunc to label (in labelSysDict)
-            curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
-            labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+    function nodeInfoWindow_generatePositionObj(position){
+        let positionObj = $(" <div id='nodeInfo-position'></div>");
+        positionObj.css("padding-left","10px");
+        // keyObj <span>
+        let keyObj = $("<span id='positionKey'>position: </span>");
+        positionObj.append(keyObj);
+        // valueObj <span>
+        let valueObj = $("<span id='positionValue'></span>");
+        let innerText = undefined;
+        // if given a value, display the value
+        if (position != undefined) {
+            innerText = position;
+        }else{
+            innerText = "XXXX";
+        }
+        valueObj.text(innerText);
+        positionObj.append(valueObj);
+        //
+        return positionObj
+    }
+    /**
+     * This function update the info in nodeInfoWindow.
+     *
+     * @param nodeInfo: A node info dict. Each item is a property or a label.
+     *   The disappear of a label in the dict means annotators never label the label.
+     *   Also,{"label_key": undefined} means annotators never label the label.
+     */
+    function nodeInfoWindow_updateNodeInfo(nodeInfo){
+        // update position
+            // get the position data ready
+            let position = nodeInfo["position"];
+            // generate new positionObj
+            let positionObj = nodeInfoWindow_generatePositionObj(position);
+            // replace the old label obj
+            $("#nodeInfo-position").replaceWith(positionObj);
+        // update labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
+            // get the label data ready
+            let curLabelConfig = labelSysDict["node"][curLabelIndex];
+            let newValue = undefined;
+            if(curLabelConfig["key"] in nodeInfo) {
+                newValue = nodeInfo[curLabelConfig["key"]];
+            }
+            // generate a new label obj based on new value
+            let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
+            let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
+            // replace the old label obj
+            $("#nodeInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
         }
     }
-    function nodeInfoWindow_updateInfo(nodeInfo){
-        for(curLabelIndex=0; curLabelIndex<labelSysDict["node"].length; curLabelIndex++){
-            let curLabelDict = labelSysDict["node"][curLabelIndex];
-            let newValue = undefined;
-            if(curLabelDict["key"] in nodeInfo) {
-                newValue = nodeInfo[curLabelDict["key"]];
-            }else{
-                newValue = undefined;
+    function nodeInfoWindow_refresh(){
+        if ($("#nodeInfo-selectedNode").css("display") == "block"){
+            // prepare ajax data
+            let nodePosition = $("#positionValue").text();
+            // ajax to background
+            let r = getNodeByPosition(nodePosition);
+            // display the new node info in GUI
+            if (r[0] != "success") {
+                nodeInfoWindow_showNoNode();
+            } else {
+                let nodeInfo = r[1];
+                nodeInfoWindow_updateNodeInfo(nodeInfo);
             }
-            updateValueFunc = curLabelDict["updateValueFunc"];
-            updateValueFunc(newValue);
         }
     }
         // if(nodeInfo["position"]){
@@ -348,85 +446,246 @@ $.ajaxSetup({
         //     nodeInstance.click(function(){});
         // }
 
-    function nodeInfoWindow_showNodeInfo(nodeInfo) {
-        nodeInfoWindow_updateInfo(nodeInfo);
-        $("#nodeInfo-noSelect").css("display", "none");
-        $("#nodeInfo-noNode").css("display", "none");
-        $("#nodeInfo-selectedNode").css("display", "block");
-    }
-
-
     function instanceSelectWindow_updateOneInstance(data){
         // 删除旧节点
-        oldInstanceButton = $("#allInstanceDiv [name=" + data['id'].toString() + "]")
-        if (oldInstanceButton){oldInstanceButton.remove();}
+        instanceSelectWindow_delOneInstanceObj(data);
         // 创建新节点
-        newInstanceButton = $("<button></button>");
-        newInstanceButton.attr('name', data['id']);
-        newInstanceButton.addClass('instance');
-        if (data['desc'] !== ""){
-            newInstanceButton.text(data['desc']);
-        } else {
-            newInstanceButton.text('　');
-        }
-        newInstanceButton.click(function(){
-            if(clickFlag) {//取消上次延时未执行的方法
-                clickFlag = clearTimeout(clickFlag);
-            }
-            curSelectedInstance = this;
-            clickFlag = setTimeout(function(){
-                instanceClick();
-            }, 150);//延时300毫秒执行
-        });
+        let newInstanceObj = instanceSelectWindow_createOneInstanceObj(data);
         // 添加新节点
-        $("#allInstanceDiv").prepend(newInstanceButton);
+        $("#allInstanceDiv").prepend(newInstanceObj);
+    }
+    /**
+     * 创建新的instance元素(包括属性和事件)
+     * @param {Object} data : {"id": , "desc":"xxxx"}
+     * @returns {jQuery.HTMLElement}
+     */
+    function instanceSelectWindow_createOneInstanceObj(data){
+        // 建元素
+        let newInstanceObj = $("<button></button>");
+        // 加属性
+        newInstanceObj.attr('name', data['id']);
+        newInstanceObj.addClass('instance');
+        if (data['desc'] !== undefined){
+            if (data['desc'] !== "") {
+                newInstanceObj.text(data['desc']);
+            }else{
+                newInstanceObj.text('　');
+            }
+        } else {
+            newInstanceObj.text('　');
+        }
+        // 挂事件
+        newInstanceObj.click(function() {
+            let slotObj = $(".slot");
+            if (slotObj.length == 0){
+                let instanceIdStr = this.name;
+                let r = getInstanceById(instanceIdStr);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
+                }else{
+                    let instanceInfo = r[1]
+                    instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                    instanceInfoWindow_showInstanceInfo();
+                    instanceSelectWindow_updateOneInstance(instanceInfo);
+                }
+            }else if(slotObj.length == 1){
+                let instanceIdStr = this.name;
+                slotObj[0].fillSlot(instanceIdStr);
+            }
+            else{
+                alert(langDict["A wrong num of slots."])
+            }
+        });
+        //
+        return newInstanceObj
+    }
+    /**
+     *
+     * @param {Object} data: {"id"}
+     */
+    function instanceSelectWindow_delOneInstanceObj(data){
+        let oldInstanceObj = $("#allInstanceDiv [name=" + data['id'].toString() + "]")
+        if (oldInstanceObj.length > 0 ){oldInstanceObj.remove();}
     }
 
-    function instanceInfoWindow_showInstanceInfo(data){
-        $("#idValue").text(data["id"]);
-        $("#descValue").val(data["desc"]);
-        if(data["kg"] !== undefined){
-            $("#kgValue").val(data["kg"])
-        }
-        var mentionListsValue = $("#mentionListsValue");
-        mentionListsValue.empty();
-        for(var i=0; i<data["mention_list"].length; i++){
-            var curMention = data["mention_list"][i];
-            var curMentionLine = $("<div class='instanceMentionDiv'></div>");
-            curMentionLine.append($("<span>[</span>"));
-            for (var j=0; j<curMention.length; j++){
-                var curPart = curMention[j];
-                curMentionLine.append($(
-                    "<button" +
-                        " name=\"" + curPart["position"]+ "\"" +
-                    ">" +
-                        curPart["text"] +
-                    "</button>"
-                ))
-            }
-            curMentionLine.append($("<button class='instance_extentMentionList_button' name=" + (i).toString() +">→</button>"));
-            curMentionLine.append($("<span>]</span>"));
-            mentionListsValue.append(curMentionLine)
-        }
-        mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
-        //
+    function instanceInfoWindow_showInstanceInfo(){
         $("#instanceInfo-noInstance").css("display", "none");
-        $("#instanceInfo-id").css("display", "block");
-        $("#instanceInfo-desc").css("display", "block");
-        $("#instanceInfo-kg").css("display", "block");
-        $("#instanceInfo-mentionLists").css("display", "block");
+        $("#instanceInfo-selectedInstance").css("display", "block");
+    }
+    function instanceInfoWindow_showNoInstance(){
+         $("#instanceInfo-noInstance").css("display", "block");
+        $("#instanceInfo-selectedInstance").css("display", "none");
+    }
+    function instanceInfoWindow_addLabels(){
+        // add idObj <div>
+        let idObj = instanceInfoWindow_generateIdObj();
+        $("#instanceInfo-selectedInstance").append(idObj);
+        // add descObj <div>
+        let descObj = instanceInfoWindow_generateDescObj();
+        $("#instanceInfo-selectedInstance").append(descObj);
+        // add labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
+            let curLabelDict = labelSysDict["instance"][curLabelIndex];
+            //generate label obj
+            curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
+            $("#instanceInfo-selectedInstance").append(curLabelObj);
+            //add event to label obj
+                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
+            //add updateValueFunc to label (in labelSysDict)
+                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
+                // labelSysDict["instance"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
+        }
+    }
+    function instanceInfoWindow_updateInstanceInfo(instanceInfo){
+        // $("#idValue").text(data["id"]);
+        // $("#descValue").val(data["desc"]);
+        // if(data["kg"] !== undefined){
+        //     $("#kgValue").val(data["kg"])
+        // }
+        // var mentionListsValue = $("#mentionListsValue");
+        // mentionListsValue.empty();
+        // for(var i=0; i<data["mention_list"].length; i++){
+        //     var curMention = data["mention_list"][i];
+        //     var curMentionLine = $("<div class='instanceMentionDiv'></div>");
+        //     curMentionLine.append($("<span>[</span>"));
+        //     for (var j=0; j<curMention.length; j++){
+        //         var curPart = curMention[j];
+        //         curMentionLine.append($(
+        //             "<button" +
+        //                 " name=\"" + curPart["position"]+ "\"" +
+        //             ">" +
+        //                 curPart["text"] +
+        //             "</button>"
+        //         ));
+        //     }
+        //     curMentionLine.append($("<button class='instance_extentMentionList_button' name=" + (i).toString() +">→</button>"));
+        //     curMentionLine.append($("<span>]</span>"));
+        //     mentionListsValue.append(curMentionLine)
+        // }
+        // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
+        // update id
+        let idObj = instanceInfoWindow_generateIdObj(instanceInfo["id"]);
+        $("#instanceInfo-id").replaceWith(idObj);
+        // update desc
+        let descObj = instanceInfoWindow_generateDescObj(instanceInfo["desc"]);
+        $("#instanceInfo-desc").replaceWith(descObj);
+        // update labels
+        for(let curLabelIndex=0; curLabelIndex<labelSysDict["instance"].length; curLabelIndex++){
+            // get the label data ready
+            let curLabelDict = labelSysDict["instance"][curLabelIndex];
+            let newValue = undefined;
+            if(curLabelDict["key"] in instanceInfo) {
+                newValue = instanceInfo[curLabelDict["key"]];
+            }else{
+                newValue = undefined;
+            }
+            let curLabelTypeDict = labelTemplate[curLabelDict["value_type"]];
+            // generate a new label obj based on new value
+            let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelDict, newValue);
+            // replace the old label obj
+            $("#nodeInfo-" + curLabelDict["key"]).replaceWith(labelObj);
+        }
+    }
+    function instanceInfoWindow_generateIdObj(id){
+        // idObj <div>
+        let idObj = undefined;
+        {
+            idObj = $(" <div id='instanceInfo-id'></div>");
+            idObj.css("padding-left","10px");
+            // keyObj <span>
+            {
+                let keyObj = $("<span id='idKey'>id: </span>");
+                idObj.append(keyObj);
+            }
+            // valueObj <span>
+            {
+                let valueObj = $("<span id='idValue'></span>");
+                let innerText = undefined;
+                if ((id == undefined)||(id == null)||(id == "")) {
+                    innerText = "XXXX";
+                }else{
+                    innerText = id
+                }
+                valueObj.text(innerText);
+                idObj.append(valueObj);
+            }
+        }
+        //
+        return idObj
+    }
+    function instanceInfoWindow_generateDescObj(desc){
+        let labelObj = undefined;
+        // labelObj <div>
+        {
+            labelObj = $(" <div id='instanceInfo-desc'></div>");
+            labelObj.css("padding-left","10px");
+            // keyObj <span>
+            {
+                let keyObj = $("<span id='descKey'>desc: </span>");
+                labelObj.append(keyObj);
+            }
+            // valueObj <span>
+            {
+                let valueObj = $("<input id='descValue' type='text'></input>");
+                labelObj.append(valueObj);
+                // display the label value
+                {
+                    let inputText = undefined;
+                    // if given a value, display the value
+                    if (desc != undefined) {
+                        inputText =  desc;
+                    }
+                    // // if no value given, display the default value
+                    // else if (labelDict["value_default"] != undefined){
+                    //     inputText = labelDict["value_default"];
+                    // }
+                    // // if no given value and no default value
+                    // else{
+                    //     inputText = "";
+                    // }
+                    valueObj.attr("value", inputText);
+                }
+                // add change event
+                valueObj.change(function() {
+                    // prepare ajax data
+                    let id = $("#idValue").text();
+                    let value = $("#descValue")[0].value;
+                    // ajax to background
+                    let r = setInstance(id, {"desc": value});
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                        // refresh the instance button in instanceSelectWindow
+                        let instance_button_obj = $("#allInstanceDiv button[name='" + id + "']");
+                        instance_button_obj.text(value);
+                    }
+                });
+            }
 
-        // instanceInfoWindow: 单击mentionLists中"+"按钮
-        $("#instance_addMentionList_button").click(function(){
-            instanceId = $("#idValue").text();
-            addMentionListButtonClick(instanceId);
-        });
-        // instanceInfoWindow: 单击mentionList中"→"按钮
-        $(".instance_extentMentionList_button").click(function () {
-            instanceId = $("#idValue").text();
-            mentionListIndex = this.name;
-            extentMentionListButtonClick(instanceId, mentionListIndex);
-        });
+        }
+        // return
+        return labelObj
+    }
+    function instanceInfoWindow_refresh(){
+        if ($("#instanceInfo-selectedInstance").css("display") == "block"){
+            // prepare ajax data
+            let instanceId = $("#idValue").text();
+            // ajax to background
+            let r = getInstanceById(instanceId);
+            // display the new instance info in GUI
+            if (r[0] != "success"){
+                instanceInfoWindow_showNoInstance();
+                alert(langDict[r[1]]);
+            }else{
+                let instanceInfo = r[1];
+                instanceInfoWindow_updateInstanceInfo(instanceInfo);
+            }
+        }
     }
 
 // <!-- flask interface -->
@@ -458,14 +717,16 @@ $.ajaxSetup({
      * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getCatalogue(callback){
+    function getCatalogue(){
+        let contentInfo = undefined;
         $.post(
             "/getCatalogue",
             { },
             function (data, status) {
-                callback(data)
+                contentInfo = data;
             }
         );
+        return contentInfo;
     }
     /**
      * flask interface. Given the position of a node, request the info of the node.
@@ -474,32 +735,28 @@ $.ajaxSetup({
      * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getNodeByPosition(nodePosition, callback){
+    function getNodeByPosition(nodePosition){
+        let nodeInfo = undefined;
         $.post(
             "/getNode",
             {
                 position: nodePosition,
             },
             function (data, status) {
-                // 区分是否为标注对象
-                if (data === "") {
-                    nodeInfoWindow_showNoNode();
-                } else {
-                    callback(data);
-                    // nodeInfoWindow_showNodeInfo(data);
-                }
+                nodeInfo = data;
             }
         );
+        return nodeInfo
     }
     /**
      * flask interface. Given a range of nodes, check if those nodes correspond to a father node.
      *
      * @param startNodePosition {string} Position string of the first node.
      * @param endNodePosition {string} Position string of the last node.
-     * @param callback {function} The call back function.
      *   The return value *data* of the POST request is given as the first param of the call back function.
      */
-    function getNodeByChildren(startNodePosition, endNodePosition, callback){
+    function getNodeByChildren(startNodePosition, endNodePosition){
+        let r = undefined;
         $.post(
             "/getNode",
             {
@@ -507,83 +764,80 @@ $.ajaxSetup({
                 end: endNodePosition
             },
             function (data, status) {
-                callback(data);
+                r = data;
             }
         );
+        return r
     }
-    function setNode(position, infoDict){
-        infoDict["position"] = position;
+    function setNode(position, newValueDict){
+        let nodeInfo = undefined;
+        newValueDict["position"] = position;
         $.post(
-            "/setNode", infoDict,
+            "/setNode",
+            newValueDict,
             function (data, status) {
-                nodeInfoWindow_showNodeInfo(data);
+                nodeInfo = data;
             }
         )
+        return nodeInfo;
     }
     function addNodeByChildren(childrenNodePositionList){
+        let r = undefined
         $.post(
             "/addNode",
             {
                 childrenNodePositionList: childrenNodePositionList
             },
             function (data, status) {
-                // 区分是否为标注对象
-                if (data === ""){
-                    nodeInfoWindow_showCannotAddNode();
-                }else {
-                    // 更新标注信息
-                    nodeInfoWindow_updateInfo(data)
-                    // 显示标注信息
-                    nodeInfoWindow_showNodeInfo(data);
-                    // 重新加载文本
-                    getText(
-                        majorTextWindow_getCurArticleNodePosition(),
-                        function (returnData, status, requireData) {
-                            majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
-                            majorTextWindow_updateText(returnData, 0);
-                            majorTextWindow_show(returnData);
-                        }
-                    )
-                   // 高亮选中文本
-                   majorTextWindow_hightlightSelectedMention();
-                }
+                r = data
             }
         );
+        if (r[0] == "success"){
+            r[1] = PythonStyleToJsStyle(r[1])
+        }
+        return r
     }
     function getInstanceById(id){
+        let r = undefined;
         $.post(
             "/getInstance",
             {instance_id: id},
             function (data, status) {
-                instanceInfoWindow_showInstanceInfo(data);
-                instanceSelectWindow_updateOneInstance(data);
+                // instanceInfoWindow_showInstanceInfo(data);
+                // instanceSelectWindow_updateOneInstance(data);
+                r = data;
             }
         );
+        return r
     }
-    function setInstance(id, infoDict, callback){
-        infoDict["id"] = id;
+    function setInstance(instanceId, infoDict){
+        let r = undefined;
+        infoDict["id"] = instanceId;
         $.post(
-            "/setInstance", infoDict,
+            "/setInstance",
+            infoDict,
             function (data, status) {
-                callback(data);
-
+                r = data;
             }
-        )
+        );
+        return r;
     }
-    function addInstance_empty(callback){
+    function addInstance_empty(){
+        let instanceInfo = undefined;
         $.post(
             "/addInstance",
             {},
             function (data, status) {
-                callback(data);
+                instanceInfo = data;
             }
         )
+        return instanceInfo;
     }
     function addInstance_node(callback){
         $.post(
             "/addInstance",
             {
-                "position": $("#pathValue").text()
+                "position": $("#positionValue").text()
             },
             function (data, status) {
                 callback(data);
@@ -601,86 +855,152 @@ $.ajaxSetup({
            }
        )
     }
+
 // <!-- evnet logic -->
-    function startOfInstanceSlotFilling(){
-        // 标红当前槽元素
-        curTriggerInstanceSlot.classList.add("curSlot");
-        document.body.style.cursor = "help";
-    }
-    function endOfInstanceSlotFilling(){
-        // 数据准备
-        var slot = curTriggerInstanceSlot;
-        if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
-            var slotType = "node";
-            var position = $("#pathValue").text();
-        }
-        newInstanceId = curSelectedInstance.name;
-        // 向后台传数据
-        if (slotType === "node"){
-            setNode(position,{"instance":newInstanceId});
-        } else if (slotType === "instance"){
-            setInstance()
-        }
-        // 取消当前solt的待选特效
-        curTriggerInstanceSlot.classList.remove("curSlot");
-        document.body.style.cursor = "";
-        //
-        curTriggerInstanceSlot = undefined
-        // 更新instance info
-        if (curSelectedInstance != undefined){
-            getInstanceById(curSelectedInstance.name);
-        }
-    }
+//     function startOfInstanceSlotFilling(){
+//     }
+//     function endOfInstanceSlotFilling(){
+//         // 数据准备
+//         var slot = curTriggerInstanceSlot;
+//         if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
+//             var slotType = "node";
+//             var position = $("#positionValue").text();
+//         }
+//         newInstanceId = curSelectedInstance.name;
+//         // 向后台传数据
+//         if (slotType === "node"){
+//             setNode(position,{"instance":newInstanceId});
+//         } else if (slotType === "instance"){
+//             setInstance()
+//         }
+//         // 取消当前solt的待选特效
+//         curTriggerInstanceSlot.classList.remove("curSlot");
+//         document.body.style.cursor = "";
+//         //
+//         curTriggerInstanceSlot = undefined
+//         // 更新instance info
+//         if (curSelectedInstance != undefined){
+//             getInstanceById(curSelectedInstance.name);
+//         }
+//     }
 
     // textWindow: 选中一段文本
-    function textMouseup() {
-        // 清除上次的选区效果
-        if (selectedElements !== 0) {
-            for (var i = 0; i < selectedElements.length; i++) {
-                selectedElements[i].style = "color: black";
+    function textMouseup(){
+        let slotNum = $(".slot").length
+        // just select a mention
+        if (slotNum == 0){
+            // 清除上次的选区效果
+            if (SelectedElementIndexList !== undefined) {
+                let selectedElementsBefore = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                for (let i = 0; i < selectedElementsBefore.length; i++) {
+                    selectedElementsBefore[i][0].style = "color: black";
+                }
+            }
+            // 获取这次的选区，并更新全局变量
+            SelectedElementIndexList = majorTextWindow_getSelectedIndexFromGui();
+            // 如果没选中任何内容
+            if (SelectedElementIndexList === undefined) {
+                nodeInfoWindow_showNoSelect();
+            }
+            // 如果选中了某些内容
+            else {
+                // 把选区的index转换成element，因为用起来方便
+                let selectedElementsNow = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                // 选中效果
+                majorTextWindow_hightlightElement(selectedElementsNow);
+                // 请求注释信息，并显示
+                let r = getNodeByChildren(
+                    selectedElementsNow[0].attr("id"),
+                    selectedElementsNow[selectedElementsNow.length-1].attr("id"),
+                );
+                // 区分是否为标注对象
+                if (r[0] != "success") {
+                    nodeInfoWindow_showNoNode();
+                } else {
+                    nodeInfoWindow_updateNodeInfo(r[1]);
+                    nodeInfoWindow_showNodeInfo();
+                }
             }
         }
-        // 获取选区
-        majorTextWindow_getSelected();
-        // 如果没选中任何内容
-        if (selectedIndex === undefined) {
-            nodeInfoWindow_showNoSelect()
-        }
-        // 如果选中了某些内容
-        else {
-            // 选中效果
-            majorTextWindow_hightlightSelectedMention();
-            // 请求注释信息，并显示
-            getNodeByChildren(
-                selectedElements[0].id.toString(),
-                selectedElements[selectedElements.length - 1].id.toString(),
-                function(data){
-                    // 区分是否为标注对象
-                    if (data === "") {
-                        nodeInfoWindow_showNoNode();
-                    } else {
-                        nodeInfoWindow_showNodeInfo(data);
-                    }
+        // select a mention, get the corresponding node, and fill current slot with the node.
+        else if(slotNum == 1){
+            // 获取这次的选区，并更新全局变量
+            let curSelectedIndex = majorTextWindow_getSelectedIndexFromGui();
+            // 如果没选中任何内容
+            if (curSelectedIndex === undefined) {
+                return
+            }
+            // 如果选中了某些内容
+            else {
+                // 取消鼠标特效
+
+                // 尝试获取选区对应的node
+                let selectedElements = majorTextWindow_getSelectedElementFromIndex(curSelectedIndex);
+                let r = getNodeByChildren(
+                    selectedElements[0].attr("id"),
+                    selectedElements[selectedElements.length-1].attr("id"),
+                );
+                // 如果获取到了node，就调用slot元素的处理函数
+                if (r[0] == "success"){
+                    $(".slot")[0].fillSlot(r[1]["position"]);
+                }else{
+                    alert(langDict[r[1]]);
                 }
-            )
+            }
+
+        }else{
+            alert(langDict["Error: More than one slots are to be filled."])
         }
+
     }
 
     // nodeInfoWindow: 单击“添加标注对象”按钮
     function addNodeButtonClick(){
-        if(selectedElements !== 0){
-            // 获取选中的node的position list。
-            var selectedElementsIdList = Array();
-            for (i=0; i<selectedElements.length; i++){
-                selectedElementsIdList[i] = selectedElements[i].id.toString()
+        // 当前有选中某个指称
+        if(SelectedElementIndexList !== undefined){
+            // 把选区的index转换成position（因为flask接口要求position）
+            let selectedElementPositionList = [];
+            let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+            for (let i=0; i<selectedElement.length; i++){
+                selectedElementPositionList[i] = selectedElement[i].attr("id");
             }
             // 向后台发送操作请求
-            addNodeByChildren(selectedElementsIdList)
+            let r = addNodeByChildren(selectedElementPositionList);
+            // 区分是否为标注对象
+            if (r[0] != "success"){
+                nodeInfoWindow_showCannotAddNode();
+                alert(langDict[r[1]])
+            }else {
+                let newNodeInfo = r[1]
+                // 更新标注信息
+                nodeInfoWindow_updateNodeInfo(newNodeInfo);
+                // 显示标注信息
+                nodeInfoWindow_showNodeInfo(newNodeInfo);
+                // 重新加载文本
+                getText(
+                    majorTextWindow_getCurArticleNodePosition(),
+                    function (returnData, status, requireData) {
+                        majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
+                        majorTextWindow_updateText(returnData, 0);
+                        majorTextWindow_show(returnData);
+                    }
+                );
+                // 高亮选中文本
+                if (SelectedElementIndexList != undefined){
+                    let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                    majorTextWindow_hightlightElement(selectedElement);
+                }
+
+            }
+        }
+        // 当前没有选中任何指称
+        else{
+            alert(langDict["Can not create node, because no mention is selected."]);
         }
     }
     // nodeInfoWindow: 标注信息变动（token）
     function nodeTokenChange(){
-        var position = $("#pathValue").text();
+        var position = $("#positionValue").text();
         var tokenValue = $("#tokenValue :checked").attr("value");
         if (tokenValue === "false"){
             tokenValue = false;
@@ -689,48 +1009,68 @@ $.ajaxSetup({
         }else{
             alert("搞笑")
         }
-        setNode(position, {"token": tokenValue});
+        let r = setNode(position, {"token": tokenValue});
+        if (r != "success"){
+            alert(langDict[r]);
+            return;
+        }
+        // refresh nodeInfoWindow
+        nodeInfoWindow_refresh();
+        // refresh instanceInfoWindow
+        instanceInfoWindow_refresh();
     }
     // nodeInfoWindow: 标注信息变动（semanticType）
     function nodeSemanticTypeChange(){
-        var position = $("#pathValue").text();
+        var position = $("#positionValue").text();
         var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
-        setNode(position, {"semanticType": semanticTypeValue});
+        let r = setNode(position, {"semanticType": semanticTypeValue});
+        if (r != "success"){
+            alert(langDict[r]);
+            return;
+        }
+        // refresh nodeInfoWindow
+        nodeInfoWindow_refresh();
+        // refresh instanceInfoWindow
+        instanceInfoWindow_refresh();
     }
 
-    // 单击实例
-    function instanceClick(){
-        if (curTriggerInstanceSlot === undefined){
-            // 显示实例信息
-            if (curSelectedInstance.name == ""){
-                // alert("no instance.")
-            }else{
-                getInstanceById(curSelectedInstance.name);
-            }
-        }
-        else{
-            // 选择此实例填充当前槽
-            endOfInstanceSlotFilling();
-        }
-    }
-    // 双击实例槽
-    function instanceDblclick(){
-        startOfInstanceSlotFilling();
-    }
+    // // 单击实例
+    // function instanceSlotClick(){
+    //     if (curTriggerInstanceSlot === undefined){
+    //         // 显示实例信息
+    //         if (curSelectedInstance.name == ""){
+    //             // alert("no instance.")
+    //         }else{
+    //             getInstanceById(curSelectedInstance.name);
+    //         }
+    //     }
+    //     /y
+    // }
+    // // 双击实例槽
+    // function instanceSlotShiftClick(){
+    //     startOfInstanceSlotFilling();
+    // }
 
     // instanceSelectWindow: 单击“+”按钮
     function addInstancePlusButtonClick(){
-        addInstance_empty(
-            function (data) {
-                instanceInfoWindow_showInstanceInfo(data);
-                instanceSelectWindow_updateOneInstance(data)
-            }
-        );
+        // ajax to background
+        let r = addInstance_empty();
+        if (r[0] != "success"){
+            alert(langDict[r[1]])
+            return
+        }else{
+            let instanceInfo = r[1]
+            // add instance obj in instanceSelectWindow
+            instanceSelectWindow_updateOneInstance(instanceInfo);
+            // show instance info in instanceInfoWindow
+            instanceInfoWindow_showInstanceInfo();
+            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+        }
     }
     // instanceSelectWindow: 单击“→”按钮
     function addInstanceArrowButtonClick(){
         // 如果curNode不存在
-        if ($("#nodeInfo-path").css("display") == "none"){
+        if ($("#nodeInfo-selectedNode").css("display") == "none"){
             // 如果有选中一个mention，只差创建node
             if ($("#nodeInfo-noNode").css("display") == "block"){
                 $("#nodeInfo-noNode").click();
@@ -741,115 +1081,160 @@ $.ajaxSetup({
                 return;
             }
         }
-        // 如果curNode存在
-            // 如果curNode已指向一个instance
-            if($("#instanceValue").attr("name") !== ""){
-
-                // if (allowOneNodeReferToMultiInstances == False){
-                //     alert(langDict["Current node is already referenced to a instance, " +
-                //         "You can't add a new instance based on current node, because this action will make one node " +
-                //         "reference to two different instance."]);
-                //     return;
-                // }
-            }
-            // curNode也没有指向instance
-            addInstance_node(
-                function (data) {
-                    instanceInfoWindow_showInstanceInfo(data);
-                    instanceSelectWindow_updateOneInstance(data);
-                    //
-                    nodeInstance = $("#instanceValue");
-                    nodeInstance.attr("name", data["id"]);
-                    if (data["desc"]){
-                        nodeInstance.text(data["desc"]);
-                    }else{
-                        nodeInstance.text("none");
-                    }
-                }
-            )
-    }
-
-    // instanceInfoWindow: desc变动
-    function instanceDescChange(){
-        var id = $("#idValue").text()
-        var descValue = $("#descValue")[0].value
-        setInstance(
-            id,
-            {"desc": descValue},
-            function(data){
-                instanceInfoWindow_showInstanceInfo(data);
-                instanceSelectWindow_updateOneInstance(data);
-                if ($("#nodeInfo-path").css("display") == "block"){
-                    getNodeByPosition(
-                        $("#pathValue").text(),
-                        function(data){
-                            nodeInfoWindow_showNodeInfo(data);
-                        }
-                    )
-                }
-            }
-        )
-    }
-    // instanceInfoWindow: kg变动
-    function instanceKgChange(){
-        var id = $("#idValue").text()
-        var kgValue = $("#kgValue")[0].value
-        setInstance(id, {"kg": kgValue})
-    }
-    // instanceInfoWindow: 单击mentionList中"→"按钮
-    /**
-     * click "extent mention list( based on cur node）" button
-     *
-     * @param instanceId {string} id string of the instance to which the mention list belongs.
-     * @param mentionListIndex {string} index string of the mention list to which the button belongs.
-     */
-    function extentMentionListButtonClick(instanceId, mentionListIndex){
-        if ($("#nodeInfo-path").css("display") == "block"){
-            curNodePosition = $("#pathValue").text()
-            setInstance(
-                instanceId,
-                {
-                    "mention_list":{
-                        "action": "extent",
-                        "mention_list_index": mentionListIndex,
-                        "new_node_position": curNodePosition
-                    }
-                },
-                function (data) {
-                    if (typeof data == "string"){
-                        alert(langDict["set instance fail."]);
-                    }
-                    else if (typeof data == "object"){
-                        instanceInfoWindow_showInstanceInfo(data);
-                    }
-                }
-            )
+        // 现在curNode存在了
+        {
+            // 先新建instance
+            $("#addInstancePlus").click();
+            // 再把curNode指向curInstance
+            $("#mention_listValue").children("div").children(":last").prev().prev().click();
+            // 初始化curInstance的desc
+            let r = getNodeByPosition($("#positionValue").text());
+            let nodeText = r[1]["text"];
+            $("#descValue").attr("value", nodeText);
+            $("#descValue").change();
         }
     }
-    // instanceInfoWindow: 单击mentionLists中"+"按钮
-    /**
-     * click "add mention list" button
-     *
-     *  @param instanceId {string} id string of the instance.
-     */
-    function addMentionListButtonClick(instanceId){
-        setInstance(
-            instanceId,
-            {
-                "mention_list":{
-                    "action": "add"
-                }
-            },
-            function(data){
-                if (typeof data == "string"){
-                    alert(langDict["set instance fail."]);
-                }
-                else if (typeof data == "object"){
-                    instanceInfoWindow_showInstanceInfo(data);
-                }
+    // // instanceSelectWindow: 单击实例
+    function instanceClick(instanceElement){
+        let isHaveInstanceSlotActive = undefined;
+        if ($(".curInstanceSlot").length == 0){
+            isHaveInstanceSlotActive = false;
+        }else{
+            isHaveInstanceSlotActive = true;
+        }
+
+        // 用此实例填充槽
+        if (isHaveInstanceSlotActive){
+            // 数据准备
+            var slot = curTriggerInstanceSlot;
+            let instanceSlot = $(".curInstanceSlot");
+            if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow"){
+                var slotType = "node";
+                var position = $("#positionValue").text();
             }
-        )
+            newInstanceId = curSelectedInstance.name;
+            // 向后台传数据
+            if (slotType === "node"){
+                let r = setNode(position,{"instance":newInstanceId});
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
+            } else if (slotType === "instance"){
+                let r = setInstance();
+                if (r != "success"){
+                    alert(langDict[r]);
+                    return;
+                }
+                // refresh nodeInfoWindow
+                nodeInfoWindow_refresh();
+                // refresh instanceInfoWindow
+                instanceInfoWindow_refresh();
+            }
+            // 取消当前solt的待选特效
+            curTriggerInstanceSlot.classList.remove("curSlot");
+            document.body.style.cursor = "";
+            //
+            curTriggerInstanceSlot = undefined
+            // 更新instance info
+            if (curSelectedInstance != undefined){
+                getInstanceById(curSelectedInstance.name);
+            }
+        }
+        // 展示实例
+        else{
+            let instanceIdStr = instanceElement.name;
+            let instanceInfo = getInstanceById(instanceIdStr);
+            instanceInfoWindow_showInstanceInfo(instanceInfo);
+            instanceSelectWindow_updateOneInstance(instanceInfo);
+        }
     }
+
+    // // instanceInfoWindow: desc变动
+    // function instanceDescChange(){
+    //     var id = $("#idValue").text()
+    //     var descValue = $("#descValue")[0].value
+    //     setInstance(
+    //         id,
+    //         {"desc": descValue},
+    //         function(data){
+    //             instanceInfoWindow_showInstanceInfo(data);
+    //             instanceSelectWindow_updateOneInstance(data);
+    //             if ($("#nodeInfo-path").css("display") == "block"){
+    //                 getNodeByPosition(
+    //                     $("#pathValue").text(),
+    //                     function(data){
+    //                         nodeInfoWindow_showNodeInfo(data);
+    //                     }
+    //                 )
+    //             }
+    //         }
+    //     )
+    // }
+    // // instanceInfoWindow: kg变动
+    // function instanceKgChange(){
+    //     var id = $("#idValue").text()
+    //     var kgValue = $("#kgValue")[0].value
+    //     setInstance(id, {"kg": kgValue})
+    // }
+    // // instanceInfoWindow: 单击mentionList中"→"按钮
+    // /**
+    //  * click "extent mention list( based on cur node）" button
+    //  *
+    //  * @param instanceId {string} id string of the instance to which the mention list belongs.
+    //  * @param mentionListIndex {string} index string of the mention list to which the button belongs.
+    //  */
+    // function extentMentionListButtonClick(instanceId, mentionListIndex){
+    //     if ($("#nodeInfo-path").css("display") == "block"){
+    //         curNodePosition = $("#pathValue").text()
+    //         setInstance(
+    //             instanceId,
+    //             {
+    //                 "mention_list":{
+    //                     "action": "extent",
+    //                     "mention_list_index": mentionListIndex,
+    //                     "new_node_position": curNodePosition
+    //                 }
+    //             },
+    //             function (data) {
+    //                 if (typeof data == "string"){
+    //                     alert(langDict["set instance fail."]);
+    //                 }
+    //                 else if (typeof data == "object"){
+    //                     instanceInfoWindow_showInstanceInfo(data);
+    //                 }
+    //             }
+    //         )
+    //     }
+    // }
+    // // instanceInfoWindow: 单击mentionLists中"+"按钮
+    // /**
+    //  * click "add mention list" button
+    //  *
+    //  *  @param instanceId {string} id string of the instance.
+    //  */
+    // function addMentionListButtonClick(instanceId){
+    //     setInstance(
+    //         instanceId,
+    //         {
+    //             "mention_list":{
+    //                 "action": "add"
+    //             }
+    //         },
+    //         function(data){
+    //             if (typeof data == "string"){
+    //                 alert(langDict["set instance fail."]);
+    //             }
+    //             else if (typeof data == "object"){
+    //                 instanceInfoWindow_showInstanceInfo(data);
+    //             }
+    //         }
+    //     )
+    // }
 
     // wholeSystem: ctrl+s
     function ctrls(){

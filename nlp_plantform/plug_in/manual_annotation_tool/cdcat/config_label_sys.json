@@ -1,38 +1,1 @@
-{
-  "node": [
-    {
-      "key": "position",
-      "GUI_name": "position",
-      "value_type": "text",
-      "value_default": "XXXXX"
-    },
-    {
-      "key": "token",
-      "GUI_name": "is the mention a token",
-      "value_type": "radio",
-      "value_option": [["yes", true], ["no", false]],
-      "value_default": ["no", false]
-    },
-    {
-      "key": "type",
-      "GUI_name": "type of the mention",
-      "value_type": "list-one",
-      "value_option": [["无", "none"],["人", "PEO"],["地", "LOC"],["行为", "ACT"],["组织", "ORG"]],
-      "value_default": ["无", "none"]
-    },
-    {
-      "key": "refer",
-      "GUI_name": "instance(s) which the mention refer to",
-      "value_type": "instance",
-      "value_default": "test"
-    }
-  ],
-  "instance": [
-    {
-      "key": "token",
-      "GUI_name": "is the mention a token",
-      "value_type": "radio",
-      "value_option": [["yes", true], ["no", false]]
-    }
-  ]
-}
+{  "node": [    {      "key": "token",      "GUI_name": "is the mention a token: ",      "value_type": "radio",      "value_option": [["yes", "true"], ["no", "false"]],      "value_default": false    },    {      "key": "type",      "GUI_name": "type of the mention: ",      "value_type": "menuone",      "value_option": [["无", "none"],["人", "PEO"],["地", "LOC"],["行为", "ACT"],["组织", "ORG"],["物", "SUB"]],      "value_default": "none"    },    {      "key": "instance",      "GUI_name": "instance which the mention refer to: ",      "value_type": "instance",      "linkto": "mention_list",      "value_default": {        "id": "",        "desc": ""      }    }  ],  "instance": [    {      "key": "kg",      "GUI_name": "KG: ",      "value_type": "textinput",      "value_default": "XXXXX"    },    {      "key": "mention_list",      "GUI_name": "mentionList: ",      "value_type": "nodelist",      "linkto": "instance",      "value_default": [[]]    }  ]}

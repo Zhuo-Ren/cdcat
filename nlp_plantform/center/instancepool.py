@@ -2,34 +2,38 @@ from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.instance import Instance
 
 
-class Instances(dict):
+class InstancePool(dict):
     def __init__(self):
-        self.next_id = 0
+        self.next_id : int = 0
+        """
+        The id of next instance in this instance pool. Id of instance start of 0. The latest instance id is self。next_id - 1
+        """
 
-    def add_instance(self, desc=None, kg=None):
-        new_instance = Instance(id=self.next_id, desc=desc, kg=kg)
-        self[self.next_id] = new_instance
-        self.next_id = self.next_id + 1
+    def add_instance(self, info_dict=None):
+        new_instance = Instance(instance_pool=self, labels_dict=info_dict)
         return new_instance
 
-    def get_instance(self,
-                     id: Union[int, str, None] = None,
-                     desc: Union[str, None] = None,
-                     kg: Union[str, None] = None,
-                     mention: Union[str, None] = None
-                     )-> List[Instance]:
+    def get_instance(self, info_dict)-> List[Instance]:
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 
-        :param id:
-        :param desc:
-        :param kg:
-        :param mention:
+        :param info_dict:
 
         :return: a list of eligible instance
         """
-        if id is not None:
-            return self.get_instance_by_id(id)
+        if "id" in info_dict:
+            target_instance_list = self.get_instance_by_id(info_dict["id"])
+            # 根据id找instance，只有找到1个才是正常
+            if len(target_instance_list) == 1:
+                # 验证其他属性是否符合
+                pass
+                #
+                return target_instance_list
+            # 根据id找instance，只有找到1个才是正常，其他直接返回空列表。
+            else:
+                return []
+        else:
+            raise RuntimeError("抱歉这个还没实现。")
 
     def get_instance_by_id(self, id: Union[int, str])-> List[Instance]:
         """
@@ -96,4 +100,3 @@ class Instances(dict):
             print("coref_num: ", r["coref_num"])
 
         return r
-

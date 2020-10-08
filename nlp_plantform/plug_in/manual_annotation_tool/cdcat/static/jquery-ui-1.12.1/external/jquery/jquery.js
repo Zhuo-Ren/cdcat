@@ -3120,7 +3120,7 @@ jQuery.each( {
 	},
 	contents: function( elem ) {
 		return jQuery.nodeName( elem, "iframe" ) ?
-			elem.contentDocument || elem.contentWindow.document :
+			elem.contentDocument || elem.catalogueWindow.document :
 			jQuery.merge( [], elem.childNodes );
 	}
 }, function( name, fn ) {
@@ -6470,7 +6470,7 @@ function defaultDisplay( nodeName ) {
 				.appendTo( doc.documentElement );
 
 			// Always write a new HTML skeleton so Webkit and Firefox don't choke on reuse
-			doc = ( iframe[ 0 ].contentWindow || iframe[ 0 ].contentDocument ).document;
+			doc = ( iframe[ 0 ].catalogueWindow || iframe[ 0 ].contentDocument ).document;
 
 			// Support: IE
 			doc.write();
