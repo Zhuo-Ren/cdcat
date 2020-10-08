@@ -55,7 +55,7 @@ class Instance(object):
         # 添加新label
         self._labels = InstanceLabels(owner=self, labels_value=labels_value)
 
-    def readable(self) -> dict:
+    def readable(self, nolink=False) -> dict:
         """
         This function returns a readable info dict of this instance.
 
@@ -71,7 +71,10 @@ class Instance(object):
 
         :return: readable info dict of this instance.
         """
-        r = self._labels.readable()
+        if nolink == True:
+            r = self._labels.readable(nolink=True)
+        else:
+            r = self._labels.readable()
         r["id"] = str(self.id)
         r["desc"] = self.desc
         return r

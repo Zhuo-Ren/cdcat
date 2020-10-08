@@ -18,7 +18,7 @@ def regiest_cofigured_label_types():
 
 class AutoSyncList(list):
 
-    def __init__(self, owner, init_value, type_limit: Union[Tuple, None] = None):
+    def __init__(self, owner, init_value=None, type_limit: Union[Tuple, None] = None):
         # public: owner
         self.owner = owner
 
@@ -26,6 +26,8 @@ class AutoSyncList(list):
         self.type_limit = type_limit
 
         # init
+        if init_value is None:
+            init_value = []
         if isinstance(init_value, (AutoSyncList, list)):
             for i in init_value:
                 self.append(i)  # self.append will sync the linked label
@@ -220,7 +222,7 @@ class LabelType(object):
     def readable(self):
         return self.value
 
-    def ajax_process(self, ajax_param):
+    def ajax_process(self, ajax_param, root_node, instance_pool):
         pass
 
 
@@ -518,7 +520,7 @@ class LabelTypeInstance(LabelType):
     def __init__(self, owner, key, value: Union[None, Dict, Instance]=None):
         # param check
         from nlp_plantform.center.instance import Instance
-        if isinstance(value, Instance)or (value is None):
+        if (not isinstance(value, Instance)) and (value is not None):
             raise TypeError
         # public: empty_value
         self.empty_value = None
@@ -558,6 +560,14 @@ class LabelTypeInstance(LabelType):
         self._value = new_value
         # sync new value
         if self._value != self.empty_value:
+            linked_obj = self._value
+            linked_label_key = self.config["linkto"]
+            # 如果linked_label还没创建，那要先初始化一个空label给他
+            if linked_label_key not in linked_obj.labels:
+                from nlp_plantform.center.labeltypes import labeltypes
+                linked_label_class = labeltypes[linked_obj.labels.config[linked_label_key]["value_type"]]
+                linked_label_value = linked_label_class(owner=linked_obj.labels, key=linked_label_key, value=None)
+                self._value.labels[self.config["linkto"]] = linked_label_value
             linked_label = self._value.labels[self.config["linkto"]]
             linked_label.sync_add(self.owner_obj)
 
@@ -596,21 +606,27 @@ class LabelTypeInstance(LabelType):
         """
         This function process ajax require which try to change the label value.
 
-        :param ajax_param: The relative params in ajax require.
-            String "" will be converted into None which means this label is to be
-            delete( because null and undefined in js convert into "" in python).
+        :param ajax_param: The relative params in ajax require. There are 2 kinds of param supported:
+            1. String "": means this label is to be delete( because null and undefined in js convert into "" in python).
+            2. String "32": A integer string means the new label value is a instance with id of this integer.
         :param root_node: root node of all the node.
         :param instance_pool: instance pool that manages all the instance.
         :return: True if process is success, a string describe the error if process is failed
         """
-        if ajax_param is None:
+        #param check
+        if not isinstance(ajax_param, str):
+            raise TypeError
+        #
+        if ajax_param is "":
             self.value_empty()
             del self.owner_labels[self.config["key"]]
-        else:
-            # get instance
-            new_instance = instance_pool.get_instance({"id": ajax_param["instance"]})[0]
+            return True
+        elif ajax_param.isdigit():
+            new_instance = instance_pool.get_instance({"id": ajax_param})[0]
             self.value = new_instance
             return True
+        else:
+            raise TypeError
 
 
 class LabelTypeNodeList(LabelType):
@@ -629,7 +645,6 @@ class LabelTypeNodeList(LabelType):
         self.empty_value = AutoSyncList(owner=self, init_value=[], type_limit=NodeTree)
         #
         super().__init__(owner, key, value)
-
 
     # public: value
     @property
@@ -685,10 +700,26 @@ class LabelTypeNodeList(LabelType):
         #
         self._value.sync_del(value)
 
-
     def readable(self):
         return  self._value.readable()
 
+    def ajax_process(self, ajax_param, root_node, instance_pool):
+        ajax_param = eval(ajax_param)
+        action = ajax_param["action"]
+        if action == 'append':
+            target_obj_index = ajax_param["targetObjIndex"]
+            target_obj = self.value
+            for i in target_obj_index:
+                target_obj = target_obj[i]
+            child = ajax_param["child"]
+            # append一个空list
+            if child == "newList":
+                target_obj.append(AutoSyncList(owner=target_obj))
+            # append一个node
+            else:
+                pass
+        elif action == 'del':
+            pass
 
 labeltypes = {
     "radio":        LabelTypeRadio,

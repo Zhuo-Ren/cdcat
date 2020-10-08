@@ -475,15 +475,24 @@ function PythonStyleToJsStyle(data){
         }
         // 挂事件
         newInstanceObj.click(function() {
-            let instanceIdStr = this.name;
-            let r = getInstanceById(instanceIdStr);
-            if (r[0] != "success"){
-                alert(langDict[r[1]]);
-            }else{
-                let instanceInfo = r[1]
-                instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                instanceInfoWindow_showInstanceInfo();
-                instanceSelectWindow_updateOneInstance(instanceInfo);
+            let slotObj = $(".slot");
+            if (slotObj.length == 0){
+                let instanceIdStr = this.name;
+                let r = getInstanceById(instanceIdStr);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
+                }else{
+                    let instanceInfo = r[1]
+                    instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                    instanceInfoWindow_showInstanceInfo();
+                    instanceSelectWindow_updateOneInstance(instanceInfo);
+                }
+            }else if(slotObj.length == 1){
+                let instanceIdStr = this.name;
+                slotObj[0].fillSlot(instanceIdStr);
+            }
+            else{
+                alert(langDict["A wrong num of slots."])
             }
         });
         //
@@ -799,17 +808,17 @@ function PythonStyleToJsStyle(data){
         );
         return r
     }
-    function setInstance(instanceId, newValueDict){
-        let instanceInfo = undefined;
-        newValueDict["id"] = instanceId;
+    function setInstance(instanceId, infoDict){
+        let r = undefined;
+        infoDict["id"] = instanceId;
         $.post(
             "/setInstance",
-            newValueDict,
+            infoDict,
             function (data, status) {
-                instanceInfo = data;
+                r = data;
             }
-        )
-        return instanceInfo;
+        );
+        return r;
     }
     function addInstance_empty(){
         let instanceInfo = undefined;

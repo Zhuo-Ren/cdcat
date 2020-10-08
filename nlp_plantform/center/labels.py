@@ -45,8 +45,8 @@ class Labels(dict):
         # param check (如果这个label是定制label，那么需要验证一下)
         from nlp_plantform.center.labeltypes import labeltypes
         if key in labeltypes:
-            # 这是一个订制类型的的label
-            if isinstance(value, labeltypes[self.config[key]["value_type"]]):
+            # 这是一个定制类型的的label
+            if not isinstance(value, labeltypes[self.config[key]["value_type"]]):
                 raise TypeError
             if value.owner != self:
                 raise RuntimeError
@@ -86,14 +86,13 @@ class Labels(dict):
 
     def readable(self, nolink=False):
         info_dict = {}
-        if nolink == False:
-            for (label_key, label_config) in self.config.items():
-                if label_key in self:
+        for (label_key, label_config) in self.config.items():
+            if label_key in self:
+                if nolink == False:
                     info_dict.update({label_key: self[label_key].readable()})
-        else:
-            for (label_key, label_config) in self.config.items():
-                if "linkto" not in label_config:
-                    info_dict.update({label_key: self[label_key].readable()})
+                elif nolink == True:
+                    if "linkto" not in label_config:
+                        info_dict.update({label_key: self[label_key].readable()})
         return info_dict
 
     # def __str__(self) -> str:

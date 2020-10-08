@@ -235,8 +235,8 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                     if cur_label_key not in cur_labels:
                         from nlp_plantform.center.labeltypes import labeltypes
                         cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
-                    cur_labels[cur_label_key] = cur_labels[cur_label_key]
-                    cur_labels[cur_label_key].ajax_process(cur_label_ajax_parm, root_node, instance_pool)
+                    cur_label = cur_labels[cur_label_key]
+                    cur_label.ajax_process(cur_label_ajax_parm, root_node, instance_pool)
             logging.debug("setNode<-：" + str(["success", node.readable()]))
             return jsonify(["success", node.readable()])
 
@@ -305,6 +305,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     def setInstance():
         id = request.form.get("id")
         logging.debug("setInstance->：id=" + id)
+
         id = int(id)
         instance = instance_pool.get_instance(info_dict={"id": id})[0]
         if instance is None:
@@ -320,7 +321,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             for cur_label_key in cur_labels.config.keys():
                 # 如果前台修改了当前标签
                 if cur_label_key in request.form:
-                    cur_label_ajax_parm = request.form.get(cur_label_key)
+                    cur_label_ajax_param = request.form.get(cur_label_key)
                     # 如果前台修改的这个标签还没有创建，要先创建空标签
                     if cur_label_key not in cur_labels:
                         from nlp_plantform.center.labeltypes import labeltypes
@@ -328,7 +329,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                         cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
                     # 根据前台信息，修改当前标签
                     cur_label = cur_labels[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_parm, root_node, instance_pool)
+                    cur_label.ajax_process(cur_label_ajax_param, root_node, instance_pool)
 
             logging.debug("setInstance<-：" + str(["success", instance.readable()]))
             return jsonify(["success", instance.readable()])

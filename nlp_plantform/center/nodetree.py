@@ -980,9 +980,12 @@ class NodeTree(ParentedTree):
         if not deep: return type(self)(self._labels, self)
         else: return type(self).convert(self)
 
-    def readable(self):
+    def readable(self, nolink=False):
         output_dict = {}
-        output_dict.update(self.labels.readable())
+        if nolink == True:
+            output_dict.update(self.labels.readable(nolink=True))
+        else:
+            output_dict.update(self.labels.readable())
         output_dict["parent_position"] = self.get_parent().position(output_type="string")
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())

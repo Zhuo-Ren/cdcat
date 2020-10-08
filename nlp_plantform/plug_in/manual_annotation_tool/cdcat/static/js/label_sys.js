@@ -863,14 +863,41 @@ function generateInstanceLabelObj(labelDict, labelValue){
                             // refresh instanceInfoWindow
                             instanceInfoWindow_refresh();
                         }
-                        });
+                    });
             // setInstanceBySelectButtonObj <button>
                 let setInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton'>☞</button>");
                 valueObj.append(setInstanceBySelectButtonObj);
                 // add click event
                 setInstanceBySelectButtonObj.click(function(){
-
+                    if ($(".slot").length == 0){
+                        setInstanceBySelectButtonObj.addClass("slot");
+                        // 上特效
+                        document.body.style.cursor = "help";
+                        setInstanceBySelectButtonObj.css("background", "red");
+                    }
                 });
+                // add fill slot function
+                setInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){
+                    // prepare ajax data
+                    let curNodePosition = $("#positionValue").text();
+                    let newValue = {[labelDict["key"]]: selectedInstanceId};
+                    // ajax
+                    let r = setNode(curNodePosition,newValue);
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        setInstanceBySelectButtonObj.removeClass("slot");
+                        // 去特效
+                        document.body.style.cursor = "";
+                        setInstanceBySelectButtonObj.css("background", "white");
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                };
     // return
         return labelObj
 }
@@ -925,167 +952,259 @@ function generateNodeListLabelObj(labelDict, labelValue){
         // <valueObj>
             let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
             labelObj.append(valueObj);
-            // <b[>
-            valueObj.append($("<span>[</span>"));
-            valueObj.append($("<br>/"));
-            // <bigBracketObj>
-            {
-                let bigBracketObj = $("<div name='bigBracket'></div>");
-                valueObj.append(bigBracketObj);
-                bigBracketObj.css("padding-left", "10px");
-                // calc the value
-                {
-                    // // if given a value, display the value
-                    // if (labelValue != undefined) {
-                    //     //labelValue = labelValue
-                    // }
-                    // // if no value given, display the default value
-                    // else if (labelDict["value_default"] != undefined) {
-                    //     labelValue = labelDict["value_default"];
-                    // }
-                    // // if no given value and no default value
-                    // else {
-                    //     labelValue = [[]];
-                    // }
-                }
-                // for each mentionList
-                if (labelValue != undefined){
-                    for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
-                        let curMentionList = labelValue[curMentionListIndex];
-                        // <mentionListLineObj>
-                        let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
-                        bigBracketObj.append(mentionListLineObj);
-                        // <s[>
-                        mentionListLineObj.append($("<span>[</span>"));
-                        // for each mention
-                        for (let curMentionIndex = 0; curMentionIndex < curMentionList.length; curMentionIndex++) {
-                            // <mention button>
-                            {
-                                let curMention = curMentionList[curMentionIndex];
-                                let curMentionObj = $("<button mentionIndex='" + curMentionIndex + "'></button>");
-                                mentionListLineObj.append(curMentionObj);
-                                // display value
-                                curMentionObj.text(curMention["text"]);
-                                curMentionObj.attr("name", curMention["position"]);
-                                // add click event
-                                curMentionObj.click(function (e) {
-                                    alert("展示node信息");
-                                });
-                            }
-                            // <del mention button>
-                            {
-                                let delMentionButton = $("<button class='circleButton' name='delMentionButton'>x</button>");
-                                mentionListLineObj.append(delMentionButton);
-                                // add click event
-                                delMentionButton.click(function () {
-                                    // prepare ajax data
-                                    let curInstanceId = $("#idValue").text();
-                                    let newValueDict = {"mention_list": {
-                                            "action": "del mention",
-                                            "mention_list_index":$(this).parent().attr("mentionListIndex"),
-                                            "mention_index": $(this).prev().attr("mentionIndex")
-                                        }};
-                                    // ajax to background
-                                    r = setInstance(curInstanceId, newValueDict);
-                                    // GUI update
-                                    if (r[0] != "success"){
-                                        alert(langDict[r[1]]);
-                                        return;
-                                    }else{
-                                        // refresh nodeInfoWindow
-                                        nodeInfoWindow_refresh();
-                                        // refresh instanceInfoWindow
-                                        instanceInfoWindow_refresh();
-                                    }
-                                });
-                            }
-                            // <semicolon between mention>
-                            mentionListLineObj.append($("<span>;</span>"));
-                        }
-                        // <append new mention button>
-                        {
-                            let appendNewMentionButtonObj = $("<button class='circleButton'>→</button>");
-                            mentionListLineObj.append(appendNewMentionButtonObj);
-                            // add click event
-                            appendNewMentionButtonObj.click(function () {
-                                if ($("#nodeInfo-selectedNode").css("display") != "block"){
-                                    alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
-                                    return
-                                }
-                                // prepare ajax data
-                                let curInstanceId = $("#idValue").text();
-                                let newValueDict = {
-                                    "mention_list":{
-                                        "action": "append mention",
-                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
-                                        "new_node_position": $("#positionValue").text()
-                                    }
-                                };
-                                // ajax to background
-                                let r = setInstance(curInstanceId, newValueDict);
-                                // GUI update
-                                if (r[0] != "success"){
-                                    alert(langDict[r[1]]);
-                                    return;
-                                }else{
-                                    // refresh nodeInfoWindow
-                                    nodeInfoWindow_refresh();
-                                    // refresh instanceInfoWindow
-                                    instanceInfoWindow_refresh();
-                                }
-                            });
-                        }
-                        // <s]>
-                        mentionListLineObj.append($("<span>]</span>"));
-                        // <del mentionList button>
-                        {
-                            let delMentionListButtonObj = $("<button class='circleButton' name='delMentionListButton'>x</button>");
-                            mentionListLineObj.append(delMentionListButtonObj);
-                            // add click event
-                            delMentionListButtonObj.click(function () {
-                                let delButtonList = mentionListLineObj.children("[name=delMentionButton]");
-                                for (let curDelButtonIndex = 0; curDelButtonIndex < delButtonList.length; curDelButtonIndex++){
-                                    let curDelButtonObj = delButtonList[curDelButtonIndex];
-                                    curDelButtonObj.click();
-                                }
-                                //prepare ajax data
-                                let curInstanceId = $("#idValue").text();
-                                let newValueDict = {
-                                    "mention_list":{
-                                        "action": "del mentionList",
-                                        "mention_list_index":$(this).parent().attr("mentionListIndex"),
-                                    }
-                                };
-                                // ajax to background
-                                let r = setInstance(curInstanceId, newValueDict);
-                                // GUI update
-                                if (r[0] != "success"){
-                                    alert(langDict[r[1]]);
-                                    return;
-                                }else{
-                                    // refresh nodeInfoWindow
-                                    nodeInfoWindow_refresh();
-                                    // refresh instanceInfoWindow
-                                    instanceInfoWindow_refresh();
-                                }
-                            });
 
+            function generateNodeListIter(nodeList){
+                // param check
+                if (! Array.isArray(nodeList)){
+                    throw new Error(langDict["Call generateNodeListIter on a un-array obj."])
+                }
+                //
+                let curListObj = $("<span class='mentionList'></span>");
+                    // 左中括号
+                    curListObj.append($("<span>[</span>"));
+                    // 中间的东西
+                        let insideObj = $("<div></div>");
+                        insideObj.css("padding-left","10px");
+                        curListObj.append(insideObj);
+                        for (let itemIndex = 0; itemIndex<nodeList.length; itemIndex++){
+                            //
+                                let curItem = nodeList[itemIndex];
+                                // 如果是nodeList
+                                if (Array.isArray(curItem)){
+                                    let curItemObj = generateNodeListIter(curItem);
+                                    curItemObj.attr("index", String(itemIndex));
+                                    insideObj.append(curItemObj);
+                                    insideObj.append($("<span>,</span><br/>"));
+                                }
+                                // 如果是node
+                                else{
+                                    let curItemObj = $("<button index='" + String(itemIndex) + "'>" + curItem["text"] + "</button>");
+                                    insideObj.append(curItemObj);
+                                    let delItemButton = $("<button class='circleButton'>x</button>");
+                                    insideObj.append(delItemButton);
+                                    insideObj.append($("<span>,</span><br/>"));
+                                }
                         }
-                        // <br/>
-                        mentionListLineObj.append($("<br/>"));
-                    }
-                }
-                // <add new mentionList button>
-                {
-                    let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
-                    bigBracketObj.append(addNewMentionListButtonObj);
-                    addNewMentionListButtonObj.click(function () {
-                        alert("走着瞧");
-                    });
-                }
+                        //
+                        let curNodeButtonObj = $("<button class='circleButton'>cN</button>");
+                        insideObj.append(curNodeButtonObj);
+                        //
+                        let fingerButtonObj = $("<button class='circleButton'>☞</button>");
+                        insideObj.append(fingerButtonObj);
+                        //
+                        let newListButtonObj = $("<button class='circleButton'>[+]</button>");
+                        insideObj.append(newListButtonObj);
+                        newListButtonObj.click(function(){
+                            let curInstanceId = $("#idValue").text();
+                            let targetObjIndex = [];
+                            let cur_obj = $(this);
+                            while (cur_obj.parent().parent().attr("index") != undefined){
+                                targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                                cur_obj = cur_obj.parent().parent();
+                            }
+                            let infoDict = {
+                                [labelDict["key"]]: JSON.stringify({
+                                    "action": "append",
+                                    "targetObjIndex": targetObjIndex,
+                                    "child": "newList"
+                                })
+                            };
+                            let r = setInstance(curInstanceId, infoDict);
+                            if (r[0] != "success"){
+                                alert(langDict[r[1]]);
+                                return
+                            }else{
+                                nodeInfoWindow_refresh();
+                                instanceInfoWindow_refresh();
+                            }
+
+                        });
+                        //
+                        insideObj.append($("<br/>"));
+                    // 右中括号
+                    curListObj.append($("<span>]</span>"));
+                    //
+                    let delCurListButtonObj = $("<button class='circleButton'>x</button>");
+                    curListObj.append(delCurListButtonObj);
+                return curListObj
             }
-            // <b]>
-            valueObj.append($("<span>]</span>"));
+
+            // 如果nodeList标签的值是空，那么改成[]。这样才能显示操作按钮。
+            // 不用担心这里改了以后和后台数据不一致，因为nodeListLabel的value_empty就是[]。
+            if ((labelValue == undefined)||(labelValue == null)){
+                labelValue = [];
+            }
+            //
+            if (labelValue){
+                let nodeListObj = generateNodeListIter(labelValue);
+                nodeListObj.children(":last").css("display", "none");
+                valueObj.append(nodeListObj);
+            }
+            // 取消最外层中括号后的del button
+            // $("#mention_listValue").children(":first").children(":last").css("display", "none");
+
+
+            // // <b[>
+            // valueObj.append($("<span>[</span>"));
+            // valueObj.append($("<br>/"));
+            // // <bigBracketObj>
+            // {
+            //     let bigBracketObj = $("<div name='bigBracket'></div>");
+            //     valueObj.append(bigBracketObj);
+            //     bigBracketObj.css("padding-left", "10px");
+            //     // calc the value
+            //     {
+            //         // // if given a value, display the value
+            //         // if (labelValue != undefined) {
+            //         //     //labelValue = labelValue
+            //         // }
+            //         // // if no value given, display the default value
+            //         // else if (labelDict["value_default"] != undefined) {
+            //         //     labelValue = labelDict["value_default"];
+            //         // }
+            //         // // if no given value and no default value
+            //         // else {
+            //         //     labelValue = [[]];
+            //         // }
+            //     }
+            //     // for each mentionList
+            //     if (labelValue != undefined){
+            //         for (let curMentionListIndex = 0; curMentionListIndex < labelValue.length; curMentionListIndex++) {
+            //             let curMentionList = labelValue[curMentionListIndex];
+            //             // <mentionListLineObj>
+            //             let mentionListLineObj = $("<span class='mentionListLine' mentionListIndex='" + curMentionListIndex + "'></span>");
+            //             bigBracketObj.append(mentionListLineObj);
+            //             // <s[>
+            //             mentionListLineObj.append($("<span>[</span>"));
+            //             // for each mention
+            //             for (let curMentionIndex = 0; curMentionIndex < curMentionList.length; curMentionIndex++) {
+            //                 // <mention button>
+            //                 {
+            //                     let curMention = curMentionList[curMentionIndex];
+            //                     let curMentionObj = $("<button mentionIndex='" + curMentionIndex + "'></button>");
+            //                     mentionListLineObj.append(curMentionObj);
+            //                     // display value
+            //                     curMentionObj.text(curMention["text"]);
+            //                     curMentionObj.attr("name", curMention["position"]);
+            //                     // add click event
+            //                     curMentionObj.click(function (e) {
+            //                         alert("展示node信息");
+            //                     });
+            //                 }
+            //                 // <del mention button>
+            //                 {
+            //                     let delMentionButton = $("<button class='circleButton' name='delMentionButton'>x</button>");
+            //                     mentionListLineObj.append(delMentionButton);
+            //                     // add click event
+            //                     delMentionButton.click(function () {
+            //                         // prepare ajax data
+            //                         let curInstanceId = $("#idValue").text();
+            //                         let newValueDict = {"mention_list": {
+            //                                 "action": "del mention",
+            //                                 "mention_list_index":$(this).parent().attr("mentionListIndex"),
+            //                                 "mention_index": $(this).prev().attr("mentionIndex")
+            //                             }};
+            //                         // ajax to background
+            //                         r = setInstance(curInstanceId, newValueDict);
+            //                         // GUI update
+            //                         if (r[0] != "success"){
+            //                             alert(langDict[r[1]]);
+            //                             return;
+            //                         }else{
+            //                             // refresh nodeInfoWindow
+            //                             nodeInfoWindow_refresh();
+            //                             // refresh instanceInfoWindow
+            //                             instanceInfoWindow_refresh();
+            //                         }
+            //                     });
+            //                 }
+            //                 // <semicolon between mention>
+            //                 mentionListLineObj.append($("<span>;</span>"));
+            //             }
+            //             // <append new mention button>
+            //             {
+            //                 let appendNewMentionButtonObj = $("<button class='circleButton'>→</button>");
+            //                 mentionListLineObj.append(appendNewMentionButtonObj);
+            //                 // add click event
+            //                 appendNewMentionButtonObj.click(function () {
+            //                     if ($("#nodeInfo-selectedNode").css("display") != "block"){
+            //                         alert(langDict["can not build a reference relation between cur node and cur instance, because no node are selected."]);
+            //                         return
+            //                     }
+            //                     // prepare ajax data
+            //                     let curInstanceId = $("#idValue").text();
+            //                     let newValueDict = {
+            //                         "mention_list":{
+            //                             "action": "append mention",
+            //                             "mention_list_index":$(this).parent().attr("mentionListIndex"),
+            //                             "new_node_position": $("#positionValue").text()
+            //                         }
+            //                     };
+            //                     // ajax to background
+            //                     let r = setInstance(curInstanceId, newValueDict);
+            //                     // GUI update
+            //                     if (r[0] != "success"){
+            //                         alert(langDict[r[1]]);
+            //                         return;
+            //                     }else{
+            //                         // refresh nodeInfoWindow
+            //                         nodeInfoWindow_refresh();
+            //                         // refresh instanceInfoWindow
+            //                         instanceInfoWindow_refresh();
+            //                     }
+            //                 });
+            //             }
+            //             // <s]>
+            //             mentionListLineObj.append($("<span>]</span>"));
+            //             // <del mentionList button>
+            //             {
+            //                 let delMentionListButtonObj = $("<button class='circleButton' name='delMentionListButton'>x</button>");
+            //                 mentionListLineObj.append(delMentionListButtonObj);
+            //                 // add click event
+            //                 delMentionListButtonObj.click(function () {
+            //                     let delButtonList = mentionListLineObj.children("[name=delMentionButton]");
+            //                     for (let curDelButtonIndex = 0; curDelButtonIndex < delButtonList.length; curDelButtonIndex++){
+            //                         let curDelButtonObj = delButtonList[curDelButtonIndex];
+            //                         curDelButtonObj.click();
+            //                     }
+            //                     //prepare ajax data
+            //                     let curInstanceId = $("#idValue").text();
+            //                     let newValueDict = {
+            //                         "mention_list":{
+            //                             "action": "del mentionList",
+            //                             "mention_list_index":$(this).parent().attr("mentionListIndex"),
+            //                         }
+            //                     };
+            //                     // ajax to background
+            //                     let r = setInstance(curInstanceId, newValueDict);
+            //                     // GUI update
+            //                     if (r[0] != "success"){
+            //                         alert(langDict[r[1]]);
+            //                         return;
+            //                     }else{
+            //                         // refresh nodeInfoWindow
+            //                         nodeInfoWindow_refresh();
+            //                         // refresh instanceInfoWindow
+            //                         instanceInfoWindow_refresh();
+            //                     }
+            //                 });
+            //
+            //             }
+            //             // <br/>
+            //             mentionListLineObj.append($("<br/>"));
+            //         }
+            //     }
+            //     // <add new mentionList button>
+            //     {
+            //         let addNewMentionListButtonObj = $("<button class='circleButton'>+</button>");
+            //         bigBracketObj.append(addNewMentionListButtonObj);
+            //         addNewMentionListButtonObj.click(function () {
+            //             alert("走着瞧");
+            //         });
+            //     }
+            // }
+            // // <b]>
+            // valueObj.append($("<span>]</span>"));
     // return
         return labelObj
 }

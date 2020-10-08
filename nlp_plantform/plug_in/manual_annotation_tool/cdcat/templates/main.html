@@ -158,10 +158,18 @@
                     //         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
                     //     });
 
-            // whole system: 键盘ctrl+s
+            // whole system: 键盘ctrl+s 和 ESC
                 $(document).keydown(function(e) {
                     if (e.ctrlKey && e.which == 83) {
                         ctrls();
+                    }else if(e.which == 27){
+                        let slotObj = $(".slot");
+                        if (slotObj.length == 1){
+                            slotObj.removeClass("slot");
+                            // 去特效
+                            document.body.style.cursor = "";
+                            slotObj.css("background", "white");
+                        }
                     }
                 });
     });
