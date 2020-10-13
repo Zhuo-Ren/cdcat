@@ -584,7 +584,15 @@ function PythonStyleToJsStyle(data){
                 {
                     let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
                     addGroupButtonObj.click(function(){
-                        $(this).next().next().prepend($("<p>111</p>"));
+                        let liObj = $("<li class='dict_li'></li>");
+                        liObj.append(generateFromDict("uname", {}));
+                        $(this).next().next().prepend(liObj);
+                        $( ".dict" ).sortable({
+                            connectWith: ".dict"
+                        }).disableSelection();
+                        $( ".list" ).sortable({
+                            connectWith: ".list"
+                        }).disableSelection();
                     });
                     r.push(addGroupButtonObj);
                 }
@@ -592,7 +600,15 @@ function PythonStyleToJsStyle(data){
                 {
                     let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
                     addItemsButtonObj.click(function(){
-                        $(this).next().prepend($("<p>222</p>"));
+                        let liObj = $("<li class='dict_li'></li>");
+                        liObj.append(generateFromList(undefined, []));
+                        $(this).next().prepend(liObj);
+                        $( ".dict" ).sortable({
+                            connectWith: ".dict"
+                        }).disableSelection();
+                        $( ".list" ).sortable({
+                            connectWith: ".list"
+                        }).disableSelection();
                     });
                     r.push(addItemsButtonObj);
                 }
