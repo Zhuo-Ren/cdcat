@@ -455,31 +455,94 @@ function PythonStyleToJsStyle(data){
         let instancePool = r[1];
         let instancePoolObj = generateInstancePool(instancePool);
         $("#allInstanceDiv").append(instancePoolObj);
-         $(function() {
-            $( ".group" ).sortable({
-                connectWith: ".group"
-            }).disableSelection();
-        });
-        $(function() {
-            $( ".items" ).sortable({
-                connectWith: ".items"
-            }).disableSelection();
-        });
+        $( ".group" ).sortable({
+            connectWith: ".group"
+        }).disableSelection();
+        $( ".items" ).sortable({
+            connectWith: ".items"
+        }).disableSelection();
+        // $("#allInstanceDiv li").sortable({
+        //     start: function(e, ui){console.log("111")}
+        // });
 
         function generateInstancePool(instancePool){
             // generate items
             if (Array.isArray(instancePool)){
-                //let div = $("<div></div>");
+                let div = $("<div></div>");
                 let ulObj = $("<ul class='items'></ul>");
-                //div.append(ulObj);
+                div.append(ulObj);
                 for (let curInstanceIndex = 0; curInstanceIndex<instancePool.length; curInstanceIndex++){
+                    let curInstance = instancePool[curInstanceIndex];
+                    // build DOC element
                     let liObj = $("<li class='item_li'></li>");
                     ulObj.append(liObj);
-                    let curInstance = instancePool[curInstanceIndex];
-                    let instanceObj = $("<button id='"+curInstance["id"]+"'>"+curInstance["desc"]+"</button>");
-                    liObj.append(instanceObj);
+                    // add attr
+                    liObj.attr('name', curInstance['id']);
+                    liObj.addClass('instance');
+                    if (curInstance['desc'] !== undefined){
+                        if (curInstance['desc'] !== "") {
+                            liObj.text(curInstance['desc']);
+                        }else{
+                            liObj.text('　');
+                        }
+                    } else {
+                        liObj.text('　');
+                    }
+                    // shift拖拉：复制元素
+                    liObj.mousedown(function(e){
+                        if (e.shiftKey){
+                            alert("告诉后台，我在哪里复制了一个啥。")
+                            r = ["success"];
+                            if (r[0] != "success"){
+                                alert(langDict[r[1]]);
+                            }else {
+                                let newObj = $(this).clone(true);
+                                $(this).after(newObj);
+                            }
+                        }
+                    });
+                    // 左键
+                    liObj.click(function(e) {
+                        let slotObj = $(".slot");
+                        // 如果是单纯点击
+                        if ((slotObj.length == 0)&&(! e.altKey)){
+                            let instanceIdStr = $(this).attr("name");
+                            let r = getInstanceById(instanceIdStr);
+                            if (r[0] != "success"){
+                                alert(langDict[r[1]]);
+                            }else{
+                                let instanceInfo = r[1]
+                                instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                                instanceInfoWindow_showInstanceInfo();
+                                instanceSelectWindow_updateOneInstance(instanceInfo);
+                            }
+                        }
+                        // 如果是Alt点击：删除实例
+                        else if ((slotObj.length == 0)&&( e.altKey)){
+                            if ($("li[name=" + curInstance["desc"] + "]").length == 1){
+                                alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
+                            }else{
+                                alert("告诉后台，我删了谁")
+                                r = ["success"];
+                                if (r[0] != "success"){
+                                    alert(langDict[r[1]]);
+                                }else{
+                                    $(this).remove();
+                                }
+                            }
+                        }
+                        // 如果是槽填充
+                        else if(slotObj.length == 1){
+                            let instanceIdStr = this.name;
+                            slotObj[0].fillSlot(instanceIdStr);
+                        }
+                        // 如果都不是，那有毛病
+                        else{
+                            alert(langDict["A wrong num of slots."])
+                        }
+                    });
                 }
-                return ulObj;
+                return div;
             }
             // generate group
             else{
@@ -490,25 +553,45 @@ function PythonStyleToJsStyle(data){
                     {
                         let curItemValue = instancePool[curItemKey];
                         if (! Array.isArray(curItemValue)){
-                            let curItemKeyObj = $("<span>"+curItemKey+"</span>");
-                            liObj.append(curItemKeyObj);
+                            // span
+                            {
+                                let curItemKeyObj = $("<span>"+curItemKey+"</span>");
+                                liObj.append(curItemKeyObj);
+                                curItemKeyObj.click(function(){
+                                    let inputObj = $("<input type='text'>");
+                                    inputObj.attr("value", $(this).text());
+                                    $(this).after(inputObj);
+                                    $(this).remove();
+                                    inputObj.change(function(){
+                                        let spanObj = $("<span></span>");
+                                        spanObj.text($(this).val());
+                                        $(this).after(spanObj);
+                                        $(this).remove();
+                                    });
+                                });
+                            }
+                            // add group button
+                            let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
+                            liObj.append(addGroupButtonObj);
+                            // add items button
+                            let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
+                            liObj.append(addItemsButtonObj);
                         }
                         let curItemValueObj = generateInstancePool(curItemValue);
                         liObj.append(curItemValueObj);
                     }
-
                 }
                 return ulObj;
             }
         }
     }
     function instanceSelectWindow_updateOneInstance(data){
-        // 删除旧节点
-        instanceSelectWindow_delOneInstanceObj(data);
-        // 创建新节点
-        let newInstanceObj = instanceSelectWindow_createOneInstanceObj(data);
-        // 添加新节点
-        $("#allInstanceDiv").prepend(newInstanceObj);
+        // // 删除旧节点
+        // instanceSelectWindow_delOneInstanceObj(data);
+        // // 创建新节点
+        // let newInstanceObj = instanceSelectWindow_createOneInstanceObj(data);
+        // // 添加新节点
+        // $("#allInstanceDiv").prepend(newInstanceObj);
     }
     /**
      * 创建新的instance元素(包括属性和事件)
@@ -533,6 +616,7 @@ function PythonStyleToJsStyle(data){
         // 挂事件
         newInstanceObj.click(function() {
             let slotObj = $(".slot");
+            // 如果是单纯点击
             if (slotObj.length == 0){
                 let instanceIdStr = this.name;
                 let r = getInstanceById(instanceIdStr);
@@ -544,10 +628,13 @@ function PythonStyleToJsStyle(data){
                     instanceInfoWindow_showInstanceInfo();
                     instanceSelectWindow_updateOneInstance(instanceInfo);
                 }
-            }else if(slotObj.length == 1){
+            }
+            // 如果是槽填充
+            else if(slotObj.length == 1){
                 let instanceIdStr = this.name;
                 slotObj[0].fillSlot(instanceIdStr);
             }
+            // 如果都不是，那有毛病
             else{
                 alert(langDict["A wrong num of slots."])
             }
@@ -767,6 +854,7 @@ function PythonStyleToJsStyle(data){
             }
         );
     }
+
     /**
      * flask interface. request the content of corpora.
      *
@@ -784,6 +872,7 @@ function PythonStyleToJsStyle(data){
         );
         return contentInfo;
     }
+
     function getInstancePool(){
         let r = undefined;
         $.post(
@@ -795,6 +884,7 @@ function PythonStyleToJsStyle(data){
         );
         return r
     }
+
     /**
      * flask interface. Given the position of a node, request the info of the node.
      *
@@ -815,6 +905,7 @@ function PythonStyleToJsStyle(data){
         );
         return nodeInfo
     }
+
     /**
      * flask interface. Given a range of nodes, check if those nodes correspond to a father node.
      *
@@ -836,6 +927,7 @@ function PythonStyleToJsStyle(data){
         );
         return r
     }
+
     function setNode(position, newValueDict){
         let nodeInfo = undefined;
         newValueDict["position"] = position;
@@ -848,6 +940,7 @@ function PythonStyleToJsStyle(data){
         )
         return nodeInfo;
     }
+
     function addNodeByChildren(childrenNodePositionList){
         let r = undefined
         $.post(
@@ -864,6 +957,7 @@ function PythonStyleToJsStyle(data){
         }
         return r
     }
+
     function getInstanceById(id){
         let r = undefined;
         $.post(
@@ -877,6 +971,7 @@ function PythonStyleToJsStyle(data){
         );
         return r
     }
+
     function setInstance(instanceId, infoDict){
         let r = undefined;
         infoDict["id"] = instanceId;
@@ -889,6 +984,7 @@ function PythonStyleToJsStyle(data){
         );
         return r;
     }
+
     function addInstance_empty(){
         let instanceInfo = undefined;
         $.post(
@@ -900,6 +996,7 @@ function PythonStyleToJsStyle(data){
         )
         return instanceInfo;
     }
+
     function addInstance_node(callback){
         $.post(
             "/addInstance",
@@ -911,6 +1008,7 @@ function PythonStyleToJsStyle(data){
             }
         )
     }
+
     function save(){
        $.post(
            "/save",
@@ -1101,23 +1199,6 @@ function PythonStyleToJsStyle(data){
         instanceInfoWindow_refresh();
     }
 
-    // // 单击实例
-    // function instanceSlotClick(){
-    //     if (curTriggerInstanceSlot === undefined){
-    //         // 显示实例信息
-    //         if (curSelectedInstance.name == ""){
-    //             // alert("no instance.")
-    //         }else{
-    //             getInstanceById(curSelectedInstance.name);
-    //         }
-    //     }
-    //     /y
-    // }
-    // // 双击实例槽
-    // function instanceSlotShiftClick(){
-    //     startOfInstanceSlotFilling();
-    // }
-
     // instanceSelectWindow: 单击“+”按钮
     function addInstancePlusButtonClick(){
         // ajax to background
@@ -1169,7 +1250,6 @@ function PythonStyleToJsStyle(data){
         }else{
             isHaveInstanceSlotActive = true;
         }
-
         // 用此实例填充槽
         if (isHaveInstanceSlotActive){
             // 数据准备
@@ -1221,87 +1301,6 @@ function PythonStyleToJsStyle(data){
         }
     }
 
-    // // instanceInfoWindow: desc变动
-    // function instanceDescChange(){
-    //     var id = $("#idValue").text()
-    //     var descValue = $("#descValue")[0].value
-    //     setInstance(
-    //         id,
-    //         {"desc": descValue},
-    //         function(data){
-    //             instanceInfoWindow_showInstanceInfo(data);
-    //             instanceSelectWindow_updateOneInstance(data);
-    //             if ($("#nodeInfo-path").css("display") == "block"){
-    //                 getNodeByPosition(
-    //                     $("#pathValue").text(),
-    //                     function(data){
-    //                         nodeInfoWindow_showNodeInfo(data);
-    //                     }
-    //                 )
-    //             }
-    //         }
-    //     )
-    // }
-    // // instanceInfoWindow: kg变动
-    // function instanceKgChange(){
-    //     var id = $("#idValue").text()
-    //     var kgValue = $("#kgValue")[0].value
-    //     setInstance(id, {"kg": kgValue})
-    // }
-    // // instanceInfoWindow: 单击mentionList中"→"按钮
-    // /**
-    //  * click "extent mention list( based on cur node）" button
-    //  *
-    //  * @param instanceId {string} id string of the instance to which the mention list belongs.
-    //  * @param mentionListIndex {string} index string of the mention list to which the button belongs.
-    //  */
-    // function extentMentionListButtonClick(instanceId, mentionListIndex){
-    //     if ($("#nodeInfo-path").css("display") == "block"){
-    //         curNodePosition = $("#pathValue").text()
-    //         setInstance(
-    //             instanceId,
-    //             {
-    //                 "mention_list":{
-    //                     "action": "extent",
-    //                     "mention_list_index": mentionListIndex,
-    //                     "new_node_position": curNodePosition
-    //                 }
-    //             },
-    //             function (data) {
-    //                 if (typeof data == "string"){
-    //                     alert(langDict["set instance fail."]);
-    //                 }
-    //                 else if (typeof data == "object"){
-    //                     instanceInfoWindow_showInstanceInfo(data);
-    //                 }
-    //             }
-    //         )
-    //     }
-    // }
-    // // instanceInfoWindow: 单击mentionLists中"+"按钮
-    // /**
-    //  * click "add mention list" button
-    //  *
-    //  *  @param instanceId {string} id string of the instance.
-    //  */
-    // function addMentionListButtonClick(instanceId){
-    //     setInstance(
-    //         instanceId,
-    //         {
-    //             "mention_list":{
-    //                 "action": "add"
-    //             }
-    //         },
-    //         function(data){
-    //             if (typeof data == "string"){
-    //                 alert(langDict["set instance fail."]);
-    //             }
-    //             else if (typeof data == "object"){
-    //                 instanceInfoWindow_showInstanceInfo(data);
-    //             }
-    //         }
-    //     )
-    // }
 
     // wholeSystem: ctrl+s
     function ctrls(){

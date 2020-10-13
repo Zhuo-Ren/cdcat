@@ -88,6 +88,7 @@
     <script>
     $(function(){
         <!--页面初始化(动态部分)-->
+        {
             // #catalogueWindow--Load content
             let catalogueInfo = getCatalogue();
             catalogueWindow_updateContent(catalogueInfo);
@@ -102,96 +103,55 @@
             // #instanceInfoWindow--Load instance labels
             instanceInfoWindow_addLabels();
             instanceInfoWindow_showNoInstance();
+        }
 
         <!-- add event -->
-            //textWindow
-                // textWindow: 选中一段文本
-                $(".textTab").mouseup(function () {
-                    textMouseup();
-                });
+        {
+            // textWindow: 选中一段文本
+            $(".textTab").mouseup(function () {
+                textMouseup();
+            });
 
-            // nodeInfoWindow
-                // nodeInfoWindow: 单击“添加标注对象”按钮
-                $("#nodeInfo-noNode").click(function () {
-                    addNodeButtonClick();
-                });
-                // // nodeInfoWindow: 标注信息变动（token）
-                    // $("#tokenValue input").change(function () {
-                    //     nodeTokenChange();
-                    // });
-                    // // nodeInfoWindow: 标注信息变动（semanticType）
-                    // $("#semanticTypeValue select").change(function () {
-                    //     nodeSemanticTypeChange();
-                    // });
-                    // // 单击实例槽
-                    // $(".instance").click(function () {
-                    //     if (clickFlag) {//取消上次延时未执行的方法
-                    //         clickFlag = clearTimeout(clickFlag);
-                    //     }
-                    //     curSelectedInstance = this;
-                    //     clickFlag = setTimeout(function () {
-                    //         instanceClick();
-                    //     }, 200);//延时200毫秒执行
-                    // });
-                    // // 双击实例槽
-                    // $("#instanceValue").dblclick(function () {
-                    //     if (clickFlag) {//取消上次延时未执行的方法
-                    //         clickFlag = clearTimeout(clickFlag);
-                    //     }
-                    //     // dblclick 事件的处理
-                    //     if (curTriggerInstanceSlot === undefined) {
-                    //         curTriggerInstanceSlot = this;
-                    //         instanceDblclick();
-                    //     }
-                    // });
+            // nodeInfoWindow: 单击“添加标注对象”按钮
+            $("#nodeInfo-noNode").click(function () {
+                addNodeButtonClick();
+            });
 
-            // instanceSelectWindow
-                // instanceSelectWindow: 单击“+”按钮
-                $("#addInstancePlus").click(function () {
-                    addInstancePlusButtonClick();
-                });
-                // instanceSelectWindow: 单击“→”按钮
-                $("#addInstanceArrow").click(function () {
-                    addInstanceArrowButtonClick();
-                });
-                // instanceSelectWindow: 单击实例
-                $("#allInstanceDiv .instance").click(function () {
-                    //curSelectedInstance = this;
-                    instanceClick(this);
-                });
+            // nodeInfoWindow：单击“x”按钮
+            $("#nodeInfo-del").click(function(){
+                alert("没整呢");
+            });
 
-            // instanceInfoWindow
-                    //     // instanceInfoWindow: desc变动
-                    //     $("#descValue").change(function () {
-                    //         instanceDescChange();
-                    //     });
-                    //     // instanceInfoWindow: kg变动
-                    //     $("#kgValue").change(function () {
-                    //         instanceKgChange();
-                    //     });
-                    //     // instanceInfoWindow: 单击mentionList中"→"按钮
-                    //     $(".instance_extentMentionList_button").click(function () {
-                    //         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
-                    //     });
-                    //     // instanceInfoWindow: 单击mentionLists中"+"按钮
-                    //     $("instance_addMentionList_button").click(function () {
-                    //         // (这里写的其实没用，真正起作用的事件挂接写在showInstanceInfo中)
-                    //     });
+            // instanceSelectWindow: 单击“+”按钮
+            $("#addInstancePlus").click(function () {
+                addInstancePlusButtonClick();
+            });
+
+            // instanceSelectWindow: 单击“→”按钮
+            $("#addInstanceArrow").click(function () {
+                addInstanceArrowButtonClick();
+            });
+
+            // instanceInfoWindow：单击“x”按钮
+            $("#instanceInfo-del").click(function(){
+                alert("没整呢");
+            });
 
             // whole system: 键盘ctrl+s 和 ESC
-                $(document).keydown(function(e) {
-                    if (e.ctrlKey && e.which == 83) {
-                        ctrls();
-                    }else if(e.which == 27){
-                        let slotObj = $(".slot");
-                        if (slotObj.length == 1){
-                            slotObj.removeClass("slot");
-                            // 去特效
-                            document.body.style.cursor = "";
-                            slotObj.css("background", "white");
-                        }
+            $(document).keydown(function (e) {
+                if (e.ctrlKey && e.which == 83) {
+                    ctrls();
+                } else if (e.which == 27) {
+                    let slotObj = $(".slot");
+                    if (slotObj.length == 1) {
+                        slotObj.removeClass("slot");
+                        // 去特效
+                        document.body.style.cursor = "";
+                        slotObj.css("background", "white");
                     }
-                });
+                }
+            });
+        }
     });
     </script>
 </head>
@@ -270,69 +230,19 @@
                     <button>{{langDict["create a node for current mention."]}}</button>
                 </div>
                 <div id="nodeInfo-selectedNode">
-                <span>
-                    {{langDict["current node"]}}
-                    <button class="circleButton">x</button>
-                </span>
-
-                    <!--                <span id="positionKey"> position =</span>-->
-                    <!--                 <span id="positionValue">XXXXX</span>-->
-                    <!--                <div id="nodeInfo-token">-->
-                    <!--                    <span id="tokenKey">&nbsp &nbsp token =</span>-->
-                    <!--                    <span id="tokenValue">-->
-                    <!--                        <input type = "radio" name = "token" value = "true" />True-->
-                    <!--                        <input type = "radio" name = "token" value = "false" checked/>False-->
-                    <!--                    </span>-->
-                    <!--                </div>-->
-                    <!--                <div id="nodeInfo-semanticType">-->
-                    <!--                    <span id="semanticTypeKey">&nbsp &nbsp mention.type =</span>-->
-                    <!--                    <span id="semanticTypeValue">-->
-                    <!--                    <select>-->
-                    <!--                        <option value="none" selected>无</option>-->
-                    <!--                        <option value="peo">人</option>-->
-                    <!--                        <option value="org">组织</option>-->
-                    <!--                        <option value="addr">地点</option>-->
-                    <!--                        <option value="act">行为</option>-->
-                    <!--                        <option value="sub">物</option>-->
-                    <!--                    </select>-->
-                    <!--                </span>-->
-                    <!--                </div>-->
-                    <!--                <div id="nodeInfo-instance">-->
-                    <!--                    <span id="instanceKey">&nbsp &nbsp coref.instance =</span>-->
-                    <!--                    <button id="instanceValue">none</button>-->
-                    <!--                    <span>(double click to edit)</span>-->
-                    <!--                </div>-->
+                    <span>
+                        {{langDict["current node"]}}
+                        <button id="nodeInfo-del" class="circleButton">x</button>
+                    </span>
                 </div>
             </div>
             <div id="instanceInfoWindow">
                 <div id="instanceInfo-noInstance"style="display: block">select a instance to show it's info.</div>
                 <div id="instanceInfo-selectedInstance">
-                <span>
-                    {{langDict["current instance"]}}
-                    <button class="circleButton">x</button>
-                </span>
-                    <!--                <div id="instanceInfo-id" style="display: none">-->
-                    <!--                    <span id="idKey">id=</span>-->
-                    <!--                    <span id="idValue"> </span>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-desc" style="display: none">-->
-                    <!--                    <span id="descKey">desc= </span>-->
-                    <!--                    <input id="descValue" type="text" value="" />-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-kg"  style="display: none">-->
-                    <!--                    <span id="kgKey">kg=</span>-->
-                    <!--                    <input id="kgValue" type="text" value="none"/>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
-                    <!--                <div id="instanceInfo-mentionLists"  style="display: none">-->
-                    <!--                    <span id="mentionListsKey">mentionList=</span>-->
-                    <!--                    <div id="mentionListsValue">-->
-                    <!--    -->
-                    <!--                    </div>-->
-                    <!--                    <hr/>-->
-                    <!--                </div>-->
+                    <span>
+                        {{langDict["current instance"]}}
+                        <button id="instanceInfo-del" class="circleButton">x</button>
+                    </span>
                 </div>
             </div>
         </div>
