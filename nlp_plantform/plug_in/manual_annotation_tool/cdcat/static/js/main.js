@@ -453,136 +453,168 @@ function PythonStyleToJsStyle(data){
             return
         }
         let instancePool = r[1];
-        let instancePoolObj = generateInstancePool(instancePool);
+        let instancePoolObj = generateFromDict(undefined, instancePool);
         $("#allInstanceDiv").append(instancePoolObj);
-        $( ".group" ).sortable({
-            connectWith: ".group"
+        $( ".dict" ).sortable({
+            connectWith: ".dict"
         }).disableSelection();
-        $( ".items" ).sortable({
-            connectWith: ".items"
+        $( ".list" ).sortable({
+            connectWith: ".list"
         }).disableSelection();
-        // $("#allInstanceDiv li").sortable({
-        //     start: function(e, ui){console.log("111")}
-        // });
 
-        function generateInstancePool(instancePool){
-            // generate items
-            if (Array.isArray(instancePool)){
-                let div = $("<div></div>");
-                let ulObj = $("<ul class='items'></ul>");
-                div.append(ulObj);
-                for (let curInstanceIndex = 0; curInstanceIndex<instancePool.length; curInstanceIndex++){
-                    let curInstance = instancePool[curInstanceIndex];
-                    // build DOC element
-                    let liObj = $("<li class='item_li'></li>");
-                    ulObj.append(liObj);
-                    // add attr
-                    liObj.attr('name', curInstance['id']);
-                    liObj.addClass('instance');
-                    if (curInstance['desc'] !== undefined){
-                        if (curInstance['desc'] !== "") {
-                            liObj.text(curInstance['desc']);
-                        }else{
-                            liObj.text('　');
-                        }
-                    } else {
+        function generateFromList(listName, listInfo){
+            if (! Array.isArray(listInfo)){
+                alert("出错了");
+                return;
+            }
+            let div = $("<div></div>");
+            let ulObj = $("<ul class='list'></ul>");
+            div.append(ulObj);
+            for (let curInstanceIndex = 0; curInstanceIndex<listInfo.length; curInstanceIndex++){
+                let curInstance = listInfo[curInstanceIndex];
+                // build DOC element
+                let liObj = $("<li class='list_li'></li>");
+                ulObj.append(liObj);
+                // add attr
+                liObj.attr('name', curInstance['id']);
+                liObj.addClass('instance');
+                if (curInstance['desc'] !== undefined){
+                    if (curInstance['desc'] !== "") {
+                        liObj.text(curInstance['desc']);
+                    }else{
                         liObj.text('　');
                     }
-                    // shift拖拉：复制元素
-                    liObj.mousedown(function(e){
-                        if (e.shiftKey){
-                            alert("告诉后台，我在哪里复制了一个啥。")
+                } else {
+                    liObj.text('　');
+                }
+                // shift拖拉：复制元素
+                liObj.mousedown(function(e){
+                    if (e.shiftKey){
+                        alert("告诉后台，我在哪里复制了一个啥。")
+                        r = ["success"];
+                        if (r[0] != "success"){
+                            alert(langDict[r[1]]);
+                        }else {
+                            let newObj = $(this).clone(true);
+                            $(this).after(newObj);
+                        }
+                    }
+                });
+                // 左键
+                liObj.click(function(e) {
+                    let slotObj = $(".slot");
+                    // 如果是单纯点击
+                    if ((slotObj.length == 0)&&(! e.altKey)){
+                        let instanceIdStr = $(this).attr("name");
+                        let r = getInstanceById(instanceIdStr);
+                        if (r[0] != "success"){
+                            alert(langDict[r[1]]);
+                        }else{
+                            let instanceInfo = r[1]
+                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                            instanceInfoWindow_showInstanceInfo();
+                            instanceSelectWindow_updateOneInstance(instanceInfo);
+                        }
+                    }
+                    // 如果是Alt点击：删除实例
+                    else if ((slotObj.length == 0)&&( e.altKey)){
+                        if ($("li[name=" + curInstance["desc"] + "]").length == 1){
+                            alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
+                        }else{
+                            alert("告诉后台，我删了谁")
                             r = ["success"];
                             if (r[0] != "success"){
                                 alert(langDict[r[1]]);
-                            }else {
-                                let newObj = $(this).clone(true);
-                                $(this).after(newObj);
-                            }
-                        }
-                    });
-                    // 左键
-                    liObj.click(function(e) {
-                        let slotObj = $(".slot");
-                        // 如果是单纯点击
-                        if ((slotObj.length == 0)&&(! e.altKey)){
-                            let instanceIdStr = $(this).attr("name");
-                            let r = getInstanceById(instanceIdStr);
-                            if (r[0] != "success"){
-                                alert(langDict[r[1]]);
                             }else{
-                                let instanceInfo = r[1]
-                                instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                                instanceInfoWindow_showInstanceInfo();
-                                instanceSelectWindow_updateOneInstance(instanceInfo);
+                                $(this).remove();
                             }
                         }
-                        // 如果是Alt点击：删除实例
-                        else if ((slotObj.length == 0)&&( e.altKey)){
-                            if ($("li[name=" + curInstance["desc"] + "]").length == 1){
-                                alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
-                            }else{
-                                alert("告诉后台，我删了谁")
-                                r = ["success"];
-                                if (r[0] != "success"){
-                                    alert(langDict[r[1]]);
-                                }else{
-                                    $(this).remove();
-                                }
-                            }
-                        }
-                        // 如果是槽填充
-                        else if(slotObj.length == 1){
-                            let instanceIdStr = this.name;
-                            slotObj[0].fillSlot(instanceIdStr);
-                        }
-                        // 如果都不是，那有毛病
-                        else{
-                            alert(langDict["A wrong num of slots."])
-                        }
-                    });
-                }
-                return div;
-            }
-            // generate group
-            else{
-                let ulObj = $("<ul class='group'></ul>");
-                for (let curItemKey in instancePool){
-                    let liObj = $("<li class='group_li'></li>");
-                    ulObj.append(liObj);
-                    {
-                        let curItemValue = instancePool[curItemKey];
-                        if (! Array.isArray(curItemValue)){
-                            // span
-                            {
-                                let curItemKeyObj = $("<span>"+curItemKey+"</span>");
-                                liObj.append(curItemKeyObj);
-                                curItemKeyObj.click(function(){
-                                    let inputObj = $("<input type='text'>");
-                                    inputObj.attr("value", $(this).text());
-                                    $(this).after(inputObj);
-                                    $(this).remove();
-                                    inputObj.change(function(){
-                                        let spanObj = $("<span></span>");
-                                        spanObj.text($(this).val());
-                                        $(this).after(spanObj);
-                                        $(this).remove();
-                                    });
-                                });
-                            }
-                            // add group button
-                            let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
-                            liObj.append(addGroupButtonObj);
-                            // add items button
-                            let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
-                            liObj.append(addItemsButtonObj);
-                        }
-                        let curItemValueObj = generateInstancePool(curItemValue);
-                        liObj.append(curItemValueObj);
                     }
-                }
-                return ulObj;
+                    // 如果是槽填充
+                    else if(slotObj.length == 1){
+                        let instanceIdStr = this.name;
+                        slotObj[0].fillSlot(instanceIdStr);
+                    }
+                    // 如果都不是，那有毛病
+                    else{
+                        alert(langDict["A wrong num of slots."])
+                    }
+                });
             }
+            return div;
+        }
+
+        /**
+         * This function generate DOM element for dict.
+         * The dict has a title only when the dict has a name. The title includes a group name span and two "+" button.
+         * The dict has a ul element which corresponding to the content of the dict.
+         *
+         * @param dictName: undefined or a string.
+         * @param dictInfo: a dict
+         * @return return [ul] when *listName* == undefined; [group name span, add dict button, add list button, ul] otherwise.
+         */
+        function generateFromDict(dictName, dictInfo){
+            if (Array.isArray(dictInfo)){
+                alert("出错了");
+                return
+            }
+            //
+            let dict = dictInfo;
+            let r = [];
+            // dict title
+            if (dictName != undefined){
+                // span
+                {
+                    let curDictItemKeyObj = $("<span>"+dictName+"</span>");
+                    curDictItemKeyObj.click(function(){
+                        let inputObj = $("<input type='text'>");
+                        inputObj.attr("value", $(this).text());
+                        $(this).after(inputObj);
+                        $(this).remove();
+                        inputObj.change(function(){
+                            let spanObj = $("<span></span>");
+                            spanObj.text($(this).val());
+                            $(this).after(spanObj);
+                            $(this).remove();
+                        });
+                    });
+                    r.push(curDictItemKeyObj);
+                }
+                // add group button
+                {
+                    let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
+                    addGroupButtonObj.click(function(){
+                        $(this).next().next().prepend($("<p>111</p>"));
+                    });
+                    r.push(addGroupButtonObj);
+                }
+                // add items button
+                {
+                    let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
+                    addItemsButtonObj.click(function(){
+                        $(this).next().prepend($("<p>222</p>"));
+                    });
+                    r.push(addItemsButtonObj);
+                }
+            }
+            // dict ul
+            let ulObj = $("<ul class='dict'></ul>");
+            for (let curDictItemKey in dictInfo){
+                let liObj = $("<li class='dict_li'></li>");
+                ulObj.append(liObj);
+                {
+                    let curDictItemValue = dict[curDictItemKey];
+                    let curDictItemObj = undefined;
+                    if (Array.isArray(curDictItemValue)){
+                        curDictItemObj = generateFromList(curDictItemKey, curDictItemValue);
+                    }else{
+                        curDictItemObj = generateFromDict(curDictItemKey, curDictItemValue);
+                    }
+                    liObj.append(curDictItemObj);
+                }
+            }
+            r.push(ulObj);
+            return r;
         }
     }
     function instanceSelectWindow_updateOneInstance(data){
