@@ -446,6 +446,62 @@ function PythonStyleToJsStyle(data){
         //     nodeInstance.click(function(){});
         // }
 
+    function instanceSelectWindow_showInstancePool(){
+        let r = getInstancePool();
+        if (r[0] != "success"){
+            alert(langDict["instance pool loading failed"]);
+            return
+        }
+        let instancePool = r[1];
+        let instancePoolObj = generateInstancePool(instancePool);
+        $("#allInstanceDiv").append(instancePoolObj);
+         $(function() {
+            $( ".group" ).sortable({
+                connectWith: ".group"
+            }).disableSelection();
+        });
+        $(function() {
+            $( ".items" ).sortable({
+                connectWith: ".items"
+            }).disableSelection();
+        });
+
+        function generateInstancePool(instancePool){
+            // generate items
+            if (Array.isArray(instancePool)){
+                //let div = $("<div></div>");
+                let ulObj = $("<ul class='items'></ul>");
+                //div.append(ulObj);
+                for (let curInstanceIndex = 0; curInstanceIndex<instancePool.length; curInstanceIndex++){
+                    let liObj = $("<li class='item_li'></li>");
+                    ulObj.append(liObj);
+                    let curInstance = instancePool[curInstanceIndex];
+                    let instanceObj = $("<button id='"+curInstance["id"]+"'>"+curInstance["desc"]+"</button>");
+                    liObj.append(instanceObj);
+                }
+                return ulObj;
+            }
+            // generate group
+            else{
+                let ulObj = $("<ul class='group'></ul>");
+                for (let curItemKey in instancePool){
+                    let liObj = $("<li class='group_li'></li>");
+                    ulObj.append(liObj);
+                    {
+                        let curItemValue = instancePool[curItemKey];
+                        if (! Array.isArray(curItemValue)){
+                            let curItemKeyObj = $("<span>"+curItemKey+"</span>");
+                            liObj.append(curItemKeyObj);
+                        }
+                        let curItemValueObj = generateInstancePool(curItemValue);
+                        liObj.append(curItemValueObj);
+                    }
+
+                }
+                return ulObj;
+            }
+        }
+    }
     function instanceSelectWindow_updateOneInstance(data){
         // 删除旧节点
         instanceSelectWindow_delOneInstanceObj(data);
@@ -727,6 +783,17 @@ function PythonStyleToJsStyle(data){
             }
         );
         return contentInfo;
+    }
+    function getInstancePool(){
+        let r = undefined;
+        $.post(
+            "/getInstancePool",
+            { },
+            function (data, status) {
+                r = data;
+            }
+        );
+        return r
     }
     /**
      * flask interface. Given the position of a node, request the info of the node.

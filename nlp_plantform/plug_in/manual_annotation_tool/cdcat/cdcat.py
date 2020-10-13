@@ -31,8 +31,20 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/')
     def init():
+        instance_pool.groups = {
+            "group1": {
+                "items": [instance_pool.add_instance(),instance_pool.add_instance()],
+                "items": [instance_pool.add_instance()],
+                "group1-1": {
+                    "items":[instance_pool.add_instance(),instance_pool.add_instance()]
+                }
+            },
+            "item": [instance_pool.add_instance()],
+            "group2": {
+                "items": [instance_pool.add_instance(), instance_pool.add_instance()]
+            }
+        }
         return render_template("main.html",
-                               instance_dict=instance_pool,
                                langDict=lang_dict,
                                labelSysDict=label_sys_dict)
 
@@ -136,6 +148,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         content = walk_to_file(root_node)
         # 返回目录结构
         return jsonify(content)
+
+    @app.route('/getInstancePool', methods=["POST"])
+    def getInstancePool():
+        return jsonify(["success", instance_pool.groups])
 
     @app.route('/addNode', methods=["POST"])
     def addNode():

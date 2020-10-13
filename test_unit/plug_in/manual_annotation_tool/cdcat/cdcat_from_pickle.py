@@ -11,8 +11,8 @@ from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 
 
 # input
-ntree = input_ntree_from_pickle(data_path + r"\3ntree.pkl")
-instances = input_instances_from_pickle(data_path + r"\34instances.pkl")
+ntree = input_ntree_from_pickle(data_path + r"\4ntree--.pkl")
+instances = input_instances_from_pickle(data_path + r"\4instances--.pkl")
 
 # annotate those text with CDCAT
 cdcat(ntree, instances, {"article": True})

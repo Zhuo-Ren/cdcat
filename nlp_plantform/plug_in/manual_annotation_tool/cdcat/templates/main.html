@@ -18,11 +18,34 @@
     <link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.css" />
 	<link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/screen.css" />
 	<script src="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.js" type="text/javascript"></script>
+    <!-- jquery sortable -->
+    <style>
+        .group {list-style-type: none; margin: 0; padding: 2px 0 2px 0; background: #c5c5c5;}
+        .items {list-style-type: none; margin: 0; padding: 2px 0 2px 0; background: #dddddd;}
+        .group::after {content:" ";display: table;clear: both;}
+        .items::after {content:" ";display: table;clear: both;}
+        .group_li{ margin: 5px ; padding: 0; border: 1px solid #2b2b2b;}
+        .item_li {float: left; padding: 0 7px 0 0; margin: 3px; background: #c5c5c5;}
+        button {padding: 0;}
+    </style>
+    <script>
+        $(function() {
+            $( ".group" ).sortable({
+                connectWith: ".group",
+                dropOnEmpty: true
+            }).disableSelection();
+        });
+        $(function() {
+            $( ".items" ).sortable({
+                connectWith: ".items",
+                dropOnEmpty: true
+            }).disableSelection();
+        });
+    </script>
     <!-- flask args to js -->
     <script>
         var langDict = {{ langDict | tojson | safe }};
         var labelSysDict = {{ labelSysDict | tojson | safe }};
-        var instances = {{ instance_dict | tojson }}
     </script>
     <!-- main js-->
     <script src="../static/js/label_sys.js"></script>
@@ -74,10 +97,7 @@
             nodeInfoWindow_showNoSelect();
 
             // #instanceSelectWindow--Load instances
-            for (let key in instances){
-                let instanceInfo = instances[key];
-                instanceSelectWindow_updateOneInstance(instanceInfo);
-            }
+            instanceSelectWindow_showInstancePool();
 
             // #instanceInfoWindow--Load instance labels
             instanceInfoWindow_addLabels();
@@ -324,11 +344,11 @@
             <button id="addInstancePlus" class="circleButton">+</button>
             <button id="addInstanceArrow" class="circleButton">→</button>
             <div id="allInstanceDiv">
-                <!--                {% for i in instance_dict: %}-->
-                <!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->
-                <!--                        {{instance_dict[i]["desc"]}}-->
-                <!--                    </button>-->
-                <!--                {% endfor %}-->
+{#                <!--                {% for i in instance_dict: %}-->#}
+{#                <!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->#}
+{#                <!--                        {{instance_dict[i]["desc"]}}-->#}
+{#                <!--                    </button>-->#}
+{#                <!--                {% endfor %}-->#}
             </div>
         </div>
     </div>

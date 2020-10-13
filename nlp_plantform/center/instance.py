@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 
 
-class Instance(object):
+class Instance(dict):
     def __init__(self, instance_pool, labels_dict: Dict = None):
         # param check: instance_pool
         from nlp_plantform.center.instancepool import InstancePool
@@ -23,12 +23,14 @@ class Instance(object):
 
         # public: id
         self.id: int = instance_pool.next_id
+        self["id"] = self.id
         """
         The id of this instance. Start from 0.
         """
 
         # public： desc
         self.desc: str = str(self.id)
+        self["desc"] = self.desc
         """
         The describe of this instance. Initial with "", not a None.
         """
