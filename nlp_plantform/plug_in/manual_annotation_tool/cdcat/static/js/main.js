@@ -448,7 +448,7 @@ function PythonStyleToJsStyle(data){
 
     function getLiPath(curLi){
         // param check
-        if (!((curLi.hasClass("dict_li")) || (curLi.hasClass("list_li")))){
+        if (!((curLi.hasClass("group_li")) || (curLi.hasClass("instances_li")))){
             alert("参数类型错误");
         }
         //
@@ -457,9 +457,9 @@ function PythonStyleToJsStyle(data){
             let curUl = curLi.parent();
             //
             curIndex = undefined;
-            if (curLi.hasClass("list_li")){
+            if (curLi.hasClass("instances_li")){
                 curIndex = curUl.children().index(curLi);
-            }else if(curLi.hasClass("dict_li")){
+            }else if(curLi.hasClass("group_li")){
                 curIndex = curLi.children(":first").text();
             }
             curPath = [curIndex,...curPath];
@@ -468,9 +468,9 @@ function PythonStyleToJsStyle(data){
                 return curPath;
             }
             // ++
-            if (curLi.hasClass("dict_li")){
+            if (curLi.hasClass("group_li")){
                 curLi = curUl.parent();
-            }else if(curLi.hasClass("list_li")){
+            }else if(curLi.hasClass("instances_li")){
                 curLi = curUl.parent().parent();
             }
         }
@@ -479,22 +479,22 @@ function PythonStyleToJsStyle(data){
     function instanceSelectWindow_showInstancePool(){
         let r = getInstancePool();
         if (r[0] != "success"){
-            alert(langDict["instance pool loading failed"]);
+            alert(langGroup["instance pool loading failed"]);
             return
         }
         // 生成新dom元素
-        let instancePool = r[1];
-        let instancePoolObj = generateFromDict(undefined, instancePool);
+        let groupTupleOfInstancePool = r[1];
+        let instancePoolObj = generateGroup(groupTupleOfInstancePool);
         // 添加新dom元素
         $("#allInstanceDiv").append(instancePoolObj);
         // 向jquery UI sortable 注册新dom元素
-        $( ".dict" ).sortable({
-            connectWith: ".dict",
+        $( ".group" ).sortable({
+            connectWith: ".group",
             start: sortStartFunction,
             update: sortEndFunction
         }).disableSelection();
-        $( ".list" ).sortable({
-            connectWith: ".list",
+        $( ".instances" ).sortable({
+            connectWith: ".instances",
             start: sortStartFunction,
             update: sortEndFunction
         }).disableSelection();
@@ -512,18 +512,22 @@ function PythonStyleToJsStyle(data){
             window.ef = $(this);
         }
 
-        function generateFromList(listName, listInfo){
-            if (! Array.isArray(listInfo)){
-                alert("出错了");
-                return;
+        function generateInstances(instancesTuple){
+            let instancesType = instancesTuple[0];
+            let instancesName = instancesTuple[1];
+            let instancesInfo = instancesTuple[2];
+            // param check
+            if (instancesType != "instances"){
+                alert("error");
+                return
             }
             let div = $("<div></div>");
-            let ulObj = $("<ul class='list'></ul>");
+            let ulObj = $("<ul class='instances'></ul>");
             div.append(ulObj);
-            for (let curInstanceIndex = 0; curInstanceIndex<listInfo.length; curInstanceIndex++){
-                let curInstance = listInfo[curInstanceIndex];
+            for (let curInstanceIndex = 0; curInstanceIndex<instancesInfo.length; curInstanceIndex++){
+                let curInstance = instancesInfo[curInstanceIndex];
                 // build DOC element
-                let liObj = $("<li class='list_li'></li>");
+                let liObj = $("<li class='instances_li'></li>");
                 ulObj.append(liObj);
                 // add attr
                 liObj.attr('name', curInstance['id']);
@@ -543,7 +547,7 @@ function PythonStyleToJsStyle(data){
                         alert("告诉后台，我在哪里复制了一个啥。")
                         r = ["success"];
                         if (r[0] != "success"){
-                            alert(langDict[r[1]]);
+                            alert(langGroup[r[1]]);
                         }else {
                             let newObj = $(this).clone(true);
                             $(this).after(newObj);
@@ -558,7 +562,7 @@ function PythonStyleToJsStyle(data){
                         let instanceIdStr = $(this).attr("name");
                         let r = getInstanceById(instanceIdStr);
                         if (r[0] != "success"){
-                            alert(langDict[r[1]]);
+                            alert(langGroup[r[1]]);
                         }else{
                             let instanceInfo = r[1]
                             instanceInfoWindow_updateInstanceInfo(instanceInfo);
@@ -569,12 +573,12 @@ function PythonStyleToJsStyle(data){
                     // 如果是Alt点击：删除实例
                     else if ((slotObj.length == 0)&&( e.altKey)){
                         if ($("li[name=" + curInstance["desc"] + "]").length == 1){
-                            alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
+                            alert(langGroup["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
                         }else{
                             alert("告诉后台，我删了谁")
                             r = ["success"];
                             if (r[0] != "success"){
-                                alert(langDict[r[1]]);
+                                alert(langGroup[r[1]]);
                             }else{
                                 $(this).remove();
                             }
@@ -587,7 +591,7 @@ function PythonStyleToJsStyle(data){
                     }
                     // 如果都不是，那有毛病
                     else{
-                        alert(langDict["A wrong num of slots."])
+                        alert(langGroup["A wrong num of slots."])
                     }
                 });
             }
@@ -595,28 +599,31 @@ function PythonStyleToJsStyle(data){
         }
 
         /**
-         * This function generate DOM element for dict.
-         * The dict has a title only when the dict has a name. The title includes a group name span and two "+" button.
-         * The dict has a ul element which corresponding to the content of the dict.
+         * This function generate DOM element for group.
+         * The group has a title only when the group has a name. The title includes a group name span and two "+" button.
+         * The group has a ul element which corresponding to the content of the group.
          *
-         * @param dictName: undefined or a string.
-         * @param dictInfo: a dict
-         * @return return [ul] when *listName* == undefined; [group name span, add dict button, add list button, ul] otherwise.
+         * @param groupName: undefined or a string.
+         * @param groupInfo: a group
+         * @return return [ul] when *instancesName* == undefined; [group name span, add group button, add instances button, ul] otherwise.
          */
-        function generateFromDict(dictName, dictInfo){
-            if (Array.isArray(dictInfo)){
+        function generateGroup(groupTuple){
+            let groupType = groupTuple[0];
+            let groupName = groupTuple[1];
+            let groupInfo = groupTuple[2];
+            // param check
+            if (groupType != "group"){
                 alert("出错了");
                 return
             }
             //
-            let dict = dictInfo;
             let r = [];
-            // dict title
-            if (dictName != undefined){
+            // group title
+            if (groupName != undefined){
                 // span
                 {
-                    let curDictItemKeyObj = $("<span>"+dictName+"</span>");
-                    curDictItemKeyObj.click(function(){
+                    let curGroupItemKeyObj = $("<span>"+groupName+"</span>");
+                    curGroupItemKeyObj.click(function(){
                         let inputObj = $("<input type='text'>");
                         inputObj.attr("value", $(this).text());
                         $(this).after(inputObj);
@@ -628,20 +635,20 @@ function PythonStyleToJsStyle(data){
                             $(this).remove();
                         });
                     });
-                    r.push(curDictItemKeyObj);
+                    r.push(curGroupItemKeyObj);
                 }
                 // add group button
                 {
                     let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
                     addGroupButtonObj.click(function(){
-                        let liObj = $("<li class='dict_li'></li>");
-                        liObj.append(generateFromDict("uname", {}));
+                        let liObj = $("<li class='group_li'></li>");
+                        liObj.append(generateGroup("uname", {}));
                         $(this).next().next().prepend(liObj);
-                        $( ".dict" ).sortable({
-                            connectWith: ".dict"
+                        $( ".group" ).sortable({
+                            connectWith: ".group"
                         }).disableSelection();
-                        $( ".list" ).sortable({
-                            connectWith: ".list"
+                        $( ".instances" ).sortable({
+                            connectWith: ".instances"
                         }).disableSelection();
                     });
                     r.push(addGroupButtonObj);
@@ -650,33 +657,33 @@ function PythonStyleToJsStyle(data){
                 {
                     let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
                     addItemsButtonObj.click(function(){
-                        let liObj = $("<li class='dict_li'></li>");
-                        liObj.append(generateFromList(undefined, []));
+                        let liObj = $("<li class='group_li'></li>");
+                        liObj.append(generateInstances(undefined, []));
                         $(this).next().prepend(liObj);
-                        $( ".dict" ).sortable({
-                            connectWith: ".dict"
+                        $( ".group" ).sortable({
+                            connectWith: ".group"
                         }).disableSelection();
-                        $( ".list" ).sortable({
-                            connectWith: ".list"
+                        $( ".instances" ).sortable({
+                            connectWith: ".instances"
                         }).disableSelection();
                     });
                     r.push(addItemsButtonObj);
                 }
             }
-            // dict ul
-            let ulObj = $("<ul class='dict'></ul>");
-            for (let curDictItemKey in dictInfo){
-                let liObj = $("<li class='dict_li'></li>");
+            // group ul
+            let ulObj = $("<ul class='group'></ul>");
+            for (let curItemIndex = 0; curItemIndex<groupInfo.length; curItemIndex++){
+                let liObj = $("<li class='group_li'></li>");
                 ulObj.append(liObj);
                 {
-                    let curDictItemValue = dict[curDictItemKey];
-                    let curDictItemObj = undefined;
-                    if (Array.isArray(curDictItemValue)){
-                        curDictItemObj = generateFromList(curDictItemKey, curDictItemValue);
-                    }else{
-                        curDictItemObj = generateFromDict(curDictItemKey, curDictItemValue);
+                    let curItemTuple = groupInfo[curItemIndex];
+                    let curItemObj = undefined;
+                    if (curItemTuple[0] == "instances"){
+                        curGroupItemObj = generateInstances(curItemTuple);
+                    }else if (curItemTuple[0] == "group") {
+                        curGroupItemObj = generateGroup(curItemTuple);
                     }
-                    liObj.append(curDictItemObj);
+                    liObj.append(curGroupItemObj);
                 }
             }
             r.push(ulObj);

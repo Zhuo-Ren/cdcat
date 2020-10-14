@@ -31,19 +31,32 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/')
     def init():
-        instance_pool.groups = {
-            "group1": {
-                "items": [instance_pool.add_instance(),instance_pool.add_instance()],
-                "items": [instance_pool.add_instance()],
-                "group1-1": {
-                    "items":[instance_pool.add_instance(),instance_pool.add_instance()]
-                }
-            },
-            "item": [instance_pool.add_instance()],
-            "group2": {
-                "items": [instance_pool.add_instance(), instance_pool.add_instance()]
-            }
-        }
+        instance_pool.groups = \
+        ["group", None, [
+            ["group", "GName", [
+                ["instances", "EName", [
+                    instance_pool.add_instance(),
+                    instance_pool.add_instance()
+                ]],
+                ["instances", "EName", [
+                    instance_pool.add_instance()
+                ]],
+                ["group", "GName", [
+                    ["instances", "EName", [
+                        instance_pool.add_instance(),
+                        instance_pool.add_instance()
+                    ]]
+                ]]
+            ]],
+            ["instances", "EName", [
+                instance_pool.add_instance()
+            ]],
+            ["group", "GName", [
+                ["instances", "EName", [
+                    instance_pool.add_instance(), instance_pool.add_instance()
+                ]]
+            ]]
+        ]]
         return render_template("main.html",
                                langDict=lang_dict,
                                labelSysDict=label_sys_dict)
