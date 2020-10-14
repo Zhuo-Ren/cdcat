@@ -446,35 +446,7 @@ function PythonStyleToJsStyle(data){
         //     nodeInstance.click(function(){});
         // }
 
-    function getLiPath(curLi){
-        // param check
-        if (!((curLi.hasClass("group_li")) || (curLi.hasClass("instances_li")))){
-            alert("参数类型错误");
-        }
-        //
-        let curPath = [];
-        while (true){
-            let curUl = curLi.parent();
-            //
-            curIndex = undefined;
-            if (curLi.hasClass("instances_li")){
-                curIndex = curUl.children().index(curLi);
-            }else if(curLi.hasClass("group_li")){
-                curIndex = curLi.children(":first").text();
-            }
-            curPath = [curIndex,...curPath];
-            // 检查退出
-            if (curUl.parent().attr("id") == "allInstanceDiv"){
-                return curPath;
-            }
-            // ++
-            if (curLi.hasClass("group_li")){
-                curLi = curUl.parent();
-            }else if(curLi.hasClass("instances_li")){
-                curLi = curUl.parent().parent();
-            }
-        }
-    }
+
 
     function instanceSelectWindow_showInstancePool(){
         let r = getInstancePool();
@@ -491,25 +463,53 @@ function PythonStyleToJsStyle(data){
         $( ".group" ).sortable({
             connectWith: ".group",
             start: sortStartFunction,
-            update: sortEndFunction
+            stop: sortEndFunction
         }).disableSelection();
         $( ".instances" ).sortable({
             connectWith: ".instances",
             start: sortStartFunction,
-            update: sortEndFunction
+            stop: sortEndFunction
         }).disableSelection();
 
+        /**
+         * This function return a index list from *#allInstanceDiv* to *curLi*
+         *
+         * @param {jquery DOM element} curLi: li element in allInstanceDiv.
+         * @return {[]} a index list that comes from *#allInstanceDiv* to *curLi*
+         */
+        function getLiPath(curLi){
+            // param check
+            if (!((curLi.hasClass("group_li")) || (curLi.hasClass("instances_li")))){
+                alert("参数类型错误");
+            }
+            //
+            let curPath = [];
+            while (true){
+                let curUl = curLi.parent();
+                let curIndex = curUl.children().index(curLi);
+                curPath = [curIndex,...curPath];
+                // 检查退出
+                if (curUl.parent().attr("id") == "allInstanceDiv"){
+                    return curPath;
+                }
+                // ++
+                if (curLi.hasClass("group_li")){
+                    curLi = curUl.parent();
+                }else if(curLi.hasClass("instances_li")){
+                    curLi = curUl.parent().parent();
+                }
+            }
+        }
 
         function sortStartFunction(e, ui){
-            window.se = e;
-            window.sui = ui;
-            window.sf = $(this);
+            window.sPath = getLiPath(ui["helper"]);
         }
 
         function sortEndFunction(e, ui){
-            window.ee = e;
-            window.eui = ui;
-            window.ef = $(this);
+            window.ePath = getLiPath(ui["item"]);
+            if (window.sPath.toString() !== window.ePath.toString()){
+                console.log(window.sPath, "-", window.ePath);
+            }
         }
 
         function generateInstances(instancesTuple){
@@ -602,9 +602,24 @@ function PythonStyleToJsStyle(data){
          * This function generate DOM element for group.
          * The group has a title only when the group has a name. The title includes a group name span and two "+" button.
          * The group has a ul element which corresponding to the content of the group.
+         * @example::
+         * groupTulple = ["group", "GName", [
+                ["instances", "EName", [
+                    instance_pool.add_instance(),
+                    instance_pool.add_instance()
+                ]],
+                ["instances", "EName", [
+                    instance_pool.add_instance()
+                ]],
+                ["group", "GName", [
+                    ["instances", "EName", [
+                        instance_pool.add_instance(),
+                        instance_pool.add_instance()
+                    ]]
+                ]]
+            ]]
          *
-         * @param groupName: undefined or a string.
-         * @param groupInfo: a group
+         * @param groupTuple: A array with 3 items: type, name, info.
          * @return return [ul] when *instancesName* == undefined; [group name span, add group button, add instances button, ul] otherwise.
          */
         function generateGroup(groupTuple){
@@ -612,14 +627,14 @@ function PythonStyleToJsStyle(data){
             let groupName = groupTuple[1];
             let groupInfo = groupTuple[2];
             // param check
-            if (groupType != "group"){
+            if (groupType !== "group"){
                 alert("出错了");
                 return
             }
             //
             let r = [];
             // group title
-            if (groupName != undefined){
+            if (groupName !== undefined){
                 // span
                 {
                     let curGroupItemKeyObj = $("<span>"+groupName+"</span>");
