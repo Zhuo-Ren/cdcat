@@ -446,21 +446,71 @@ function PythonStyleToJsStyle(data){
         //     nodeInstance.click(function(){});
         // }
 
+    function getLiPath(curLi){
+        // param check
+        if (!((curLi.hasClass("dict_li")) || (curLi.hasClass("list_li")))){
+            alert("参数类型错误");
+        }
+        //
+        let curPath = [];
+        while (true){
+            let curUl = curLi.parent();
+            //
+            curIndex = undefined;
+            if (curLi.hasClass("list_li")){
+                curIndex = curUl.children().index(curLi);
+            }else if(curLi.hasClass("dict_li")){
+                curIndex = curLi.children(":first").text();
+            }
+            curPath = [curIndex,...curPath];
+            // 检查退出
+            if (curUl.parent().attr("id") == "allInstanceDiv"){
+                return curPath;
+            }
+            // ++
+            if (curLi.hasClass("dict_li")){
+                curLi = curUl.parent();
+            }else if(curLi.hasClass("list_li")){
+                curLi = curUl.parent().parent();
+            }
+        }
+    }
+
     function instanceSelectWindow_showInstancePool(){
         let r = getInstancePool();
         if (r[0] != "success"){
             alert(langDict["instance pool loading failed"]);
             return
         }
+        // 生成新dom元素
         let instancePool = r[1];
         let instancePoolObj = generateFromDict(undefined, instancePool);
+        // 添加新dom元素
         $("#allInstanceDiv").append(instancePoolObj);
+        // 向jquery UI sortable 注册新dom元素
         $( ".dict" ).sortable({
-            connectWith: ".dict"
+            connectWith: ".dict",
+            start: sortStartFunction,
+            update: sortEndFunction
         }).disableSelection();
         $( ".list" ).sortable({
-            connectWith: ".list"
+            connectWith: ".list",
+            start: sortStartFunction,
+            update: sortEndFunction
         }).disableSelection();
+
+
+        function sortStartFunction(e, ui){
+            window.se = e;
+            window.sui = ui;
+            window.sf = $(this);
+        }
+
+        function sortEndFunction(e, ui){
+            window.ee = e;
+            window.eui = ui;
+            window.ef = $(this);
+        }
 
         function generateFromList(listName, listInfo){
             if (! Array.isArray(listInfo)){
@@ -691,7 +741,7 @@ function PythonStyleToJsStyle(data){
         return newInstanceObj
     }
     /**
-     *
+     * del a instance。
      * @param {Object} data: {"id"}
      */
     function instanceSelectWindow_delOneInstanceObj(data){
