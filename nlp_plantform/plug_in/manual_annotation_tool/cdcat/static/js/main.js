@@ -446,12 +446,10 @@ function PythonStyleToJsStyle(data){
         //     nodeInstance.click(function(){});
         // }
 
-
-
     function instanceSelectWindow_showInstancePool(){
-        let r = getInstancePool();
+        let r = getGroup();
         if (r[0] != "success"){
-            alert(langGroup["instance pool loading failed"]);
+            alert(langDict["instance pool loading failed"]);
             return
         }
         // 生成新dom元素
@@ -470,275 +468,112 @@ function PythonStyleToJsStyle(data){
             start: sortStartFunction,
             stop: sortEndFunction
         }).disableSelection();
-
-        /**
-         * This function return a index list from *#allInstanceDiv* to *curLi*
-         *
-         * @param {jquery DOM element} curLi: li element in allInstanceDiv.
-         * @return {[]} a index list that comes from *#allInstanceDiv* to *curLi*
-         */
-        function getLiPath(curLi){
-            // param check
-            if (!((curLi.hasClass("group_li")) || (curLi.hasClass("instances_li")))){
-                alert("参数类型错误");
-            }
-            //
-            let curPath = [];
-            while (true){
-                let curUl = curLi.parent();
-                let curIndex = curUl.children().index(curLi);
-                curPath = [curIndex,...curPath];
-                // 检查退出
-                if (curUl.parent().attr("id") == "allInstanceDiv"){
-                    return curPath;
-                }
-                // ++
-                if (curLi.hasClass("group_li")){
-                    curLi = curUl.parent();
-                }else if(curLi.hasClass("instances_li")){
-                    curLi = curUl.parent().parent();
-                }
-            }
-        }
-
-        function sortStartFunction(e, ui){
-            window.sPath = getLiPath(ui["helper"]);
-        }
-
-        function sortEndFunction(e, ui){
-            window.ePath = getLiPath(ui["item"]);
-            if (window.sPath.toString() !== window.ePath.toString()){
-                console.log(window.sPath, "-", window.ePath);
-            }
-        }
-
-        function generateInstances(instancesTuple){
-            let instancesType = instancesTuple[0];
-            let instancesName = instancesTuple[1];
-            let instancesInfo = instancesTuple[2];
-            // param check
-            if (instancesType != "instances"){
-                alert("error");
-                return
-            }
-            let div = $("<div></div>");
-            let ulObj = $("<ul class='instances'></ul>");
-            div.append(ulObj);
-            for (let curInstanceIndex = 0; curInstanceIndex<instancesInfo.length; curInstanceIndex++){
-                let curInstance = instancesInfo[curInstanceIndex];
-                // build DOC element
-                let liObj = $("<li class='instances_li'></li>");
-                ulObj.append(liObj);
-                // add attr
-                liObj.attr('name', curInstance['id']);
-                liObj.addClass('instance');
-                if (curInstance['desc'] !== undefined){
-                    if (curInstance['desc'] !== "") {
-                        liObj.text(curInstance['desc']);
-                    }else{
-                        liObj.text('　');
-                    }
-                } else {
-                    liObj.text('　');
-                }
-                // shift拖拉：复制元素
-                liObj.mousedown(function(e){
-                    if (e.shiftKey){
-                        alert("告诉后台，我在哪里复制了一个啥。")
-                        r = ["success"];
-                        if (r[0] != "success"){
-                            alert(langGroup[r[1]]);
-                        }else {
-                            let newObj = $(this).clone(true);
-                            $(this).after(newObj);
-                        }
-                    }
-                });
-                // 左键
-                liObj.click(function(e) {
-                    let slotObj = $(".slot");
-                    // 如果是单纯点击
-                    if ((slotObj.length == 0)&&(! e.altKey)){
-                        let instanceIdStr = $(this).attr("name");
-                        let r = getInstanceById(instanceIdStr);
-                        if (r[0] != "success"){
-                            alert(langGroup[r[1]]);
-                        }else{
-                            let instanceInfo = r[1]
-                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                            instanceInfoWindow_showInstanceInfo();
-                            instanceSelectWindow_updateOneInstance(instanceInfo);
-                        }
-                    }
-                    // 如果是Alt点击：删除实例
-                    else if ((slotObj.length == 0)&&( e.altKey)){
-                        if ($("li[name=" + curInstance["desc"] + "]").length == 1){
-                            alert(langGroup["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
-                        }else{
-                            alert("告诉后台，我删了谁")
-                            r = ["success"];
-                            if (r[0] != "success"){
-                                alert(langGroup[r[1]]);
-                            }else{
-                                $(this).remove();
-                            }
-                        }
-                    }
-                    // 如果是槽填充
-                    else if(slotObj.length == 1){
-                        let instanceIdStr = this.name;
-                        slotObj[0].fillSlot(instanceIdStr);
-                    }
-                    // 如果都不是，那有毛病
-                    else{
-                        alert(langGroup["A wrong num of slots."])
-                    }
-                });
-            }
-            return div;
-        }
-
-        /**
-         * This function generate DOM element for group.
-         * The group has a title only when the group has a name. The title includes a group name span and two "+" button.
-         * The group has a ul element which corresponding to the content of the group.
-         * @example::
-         * groupTulple = ["group", "GName", [
-                ["instances", "EName", [
-                    instance_pool.add_instance(),
-                    instance_pool.add_instance()
-                ]],
-                ["instances", "EName", [
-                    instance_pool.add_instance()
-                ]],
-                ["group", "GName", [
-                    ["instances", "EName", [
-                        instance_pool.add_instance(),
-                        instance_pool.add_instance()
-                    ]]
-                ]]
-            ]]
-         *
-         * @param groupTuple: A array with 3 items: type, name, info.
-         * @return return [ul] when *instancesName* == undefined; [group name span, add group button, add instances button, ul] otherwise.
-         */
-        function generateGroup(groupTuple){
-            let groupType = groupTuple[0];
-            let groupName = groupTuple[1];
-            let groupInfo = groupTuple[2];
-            // param check
-            if (groupType !== "group"){
-                alert("出错了");
-                return
-            }
-            //
-            let r = [];
-            // group title
-            if (groupName !== undefined){
-                // span
-                {
-                    let curGroupItemKeyObj = $("<span>"+groupName+"</span>");
-                    curGroupItemKeyObj.click(function(){
-                        let inputObj = $("<input type='text'>");
-                        inputObj.attr("value", $(this).text());
-                        $(this).after(inputObj);
-                        $(this).remove();
-                        inputObj.change(function(){
-                            let spanObj = $("<span></span>");
-                            spanObj.text($(this).val());
-                            $(this).after(spanObj);
-                            $(this).remove();
-                        });
-                    });
-                    r.push(curGroupItemKeyObj);
-                }
-                // add group button
-                {
-                    let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
-                    addGroupButtonObj.click(function(){
-                        let liObj = $("<li class='group_li'></li>");
-                        liObj.append(generateGroup("uname", {}));
-                        $(this).next().next().prepend(liObj);
-                        $( ".group" ).sortable({
-                            connectWith: ".group"
-                        }).disableSelection();
-                        $( ".instances" ).sortable({
-                            connectWith: ".instances"
-                        }).disableSelection();
-                    });
-                    r.push(addGroupButtonObj);
-                }
-                // add items button
-                {
-                    let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
-                    addItemsButtonObj.click(function(){
-                        let liObj = $("<li class='group_li'></li>");
-                        liObj.append(generateInstances(undefined, []));
-                        $(this).next().prepend(liObj);
-                        $( ".group" ).sortable({
-                            connectWith: ".group"
-                        }).disableSelection();
-                        $( ".instances" ).sortable({
-                            connectWith: ".instances"
-                        }).disableSelection();
-                    });
-                    r.push(addItemsButtonObj);
-                }
-            }
-            // group ul
-            let ulObj = $("<ul class='group'></ul>");
-            for (let curItemIndex = 0; curItemIndex<groupInfo.length; curItemIndex++){
-                let liObj = $("<li class='group_li'></li>");
-                ulObj.append(liObj);
-                {
-                    let curItemTuple = groupInfo[curItemIndex];
-                    let curItemObj = undefined;
-                    if (curItemTuple[0] == "instances"){
-                        curGroupItemObj = generateInstances(curItemTuple);
-                    }else if (curItemTuple[0] == "group") {
-                        curGroupItemObj = generateGroup(curItemTuple);
-                    }
-                    liObj.append(curGroupItemObj);
-                }
-            }
-            r.push(ulObj);
-            return r;
-        }
     }
+
+    /**
+     * 如果data指定的instance已经存在，那么更新；如果不存在，那么创建新instancelink
+     * @param data
+     */
     function instanceSelectWindow_updateOneInstance(data){
-        // // 删除旧节点
+        let targetElement = $(".instance[name=" + data["id"] + "]");
+        // create a new instancelink
+        if (targetElement.length == 0){
+            let liObj = generateInstancelink(data)
+            let fixedObj = $("#allInstanceDiv ul").children(":first").children(":first").children(":first"); // 默认新instancelink都是添加到第一个fixed instances中去。
+            fixedObj.prepend(liObj);
+        }
+        // update a existing instancelink
+        else{
+            targetElement.text(data["desc"]);
+        }
+        // // 删除旧节点Elemn
         // instanceSelectWindow_delOneInstanceObj(data);
         // // 创建新节点
         // let newInstanceObj = instanceSelectWindow_createOneInstanceObj(data);
         // // 添加新节点
         // $("#allInstanceDiv").prepend(newInstanceObj);
     }
+
     /**
-     * 创建新的instance元素(包括属性和事件)
-     * @param {Object} data : {"id": , "desc":"xxxx"}
-     * @returns {jQuery.HTMLElement}
-     */
-    function instanceSelectWindow_createOneInstanceObj(data){
-        // 建元素
-        let newInstanceObj = $("<button></button>");
-        // 加属性
-        newInstanceObj.attr('name', data['id']);
-        newInstanceObj.addClass('instance');
-        if (data['desc'] !== undefined){
-            if (data['desc'] !== "") {
-                newInstanceObj.text(data['desc']);
+         * This function return a index list from *#allInstanceDiv* to *curLi*
+         *
+         * @param {jquery DOM element} curLi: li element in allInstanceDiv.
+         * @return {[]} a index list that comes from *#allInstanceDiv* to *curLi*
+         */
+    function getLiPath(curLi){
+        // param check
+        if (!((curLi.hasClass("group_li")) || (curLi.hasClass("instances_li")))){
+            alert("参数类型错误");
+        }
+        //
+        let curPath = [];
+        while (true){
+            let curUl = curLi.parent();
+            let curIndex = curUl.children().index(curLi);
+            curPath = [curIndex,...curPath];
+            // 检查退出
+            if (curUl.parent().attr("id") == "allInstanceDiv"){
+                return curPath;
+            }
+            // ++
+            if (curLi.hasClass("group_li")){
+                curLi = curUl.parent();
+            }else if(curLi.hasClass("instances_li")){
+                curLi = curUl.parent().parent();
+            }
+        }
+    }
+
+    function sortStartFunction(e, ui){
+        window.sPath = getLiPath(ui["helper"]);
+    }
+
+    function sortEndFunction(e, ui){
+        window.ePath = getLiPath(ui["item"]);
+        if (window.sPath.toString() !== window.ePath.toString()){
+            console.log(window.sPath, "-", window.ePath);
+            moveLi(window.sPath, window.ePath);
+        }
+    }
+
+    function generateInstancelink(curInstancelink){
+        // build DOC element
+        let liObj = $("<li class='instances_li'></li>");
+        // add attr
+        liObj.attr('name', curInstancelink['id']);
+        liObj.addClass('instance');
+        if (curInstancelink['desc'] !== undefined){
+            if (curInstancelink['desc'] !== "") {
+                liObj.text(curInstancelink['desc']);
             }else{
-                newInstanceObj.text('　');
+                liObj.text('　');
             }
         } else {
-            newInstanceObj.text('　');
+            liObj.text('　');
         }
-        // 挂事件
-        newInstanceObj.click(function() {
+        // shift拖拉：复制元素
+        liObj.mousedown(function(e){
+            if (e.shiftKey){
+                // ajax to background
+                let parentPath = getLiPath($(this));
+                let r = copyInstance(parentPath);
+                if (r[0] != "success"){
+                    alert(langDict[r[1]]);
+                    return
+                }
+                // update fontground
+                let newObj = $(this).clone(true);
+                $(this).after(newObj);
+            }
+        });
+        // 左键
+        liObj.click(function(e) {
             let slotObj = $(".slot");
+            // 防止点击事件冒泡到父元素
+            e.stopPropagation();
             // 如果是单纯点击
-            if (slotObj.length == 0){
-                let instanceIdStr = this.name;
+            if ((slotObj.length == 0)&&(! e.altKey)){
+                let instanceIdStr = $(this).attr("name");
                 let r = getInstanceById(instanceIdStr);
                 if (r[0] != "success"){
                     alert(langDict[r[1]]);
@@ -747,6 +582,22 @@ function PythonStyleToJsStyle(data){
                     instanceInfoWindow_updateInstanceInfo(instanceInfo);
                     instanceInfoWindow_showInstanceInfo();
                     instanceSelectWindow_updateOneInstance(instanceInfo);
+                }
+            }
+            // 如果是Alt点击：删除实例
+            else if ((slotObj.length == 0)&&( e.altKey)){
+                if ($("li[name=" + curInstancelink["desc"] + "]").length == 1){
+                    alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
+                }else{
+                    // ajax to background
+                    let parentPath = getLiPath($(this));
+                    let r = delLi(parentPath);
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return
+                    }
+                    // update fontground
+                    $(this).remove();
                 }
             }
             // 如果是槽填充
@@ -759,9 +610,168 @@ function PythonStyleToJsStyle(data){
                 alert(langDict["A wrong num of slots."])
             }
         });
-        //
-        return newInstanceObj
+        return liObj
     }
+
+    function generateInstances(instancesTuple){
+        let instancesType = instancesTuple[0];
+        let instancesName = instancesTuple[1];
+        let instancesInfo = instancesTuple[2];
+        // param check
+        if (instancesType != "instances"){
+            alert("error");
+            return
+        }
+        let div = $("<div></div>");
+        let ulObj = $("<ul class='instances'></ul>");
+        div.append(ulObj);
+        for (let curInstanceIndex = 0; curInstanceIndex<instancesInfo.length; curInstanceIndex++){
+            let curInstancelink = instancesInfo[curInstanceIndex];
+            ulObj.append(generateInstancelink(curInstancelink));
+        }
+        return div;
+    }
+
+    /**
+     * This function generate DOM element for group.
+     * The group has a title only when the group has a name. The title includes a group name span and two "+" button.
+     * The group has a ul element which corresponding to the content of the group.
+     * @example::
+     * groupTulple = ["group", "GName", [
+            ["instances", "EName", [
+                instance_pool.add_instance(),
+                instance_pool.add_instance()
+            ]],
+            ["instances", "EName", [
+                instance_pool.add_instance()
+            ]],
+            ["group", "GName", [
+                ["instances", "EName", [
+                    instance_pool.add_instance(),
+                    instance_pool.add_instance()
+                ]]
+            ]]
+        ]]
+     *
+     * @param {Array} groupTuple: A array with 3 items: type, name, info.
+     * @return {Array<jqueryDomElement>} return [ul] when *instancesName* == undefined; [group name span, add group button, add instances button, ul] otherwise.
+     */
+    function generateGroup(groupTuple){
+        let groupType = groupTuple[0];
+        let groupName = groupTuple[1];
+        let groupInfo = groupTuple[2];
+        // param check
+        if (groupType !== "group"){
+            alert("出错了");
+            return
+        }
+        //
+        let r = [];
+        // group title
+        if (groupName !== null){
+            // span
+            {
+                let curGroupItemKeyObj = $("<span>"+groupName+"</span>");
+                curGroupItemKeyObj.click(function(){
+                    let inputObj = $("<input type='text'>");
+                    inputObj.attr("value", $(this).text());
+                    $(this).after(inputObj);
+                    $(this).remove();
+                    inputObj.change(function(){
+                        let spanObj = $("<span></span>");
+                        spanObj.text($(this).val());
+                        $(this).after(spanObj);
+                        $(this).remove();
+                    });
+                });
+                r.push(curGroupItemKeyObj);
+            }
+            // add group button
+            {
+                let addGroupButtonObj = $("<button style='background: #c5c5c5'>+</button>");
+                addGroupButtonObj.click(function(){
+                    // ajax to background
+                    let thisPath = getLiPath($(this).parent());
+                    let r = prependGroup(thisPath);
+                    if (r[0] !== "success"){
+                        alert(langDict(r[1]));
+                        return;
+                    }
+                    // update fontground
+                    let liObj = $("<li class='group_li'></li>");
+                    liObj.append(generateGroup(["group", "GName", []]));
+                    $(this).next().next().prepend(liObj);
+                    $( ".group" ).sortable({
+                        connectWith: ".group"
+                    }).disableSelection();
+                    $( ".instances" ).sortable({
+                        connectWith: ".instances"
+                    }).disableSelection();
+                });
+                r.push(addGroupButtonObj);
+            }
+            // add items button
+            {
+                let addItemsButtonObj = $("<button style='background: #dddddd'>+</button>");
+                addItemsButtonObj.click(function(){
+                    // ajax to background
+                    let thisPath = getLiPath($(this).parent());
+                    let r = prependInstances(thisPath);
+                    if (r[0] !== "success"){
+                        alert(langDict(r[1]));
+                        return;
+                    }
+                    // update fontground
+                    let liObj = $("<li class='group_li'></li>");
+                    liObj.append(generateInstances(["instances", "EName", []]));
+                    $(this).next().prepend(liObj);
+                    $( ".group" ).sortable({
+                        connectWith: ".group"
+                    }).disableSelection();
+                    $( ".instances" ).sortable({
+                        connectWith: ".instances"
+                    }).disableSelection();
+                });
+                r.push(addItemsButtonObj);
+            }
+        }
+        // group ul
+        let ulObj = $("<ul class='group'></ul>");
+        for (let curItemIndex = 0; curItemIndex<groupInfo.length; curItemIndex++){
+            let liObj = $("<li class='group_li'></li>");
+            ulObj.append(liObj);
+            {
+                let curItemTuple = groupInfo[curItemIndex];
+                let curItemObj = undefined;
+                if (curItemTuple[0] == "instances"){
+                    curGroupItemObj = generateInstances(curItemTuple);
+                }else if (curItemTuple[0] == "group") {
+                    curGroupItemObj = generateGroup(curItemTuple);
+                }
+                liObj.append(curGroupItemObj);
+            }
+            liObj.click(function(e){
+                // 防止点击事件冒泡到父元素
+                 e.stopPropagation();
+                // Alt + 左键 ： 删除
+                if (e.altKey){
+                    // ajax to background
+                    let parentPath = getLiPath($(this));
+                    let r = delLi(parentPath);
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return
+                    }
+                    // update fontground
+                    $(this).remove();
+                }
+            });
+        }
+        r.push(ulObj);
+        return r;
+    }
+
+
     /**
      * del a instance。
      * @param {Object} data: {"id"}
@@ -923,9 +933,8 @@ function PythonStyleToJsStyle(data){
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
-                        // refresh the instance button in instanceSelectWindow
-                        let instance_button_obj = $("#allInstanceDiv button[name='" + id + "']");
-                        instance_button_obj.text(value);
+                        // update the instancelink in instanceSelectWindow
+                        instanceSelectWindow_updateOneInstance(r[1])
                     }
                 });
             }
@@ -951,7 +960,8 @@ function PythonStyleToJsStyle(data){
         }
     }
 
-// <!-- flask interface -->
+// flask interface
+{
     /**
      * flask interface. Given the position of a node, request the text of the node.
      *
@@ -993,153 +1003,225 @@ function PythonStyleToJsStyle(data){
         return contentInfo;
     }
 
-    function getInstancePool(){
-        let r = undefined;
-        $.post(
-            "/getInstancePool",
-            { },
-            function (data, status) {
-                r = data;
-            }
-        );
-        return r
-    }
-
-    /**
-     * flask interface. Given the position of a node, request the info of the node.
-     *
-     * @param nodePosition {string} Position string of the node.
-     * @param callback {function} The call back function.
-     *   The return value *data* of the POST request is given as the first param of the call back function.
-     */
-    function getNodeByPosition(nodePosition){
-        let nodeInfo = undefined;
-        $.post(
-            "/getNode",
-            {
-                position: nodePosition,
-            },
-            function (data, status) {
-                nodeInfo = data;
-            }
-        );
-        return nodeInfo
-    }
-
-    /**
-     * flask interface. Given a range of nodes, check if those nodes correspond to a father node.
-     *
-     * @param startNodePosition {string} Position string of the first node.
-     * @param endNodePosition {string} Position string of the last node.
-     *   The return value *data* of the POST request is given as the first param of the call back function.
-     */
-    function getNodeByChildren(startNodePosition, endNodePosition){
-        let r = undefined;
-        $.post(
-            "/getNode",
-            {
-                start: startNodePosition,
-                end: endNodePosition
-            },
-            function (data, status) {
-                r = data;
-            }
-        );
-        return r
-    }
-
-    function setNode(position, newValueDict){
-        let nodeInfo = undefined;
-        newValueDict["position"] = position;
-        $.post(
-            "/setNode",
-            newValueDict,
-            function (data, status) {
-                nodeInfo = data;
-            }
-        )
-        return nodeInfo;
-    }
-
-    function addNodeByChildren(childrenNodePositionList){
-        let r = undefined
-        $.post(
-            "/addNode",
-            {
-                childrenNodePositionList: childrenNodePositionList
-            },
-            function (data, status) {
-                r = data
-            }
-        );
-        if (r[0] == "success"){
-            r[1] = PythonStyleToJsStyle(r[1])
+    // group
+    {
+        function getGroup() {
+            let r = undefined;
+            $.post(
+                "/getGroup",
+                {},
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
         }
-        return r
-    }
 
-    function getInstanceById(id){
-        let r = undefined;
-        $.post(
-            "/getInstance",
-            {instance_id: id},
-            function (data, status) {
-                // instanceInfoWindow_showInstanceInfo(data);
-                // instanceSelectWindow_updateOneInstance(data);
-                r = data;
+        function prependGroup(parentPath) {
+            let r = undefined;
+            $.post(
+                "/prependGroup",
+                {"parentPath": String(parentPath)},
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+
+        function prependInstances(parentPath) {
+            let r = undefined;
+            $.post(
+                "/prependInstances",
+                {"parentPath": String(parentPath)},
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+
+        function delLi(parentPath) {
+            let r = undefined;
+            $.post(
+                "/delLi",
+                {"parentPath": String(parentPath)},
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+
+        function copyInstance(parentPath) {
+            let r = undefined;
+            $.post(
+                "/copyInstance",
+                {"parentPath": String(parentPath)},
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+
+        function moveLi(fromPath, toPath){
+            let r = undefined;
+            $.post(
+                "/moveLi",
+                {
+                    "fromPath": String(fromPath),
+                    "toPath": String(toPath)
+                },
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+    }
+    // node
+    {
+        /**
+         * flask interface. Given the position of a node, request the info of the node.
+         *
+         * @param nodePosition {string} Position string of the node.
+         * @param callback {function} The call back function.
+         *   The return value *data* of the POST request is given as the first param of the call back function.
+         */
+        function getNodeByPosition(nodePosition) {
+            let nodeInfo = undefined;
+            $.post(
+                "/getNode",
+                {
+                    position: nodePosition,
+                },
+                function (data, status) {
+                    nodeInfo = data;
+                }
+            );
+            return nodeInfo
+        }
+
+        /**
+         * flask interface. Given a range of nodes, check if those nodes correspond to a father node.
+         *
+         * @param startNodePosition {string} Position string of the first node.
+         * @param endNodePosition {string} Position string of the last node.
+         *   The return value *data* of the POST request is given as the first param of the call back function.
+         */
+        function getNodeByChildren(startNodePosition, endNodePosition) {
+            let r = undefined;
+            $.post(
+                "/getNode",
+                {
+                    start: startNodePosition,
+                    end: endNodePosition
+                },
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r
+        }
+
+        function setNode(position, newValueDict) {
+            let nodeInfo = undefined;
+            newValueDict["position"] = position;
+            $.post(
+                "/setNode",
+                newValueDict,
+                function (data, status) {
+                    nodeInfo = data;
+                }
+            )
+            return nodeInfo;
+        }
+
+        function addNodeByChildren(childrenNodePositionList) {
+            let r = undefined
+            $.post(
+                "/addNode",
+                {
+                    childrenNodePositionList: childrenNodePositionList
+                },
+                function (data, status) {
+                    r = data
+                }
+            );
+            if (r[0] == "success") {
+                r[1] = PythonStyleToJsStyle(r[1])
             }
-        );
-        return r
+            return r
+        }
     }
 
-    function setInstance(instanceId, infoDict){
-        let r = undefined;
-        infoDict["id"] = instanceId;
-        $.post(
-            "/setInstance",
-            infoDict,
-            function (data, status) {
-                r = data;
-            }
-        );
-        return r;
-    }
+    // instance
+    {
+        function getInstanceById(id) {
+            let r = undefined;
+            $.post(
+                "/getInstance",
+                {instance_id: id},
+                function (data, status) {
+                    // instanceInfoWindow_showInstanceInfo(data);
+                    // instanceSelectWindow_updateOneInstance(data);
+                    r = data;
+                }
+            );
+            return r
+        }
 
-    function addInstance_empty(){
-        let instanceInfo = undefined;
-        $.post(
-            "/addInstance",
-            {},
-            function (data, status) {
-                instanceInfo = data;
-            }
-        )
-        return instanceInfo;
-    }
+        function setInstance(instanceId, infoDict) {
+            let r = undefined;
+            infoDict["id"] = instanceId;
+            $.post(
+                "/setInstance",
+                infoDict,
+                function (data, status) {
+                    r = data;
+                }
+            );
+            return r;
+        }
 
-    function addInstance_node(callback){
-        $.post(
-            "/addInstance",
-            {
-                "position": $("#positionValue").text()
-            },
-            function (data, status) {
-                callback(data);
-            }
-        )
-    }
+        function addInstance_empty() {
+            let instanceInfo = undefined;
+            $.post(
+                "/addInstance",
+                {},
+                function (data, status) {
+                    instanceInfo = data;
+                }
+            )
+            return instanceInfo;
+        }
 
-    function save(){
-       $.post(
-           "/save",
-           {},
-           function(data, status){
-               if (data["success"] == true){
-                   alert(langDict["saved success!"])
-               }
-           }
-       )
+        function addInstance_node(callback) {
+            $.post(
+                "/addInstance",
+                {
+                    "position": $("#positionValue").text()
+                },
+                function (data, status) {
+                    callback(data);
+                }
+            )
+        }
+
+        function save() {
+            $.post(
+                "/save",
+                {},
+                function (data, status) {
+                    if (data["success"] == true) {
+                        alert(langDict["saved success!"])
+                    }
+                }
+            )
+        }
     }
+}
 
 // <!-- evnet logic -->
 //     function startOfInstanceSlotFilling(){

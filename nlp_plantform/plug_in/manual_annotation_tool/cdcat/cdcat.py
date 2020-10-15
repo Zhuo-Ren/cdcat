@@ -31,32 +31,35 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/')
     def init():
-        instance_pool.groups = \
-        ["group", None, [
-            ["group", "GName", [
-                ["instances", "EName", [
-                    instance_pool.add_instance(),
-                    instance_pool.add_instance()
-                ]],
-                ["instances", "EName", [
-                    instance_pool.add_instance()
-                ]],
-                ["group", "GName", [
-                    ["instances", "EName", [
-                        instance_pool.add_instance(),
-                        instance_pool.add_instance()
-                    ]]
-                ]]
-            ]],
-            ["instances", "EName", [
-                instance_pool.add_instance()
-            ]],
-            ["group", "GName", [
-                ["instances", "EName", [
-                    instance_pool.add_instance(), instance_pool.add_instance()
-                ]]
-            ]]
-        ]]
+        # instance_pool.groups = \
+        # ["group", None, [
+        #     ["instances", "fixed", [
+        #
+        #     ]],
+        #     ["group", "GName", [
+        #         ["instances", "EName", [
+        #             instance_pool.add_instance(),
+        #             instance_pool.add_instance()
+        #         ]],
+        #         ["instances", "EName", [
+        #             instance_pool.add_instance()
+        #         ]],
+        #         ["group", "GName", [
+        #             ["instances", "EName", [
+        #                 instance_pool.add_instance(),
+        #                 instance_pool.add_instance()
+        #             ]]
+        #         ]]
+        #     ]],
+        #     ["instances", "EName", [
+        #         instance_pool.add_instance()
+        #     ]],
+        #     ["group", "GName", [
+        #         ["instances", "EName", [
+        #             instance_pool.add_instance(), instance_pool.add_instance()
+        #         ]]
+        #     ]]
+        # ]]
         return render_template("main.html",
                                langDict=lang_dict,
                                labelSysDict=label_sys_dict)
@@ -162,9 +165,68 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         # 返回目录结构
         return jsonify(content)
 
-    @app.route('/getInstancePool', methods=["POST"])
-    def getInstancePool():
+    @app.route('/getGroup', methods=["POST"])
+    def getGroup():
         return jsonify(["success", instance_pool.groups])
+
+    @app.route('/prependGroup', methods=["POST"])
+    def prependGroup():
+        indexTuple = eval("[" + request.form.get("parentPath") + "]")
+        curParent = instance_pool.groups
+        for i in indexTuple:
+            curParent = curParent[2][i]
+        curParent[2].insert(0, ["group", "GName", []])
+        return jsonify(["success"])
+
+    @app.route('/prependInstances', methods=["POST"])
+    def prependInstances():
+        indexTuple = eval("[" + request.form.get("parentPath") + "]")
+        curParent = instance_pool.groups
+        for i in indexTuple:
+            curParent = curParent[2][i]
+        curParent[2].insert(0, ["instances", "EName", []])
+        return jsonify(["success"])
+
+    @app.route('/copyInstance', methods=["POST"])
+    def copyInstance():
+        index_tuple = eval("[" + request.form.get("parentPath") + "]")
+        parent = instance_pool.groups
+        for i in index_tuple[:-1]:
+            parent = parent[2][i]
+        child_index = index_tuple[-1]
+        child = parent[2][child_index]
+        parent[2].insert(child_index, child)
+        return jsonify(["success"])
+
+    @app.route('/moveLi', methods=["POST"])
+    def moveLi():
+        from_path = eval("[" + request.form.get("fromPath") + "]")
+        to_path = eval("[" + request.form.get("toPath") + "]")
+        #
+        from_parent = instance_pool.groups
+        for i in from_path[:-1]:
+            from_parent = from_parent[2][i]
+        child_index = from_path[-1]
+        child = from_parent[2][child_index]
+        del from_parent[2][child_index]
+        #
+        to_parent = instance_pool.groups
+        for i in to_path[:-1]:
+            to_parent = to_parent[2][i]
+        child_index = to_path[-1]
+        to_parent[2].insert(child_index, child)
+        #
+        return jsonify(["success"])
+
+    @app.route('/delLi', methods=["POST"])
+    def delLi():
+        index_tuple = eval("[" + request.form.get("parentPath") + "]")
+        parent = instance_pool.groups
+        for i in index_tuple[:-1]:
+            parent = parent[2][i]
+        child_index = index_tuple[-1]
+        del parent[2][child_index]
+        return jsonify(["success"])
 
     @app.route('/addNode', methods=["POST"])
     def addNode():
@@ -268,36 +330,6 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             logging.debug("setNode<-：" + str(["success", node.readable()]))
             return jsonify(["success", node.readable()])
 
-            # if request.form.get("instance") != None:
-            #     logging.debug("setNode->：instance=" + request.form.get("instance"))
-            #     new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-            #     # 操作合理性检测（node原来的instance是否和新instance一致）
-            #     if "instance" in node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-            #         old_instance = node.get_label()["instance"]
-            #         if old_instance == new_instance:
-            #             return jsonify(
-            #                 "can not build a reference relation between cur node and cur instance, because is already existing.")
-            #     if "instance" not in node.get_label():
-            #         node.add_label({"instance": new_instance})
-            #         new_instance["mention_list"].append([node])
-            #     else:
-            #         # edit old instance
-            #         old_instance = node.get_label()["instance"]
-            #         mentionLists = old_instance["mention_list"]
-            #         for mentionList in mentionLists:
-            #             if node in mentionList:
-            #                 mentionList.remove(node)
-            #         old_instance["mention_list"] = mentionLists
-            #         if request.form.get("instance") == "":
-            #             # edit node
-            #             node.del_label("instance")
-            #         else:
-            #             # edit new instance
-            #             new_instance = instances.get_instance(id=request.form.get("instance"))[0]
-            #             new_instance["mention_list"].append([node])
-            #             # edit node
-            #             node.add_label({"instance": new_instance})
-
     @app.route('/delNode', methods=["POST"])
     def delNode():
         pass
@@ -317,7 +349,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             node.add_label({"instance": instance})
         else:  # 单纯创建一个instance
             logging.debug("addInstance_empty->：")
+            # 创建instance
             instance = instance_pool.add_instance()
+            # 创建instancelink
+            instance_pool.groups[2][0][2].insert(0, instance)
         logging.debug("addInstance->：" + str(["success", instance.readable()]))
         return jsonify(["success", instance.readable()])
 
@@ -344,7 +379,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         elif isinstance(instance, Instance):
             # 对固定标签desc
             if "desc" in request.form:
-                instance.desc = request.form.get("desc")
+                instance["desc"] = request.form.get("desc")
             # 对每一个定制标签
             cur_labels = instance.labels
             for cur_label_key in cur_labels.config.keys():

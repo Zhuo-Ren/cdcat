@@ -22,15 +22,15 @@ class Instance(dict):
         """
 
         # public: id
-        self.id: int = instance_pool.next_id
-        self["id"] = self.id
+        self["id"] : int = instance_pool.next_id
         """
         The id of this instance. Start from 0.
         """
 
         # public： desc
-        self.desc: str = str(self.id)
-        self["desc"] = self.desc
+        self["desc"] : str = str(self["id"])
+        if "desc" in labels_dict:
+            self["desc"] = labels_dict["desc"]
         """
         The describe of this instance. Initial with "", not a None.
         """
@@ -40,8 +40,9 @@ class Instance(dict):
         self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=labels_dict)
 
         # update instance pool
-        instance_pool[self.id] = self
+        instance_pool[self["id"]] = self
         instance_pool.next_id += 1
+
 
     # public: labels
     @property
@@ -77,6 +78,6 @@ class Instance(dict):
             r = self._labels.readable(nolink=True)
         else:
             r = self._labels.readable()
-        r["id"] = str(self.id)
-        r["desc"] = self.desc
+        r["id"] = str(self["id"])
+        r["desc"] = self["desc"]
         return r
