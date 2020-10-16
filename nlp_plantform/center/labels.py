@@ -60,12 +60,12 @@ class Labels(dict):
 
     def __delitem__(self, key):
         from nlp_plantform.center.labeltypes import labeltypes
-        if key in labeltypes:
+        if key in self.config:
             self[key].value_empty()
         super().__delitem__(key)
 
     def clear(self):
-        for cur_label_key, cur_label_value in self:
+        for cur_label_key in list(self.keys()):
             del self[cur_label_key]  # 触发__delitem__()，实现同步
 
     def update(self, new_labels_dict: Dict):

@@ -169,6 +169,16 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     def getGroup():
         return jsonify(["success", instance_pool.groups])
 
+    @app.route('/changeGroupName', methods=["POST"])
+    def changeGroupName():
+        groupIndexList = eval("[]" + request.form.get("groupPath") + "]")
+        groupName = request.form.get("groupName")
+        curGroup = instance_pool.groups
+        for i in groupIndexList:
+            curGroup = curGroup[2][i]
+        curGroup[1] = groupName
+        return jsonify(["success"])
+
     @app.route('/prependGroup', methods=["POST"])
     def prependGroup():
         indexTuple = eval("[" + request.form.get("parentPath") + "]")
@@ -464,8 +474,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     def delInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("delInstance->：id=" + instance_id)
-        instance = instance_pool.get_instance(id=instance_id)[0]
+        instance = instance_pool.get_instance({"id": instance_id})[0]
+        instance.labels.clear()
         del instance_pool[int(instance_id)]
+        return jsonify(["success"])
 
     @app.route('/save', methods=["POST"])
     def save():

@@ -1,4 +1,5 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
+import copy
 
 def regiest_cofigured_label_types():
     from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config as cdcat_config
@@ -177,10 +178,8 @@ class LabelType(object):
         self.key = key
 
         # private: value
-        self._value = self.empty_value
-        if value is None:
-            self._value = self.empty_value
-        else:
+        self._value = copy.copy(self.empty_value)
+        if value is not None:
             self.value = value
             "这里将调用子类中定义的value的setter，将包含同步功能如果需要的话。"
 
@@ -218,7 +217,7 @@ class LabelType(object):
 
         :return: None
         """
-        self.value = self.empty_value
+        self.value = copy.copy(self.empty_value)
 
     def sync_add(self, value):
         self.value = value
@@ -228,7 +227,7 @@ class LabelType(object):
         if self.value != value:
             raise RuntimeError
         #
-        self.value = self.empty_value
+        self._value = copy.copy(self.empty_value)
 
     def readable(self):
         return self.value
@@ -453,7 +452,7 @@ class LabelTypeNode(LabelType):
         from nlp_plantform.center.instance import Instance
         # get the real_value
         if value in [None, self.empty_value]:
-            new_value = self.empty_value
+            new_value = copy.copy(self.empty_value)
         elif isinstance(value, Instance):
             new_value = value
         else:
@@ -478,7 +477,7 @@ class LabelTypeNode(LabelType):
         if self.value != value:
             raise RuntimeError
         #
-        self.value = self.empty_value
+        self._value = copy.copy(self.empty_value)
 
     def sync_add(self, value: NodeTree) -> None:
         # param check
@@ -558,7 +557,7 @@ class LabelTypeInstance(LabelType):
         from nlp_plantform.center.instance import Instance
         # get the real_value
         if value in [None, self.empty_value]:
-            new_value = self.empty_value
+            new_value = copy.copy(self.empty_value)
         elif isinstance(value, Instance):
             new_value = value
         else:
@@ -591,7 +590,7 @@ class LabelTypeInstance(LabelType):
         if self.value != value:
             raise RuntimeError
         #
-        self._value = self.empty_value
+        self._value = copy.copy(self.empty_value)
 
     def sync_add(self, value: Instance) -> None:
         # param check
@@ -676,7 +675,7 @@ class LabelTypeNodeList(LabelType):
         from nlp_plantform.center.nodetree import NodeTree
         # get the real_value
         if value in [None, self.empty_value]:
-            new_value = self.empty_value
+            new_value = copy.copy(self.empty_value)
         else:
             if isinstance(value, list, AutoSyncList):
                 new_value = AutoSyncList(owner=self, init_value=value, type_limit=NodeTree)

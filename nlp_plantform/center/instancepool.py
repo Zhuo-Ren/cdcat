@@ -9,9 +9,10 @@ class InstancePool(dict):
         The id of next instance in this instance pool. Id of instance start of 0. The latest instance id is self。next_id - 1
         """
 
-        self.groups = {
-            "uname": []
-        }
+        self.groups = ["group", None, [
+            ["instances", "fixed", []],
+            ["group", "GName", []]
+        ]]
 
     def add_instance(self, info_dict=None):
         new_instance = Instance(instance_pool=self, labels_dict=info_dict)
@@ -73,7 +74,7 @@ class InstancePool(dict):
         temp = {}
         max = 0
         for instance in self.values():
-            l = len(instance["mention_list"])
+            l = len(instance.labels["mention_list"].value)
             try:
                 temp[l] += 1
             except:

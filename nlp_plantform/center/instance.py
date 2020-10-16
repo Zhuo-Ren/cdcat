@@ -43,7 +43,6 @@ class Instance(dict):
         instance_pool[self["id"]] = self
         instance_pool.next_id += 1
 
-
     # public: labels
     @property
     def labels(self):
