@@ -588,7 +588,7 @@ function PythonStyleToJsStyle(data){
                 }
                 // 如果是Alt点击：删除实例
                 else if ((slotObj.length == 0) && (e.altKey)) {
-                    if ($("li[name=" + curInstancelink["desc"] + "]").length == 1) {
+                    if ($("li[name=" + curInstancelink["id"] + "]").length == 1) {
                         alert(langDict["Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance."]);
                     } else {
                         // ajax to background

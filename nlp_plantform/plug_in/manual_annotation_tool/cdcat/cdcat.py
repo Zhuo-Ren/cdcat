@@ -171,7 +171,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/changeGroupName', methods=["POST"])
     def changeGroupName():
-        groupIndexList = eval("[]" + request.form.get("groupPath") + "]")
+        groupIndexList = eval("[" + request.form.get("groupPath") + "]")
         groupName = request.form.get("groupName")
         curGroup = instance_pool.groups
         for i in groupIndexList:
