@@ -56,6 +56,26 @@ class InstancePool(dict):
         except:
             return []
 
+    def del_instancelink(self, instance_to_be_del):
+
+        def del_instancelink_from(group_or_instances, instance_to_be_del):
+            if group_or_instances[0] == "group":
+                group = group_or_instances
+                for i in group[2]:
+                    del_instancelink_from(i, instance_to_be_del)
+            elif group_or_instances[0] == "instances":
+                instances = group_or_instances
+                li = iter(instances[2])
+                while True:
+                    try:
+                        i = next(li)
+                        if i == instance_to_be_del:
+                            instances[2].remove(i)
+                    except StopIteration:
+                        break
+
+        del_instancelink_from(self.groups, instance_to_be_del)
+
     def statistic(self, ifprint=False) -> Dict:
         """
         calc the statistic info.

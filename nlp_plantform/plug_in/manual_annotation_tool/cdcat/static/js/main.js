@@ -984,13 +984,15 @@ function PythonStyleToJsStyle(data){
     function getText(nodePosition, callback){
         requireData = {
             textNodeId: nodePosition
-        }
+        };
+        $("body").css("pointer-events", "none");
         $.post(
             "/getText",
             {
                 textNodeId: nodePosition,
             },
             function (data, status) {
+                $("body").css("pointer-events", "auto");
                 callback(data, status, requireData);
             }
         );
@@ -1004,10 +1006,12 @@ function PythonStyleToJsStyle(data){
      */
     function getCatalogue(){
         let contentInfo = undefined;
+        $("body").css("pointer-events", "none");
         $.post(
             "/getCatalogue",
             { },
             function (data, status) {
+                $("body").css("pointer-events", "auto");
                 contentInfo = data;
             }
         );
@@ -1018,10 +1022,12 @@ function PythonStyleToJsStyle(data){
     {
         function getGroup() {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/getGroup",
                 {},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1030,6 +1036,7 @@ function PythonStyleToJsStyle(data){
 
         function changeGroupName(groupPath, groupName){
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/changeGroupName",
                 {
@@ -1037,6 +1044,7 @@ function PythonStyleToJsStyle(data){
                     "groupName": groupName
                 },
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1045,10 +1053,12 @@ function PythonStyleToJsStyle(data){
 
         function prependGroup(parentPath) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/prependGroup",
                 {"parentPath": String(parentPath)},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1057,10 +1067,12 @@ function PythonStyleToJsStyle(data){
 
         function prependInstances(parentPath) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/prependInstances",
                 {"parentPath": String(parentPath)},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1069,10 +1081,12 @@ function PythonStyleToJsStyle(data){
 
         function delLi(parentPath) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/delLi",
                 {"parentPath": String(parentPath)},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1081,10 +1095,12 @@ function PythonStyleToJsStyle(data){
 
         function copyInstance(parentPath) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/copyInstance",
                 {"parentPath": String(parentPath)},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1093,6 +1109,7 @@ function PythonStyleToJsStyle(data){
 
         function moveLi(fromPath, toPath){
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/moveLi",
                 {
@@ -1100,6 +1117,7 @@ function PythonStyleToJsStyle(data){
                     "toPath": String(toPath)
                 },
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1118,12 +1136,14 @@ function PythonStyleToJsStyle(data){
          */
         function getNodeByPosition(nodePosition) {
             let nodeInfo = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/getNode",
                 {
                     position: nodePosition,
                 },
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     nodeInfo = data;
                 }
             );
@@ -1139,6 +1159,7 @@ function PythonStyleToJsStyle(data){
          */
         function getNodeByChildren(startNodePosition, endNodePosition) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/getNode",
                 {
@@ -1146,6 +1167,7 @@ function PythonStyleToJsStyle(data){
                     end: endNodePosition
                 },
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1155,25 +1177,29 @@ function PythonStyleToJsStyle(data){
         function setNode(position, newValueDict) {
             let nodeInfo = undefined;
             newValueDict["position"] = position;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/setNode",
                 newValueDict,
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     nodeInfo = data;
                 }
-            )
+            );
             return nodeInfo;
         }
 
         function addNodeByChildren(childrenNodePositionList) {
             let r = undefined
+            $("body").css("pointer-events", "none");
             $.post(
                 "/addNode",
                 {
                     childrenNodePositionList: childrenNodePositionList
                 },
                 function (data, status) {
-                    r = data
+                    $("body").css("pointer-events", "auto");
+                    r = data;
                 }
             );
             if (r[0] == "success") {
@@ -1187,12 +1213,14 @@ function PythonStyleToJsStyle(data){
     {
         function getInstanceById(id) {
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/getInstance",
                 {instance_id: id},
                 function (data, status) {
                     // instanceInfoWindow_showInstanceInfo(data);
                     // instanceSelectWindow_updateOneInstance(data);
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1202,10 +1230,12 @@ function PythonStyleToJsStyle(data){
         function setInstance(instanceId, infoDict) {
             let r = undefined;
             infoDict["id"] = instanceId;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/setInstance",
                 infoDict,
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1213,35 +1243,41 @@ function PythonStyleToJsStyle(data){
         }
 
         function addInstance_empty() {
-            let instanceInfo = undefined;
+            let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/addInstance",
                 {},
                 function (data, status) {
-                    instanceInfo = data;
+                    $("body").css("pointer-events", "auto");
+                    r = data;
                 }
-            )
-            return instanceInfo;
+            );
+            return r;
         }
 
         function addInstance_node(callback) {
+            $("body").css("pointer-events", "none");
             $.post(
                 "/addInstance",
                 {
                     "position": $("#positionValue").text()
                 },
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     callback(data);
                 }
-            )
+            );
         }
 
         function delInstance(id){
             let r = undefined;
+            $("body").css("pointer-events", "none");
             $.post(
                 "/delInstance",
                 {"instance_id": id},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     r = data;
                 }
             );
@@ -1249,15 +1285,17 @@ function PythonStyleToJsStyle(data){
         }
 
         function save() {
+            $("body").css("pointer-events", "none");
             $.post(
                 "/save",
                 {},
                 function (data, status) {
+                    $("body").css("pointer-events", "auto");
                     if (data["success"] == true) {
                         alert(langDict["saved success!"])
                     }
                 }
-            )
+            );
         }
     }
 }

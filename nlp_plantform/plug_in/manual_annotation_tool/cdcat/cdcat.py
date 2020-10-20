@@ -477,6 +477,8 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         instance = instance_pool.get_instance({"id": instance_id})[0]
         instance.labels.clear()
         del instance_pool[int(instance_id)]
+        # del instancelink
+        instance_pool.del_instancelink(instance)
         return jsonify(["success"])
 
     @app.route('/save', methods=["POST"])
