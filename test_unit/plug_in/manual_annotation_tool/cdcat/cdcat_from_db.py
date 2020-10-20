@@ -1,6 +1,6 @@
 """
 This is a integration test file.
-This program: s
+This program:
  1. get nodetree from a sqlite file.
  2. get instances from a new empty Instances object.
  3. annotate with CDCAT
