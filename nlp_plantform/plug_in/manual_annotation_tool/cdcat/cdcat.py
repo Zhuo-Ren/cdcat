@@ -362,7 +362,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             # 创建instance
             instance = instance_pool.add_instance()
             # 创建instancelink
-            instance_pool.groups[2][0][2].insert(0, instance)
+            instance_pool.groups[2][0][2].append(instance)
         logging.debug("addInstance->：" + str(["success", instance.readable()]))
         return jsonify(["success", instance.readable()])
 

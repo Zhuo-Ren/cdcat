@@ -466,6 +466,11 @@ function PythonStyleToJsStyle(data){
          * @param data
          */
         function instanceSelectWindow_updateOneInstance(data) {
+            $("#allInstanceDiv").empty();
+            instanceSelectWindow_showInstancePool();
+            return
+
+
             let targetElement = $(".instance[name=" + data["id"] + "]");
             // create a new instancelink
             if (targetElement.length == 0) {
