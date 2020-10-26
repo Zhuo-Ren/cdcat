@@ -8,14 +8,14 @@ from nltk.tree import ParentedTree
 
 
 class NodeTree(ParentedTree):
-    def __init__(self, labels_dict: Dict = None, children: Union[None, Dict] = None):
+    def __init__(self, labels: Union[str, Dict] = None, children: Union[None, Dict] = None):
         """
         Initial a node based on labels and children.
 
         - Every label in label_sys.js will be added to this node. The value of label is given by label_dict, if not the
           default value in label_sys.ja will be use.
 
-        :param labels_dict: label dict of this node.
+        :param labels: label dict of this node.
         :param children: children of this node.
         """
         # param check: children
@@ -23,9 +23,9 @@ class NodeTree(ParentedTree):
             raise TypeError("param 'children' should be a list.")
 
         # param check: labels_dict
-        if labels_dict is None:
-            labels_dict = {}  # 防止默认值为可变元素
-        if not isinstance(labels_dict, dict):
+        if labels is None:
+            labels = {}  # 防止默认值为可变元素
+        if not isinstance(labels, (str, dict)):
             raise TypeError("param label_dict should be None or a dict.")
 
         # private: _parent
@@ -33,13 +33,39 @@ class NodeTree(ParentedTree):
 
         # private: _labels
         from nlp_plantform.center.labels import NodeLabels
-        self._labels: NodeLabels = NodeLabels(owner=self, labels_dict=labels_dict)
+        if isinstance(labels, str):
+            labels = {"string": labels}
+        if isinstance(labels, dict):
+            self._labels: NodeLabels = NodeLabels(owner=self, labels_dict=labels)
 
         # load children
         list.__init__(self, children)
         for child in self:
             if isinstance(child, NodeTree):
                 child._parent = self
+
+    # public: labels
+    @property
+    def labels(self):
+        return self._labels
+    @labels.setter
+    def labels(self, labels_dict):
+        from nlp_plantform.center.labels import NodeLabels
+        # 析构旧label
+        self._labels.clear()
+        # 添加新label
+        self._labels = NodeLabels(owner=self, labels_dict=labels_dict)
+
+    # public: _label 提供给nltk使用
+    @property
+    def _label(self):
+        if "string" in self._labels:
+            return self._labels["string"]
+        else:
+            return ""
+    @_label.setter
+    def _label(self, value):
+        self._labels["string"] = value
 
     def get_parent(self) -> Union[None, "NodeTree"]:
         return self._parent
@@ -53,17 +79,7 @@ class NodeTree(ParentedTree):
                         "or del parent[index]")
     _setparent = set_parent
 
-    # public: labels
-    @property
-    def labels(self):
-        return self._labels
-    @labels.setter
-    def labels(self, labels_dict):
-        from nlp_plantform.center.labels import NodeLabels
-        # 析构旧label
-        self._labels.clear()
-        # 添加新label
-        self._labels = NodeLabels(owner=self, labels_dict=labels_dict)
+
 
     def get_label(self):
         """
@@ -114,7 +130,7 @@ class NodeTree(ParentedTree):
             # so we need to be able to compare with non-trees:
             return self.__class__.__name__ < other.__class__.__name__
         elif self.__class__ is other.__class__:
-            return (self._labels, list(self)) < (other._label, list(other))
+            return (self._labels, list(self)) < (other._labels, list(other))
         else:
             return self.__class__.__name__ < other.__class__.__name__
 
@@ -1097,7 +1113,7 @@ class NodeTree(ParentedTree):
 
         # If the tree has an extra level with node='', then get rid of
         # it.  E.g.: "((S (NP ...) (VP ...)))"
-        if remove_empty_top_bracketing and tree._label == '' and len(tree) == 1:
+        if remove_empty_top_bracketing and tree._labels == '' and len(tree) == 1:
             tree = tree[0]
         # return the tree.
         return tree
