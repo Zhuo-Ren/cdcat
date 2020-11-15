@@ -36,7 +36,7 @@ class AutoSyncList(list):
             if self.type_limit is not None:
                 if not isinstance(init_value, self.type_limit):
                     raise TypeError
-            self.append(init_value) # self.append will sync the linked label
+            self.append(init_value)  # self.append will sync the linked label
 
     # public: owner_label
     @property
@@ -231,6 +231,13 @@ class LabelType(object):
 
     def readable(self):
         return self.value
+
+    def to_info(self):
+        pass
+
+    @classmethod
+    def from_info(cls, key, value_info, root_node, instance_pool):
+        return cls(owner=None, key=key, value=value_info)
 
     def ajax_process(self, ajax_param, root_node, instance_pool):
         pass
@@ -493,6 +500,10 @@ class LabelTypeNode(LabelType):
         else:
             return  self.value.readable(nolink=True)
 
+    @classmethod
+    def from_info(cls, key, value_info, root_node, instance_pool):
+        return cls(owner=None, key=key, value=root_node[value_info])
+
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
 
@@ -605,6 +616,10 @@ class LabelTypeInstance(LabelType):
             return None
         else:
             return  self.value.readable(nolink=True)
+
+    @classmethod
+    def from_info(cls, key, value_info, root_node, instance_pool):
+        return cls(owner=None, key=key, value=instance_pool.get_instance({"id": value_info}))
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool

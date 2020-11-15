@@ -467,9 +467,9 @@ class NodeTree(ParentedTree):
 
         example::
             >>> t = NodeTree.fromstring("(S (NP (D the) (N dog)) (VP (V chased) (NP (D the) (N cat))))")
-            >>> t.treepositions()
+            >>> t.walk_positions()
             [(), (0,), (0, 0), (0, 0, 0), (0, 1), (0, 1, 0), (1,), (1, 0), (1, 0, 0), (1, 1), (1, 1, 0), (1, 1, 0, 0), (1, 1, 1), (1, 1, 1, 0)]
-            >>> for pos in t.treepositions('leaves'):
+            >>> for pos in t.walk_positions('leaves'):
             ...     t[pos] = t[pos][::-1].upper()
             >>> print(t)
             (S (NP (D EHT) (N GOD)) (VP (V DESAHC) (NP (D EHT) (N TAC))))
@@ -1006,6 +1006,61 @@ class NodeTree(ParentedTree):
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())
         return output_dict
+
+
+    def to_info(self):
+        output_dict = {}
+        output_dict["parent"] = ''
+        if self.get_parent() is not None:
+            output_dict["parent"] = self.get_parent().position(output_type="string")
+        output_dict["position"] = self.position(output_type="string")
+        output_dict["child"] = []
+        for cur_child in self:
+            if isinstance(cur_child, str):
+                output_dict["child"].append(cur_child)
+            elif isinstance(cur_child, NodeTree):
+                output_dict["child"].append(cur_child.position())
+        output_dict["labels"] = {}
+        if nolink == True:
+            output_dict["labels"].update(self.labels.readable(nolink=True))
+        else:
+            output_dict["labels"].update(self.labels.readable())
+        return output_dict
+
+    @classmethod
+    def from_info(cls, root_node, info):
+        """
+        Json to obj
+
+        :param root_node: The root node of the nood tree, used to locate target node by position.
+          If *root_node* is None, *info* is the whole node tree, that means the first
+          element in *info* represent the first node.
+        :param info:
+        :return: A NodeTree obj
+        """
+        # param check
+        if root_node is not None:
+            if isinstance(root_node, NodeTree):
+                raise TypeError
+
+        node = NodeTree(labels=None, Children=None)
+
+        if root_node is None:
+            root_node = node
+
+        # parent
+        if root_node is None:
+            node._parent = None
+        else:
+            parent_node = root_node[tuple(info["parent"])]
+            parent_node.append(node)
+
+        # children
+        """do not care *children*, we deal with *parent* only, cause the two are the same thing"""
+
+        # labels
+        from nlp_plantform.center.labels import NodeLabels
+        node._labels = NodeLabels(owner=node, labels_dict=info["labels"])
 
     # Parsing-------------------------------------------------------
     @classmethod

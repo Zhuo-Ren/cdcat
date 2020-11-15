@@ -16,12 +16,13 @@ class Labels(dict):
         Init a labels obj.
 
         :param owner: The node is the owner of the labels.
-          The labels obj need knows it owner when edit a linked label such as a_node.labels["instance"] ---
-          a_instance.labels["mentionList"]
+          The labels obj need knows it owner when edit a linked label such as
+          a_node.labels["instance"] --- a_instance.labels["mentionList"]
 
         :param labels_dict: Value of labels.
-          Only the one who follows the config in config_label_sys.json will be accept, or the default value will be
-          used.
+          All kinds of labels are allowed. Labels that register to
+          config_label_sys.json are called "configured label", others are "free
+          label".
         """
         # param check: owner
         if not isinstance(owner, self.owner_type_class):
@@ -86,14 +87,38 @@ class Labels(dict):
 
     def readable(self, nolink=False):
         info_dict = {}
-        for (label_key, label_config) in self.config.items():
-            if label_key in self:
+        for (cur_label_key, cur_label_value) in self.items():
+            # 定制标签
+            if cur_label_key in self.config.keys():
                 if nolink == False:
-                    info_dict.update({label_key: self[label_key].readable()})
+                    info_dict.update({cur_label_key: cur_label_value.readable()})
                 elif nolink == True:
-                    if "linkto" not in label_config:
-                        info_dict.update({label_key: self[label_key].readable()})
+                    if "linkto" not in self.config[cur_label_key]:
+                        info_dict.update({cur_label_key: cur_label_value.readable()})
+            # 非定制标签
+            else:
+                info_dict.update({cur_label_key: cur_label_value})
         return info_dict
+
+    def to_info(self):
+        info_dict = {}
+        for (cur_label_key, cur_label_value) in self.items():
+            # 定制标签
+            if cur_label_key in self.config.keys():
+                info_dict.update({cur_label_key: cur_label_value.to_info()})
+            # 非定制标签
+            else:
+                info_dict.update({cur_label_key: cur_label_value})
+        return info_dict
+
+    def from_dict(self, info_dict, root_node=None, instance_pool=None):
+        for (cur_label_key, cur_label_value) in info_dict.items():
+            # 定制标签
+            if cur_label_key in self.config.keys():
+                info_dict.update({cur_label_key: cur_label_value.from_info()})
+            # 非定制标签
+            else:
+                info_dict.update({cur_label_key: cur_label_value})
 
     # def __str__(self) -> str:
     #     output_dict = {}
