@@ -21,7 +21,7 @@ class InstancePool(dict):
             new_instance = Instance(labels_dict=instance)
             new_instance.instance_pool = self
             new_instance["id"] = self.next_id
-            #进行简单测试作用
+            #下面两句代码是用来测试空字典的小测试
             # if "desc" not in instance:
             #     new_instance["desc"] = new_instance["id"]
             self[new_instance["id"]] = new_instance
@@ -33,6 +33,12 @@ class InstancePool(dict):
             self[instance["id"]] = instance
             self.next_id += 1
             return  instance
+        # new_instance = Instance(labels_dict=info_dict)
+        # new_instance["id"] = self.next_id
+        # self[new_instance["id"]] = new_instance
+        # self.next_id += 1
+        # return  new_instance
+
 
 
     def get_instance(self, info_dict)-> List[Instance]:
