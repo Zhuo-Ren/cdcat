@@ -360,7 +360,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         else:  # 单纯创建一个instance
             logging.debug("addInstance_empty->：")
             # 创建instance
-            instance = instance_pool.add_instance()
+            instance = instance_pool.add_instance({})
             # 创建instancelink
             instance_pool.groups[2][0][2].append(instance)
         logging.debug("addInstance->：" + str(["success", instance.readable()]))
