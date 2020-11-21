@@ -6,7 +6,8 @@ class InstancePool(dict):
     def __init__(self):
         self.next_id : int = 0
         """
-        The id of next instance in this instance pool. Id of instance start of 0. The latest instance id is self。next_id - 1
+        The id of next instance in this instance pool. Id of instance start of 0. 
+        The latest instance id is self。next_id - 1
         """
 
         self.groups = ["group", None, [
@@ -14,9 +15,25 @@ class InstancePool(dict):
             ["group", "GName", []]
         ]]
 
-    def add_instance(self, info_dict=None):
-        new_instance = Instance(instance_pool=self, labels_dict=info_dict)
-        return new_instance
+    def add_instance(self, instance: Union[dict,Instance]=None):
+        #param check
+        if isinstance(instance,dict):
+            new_instance = Instance(labels_dict=instance)
+            new_instance.instance_pool = self
+            new_instance["id"] = self.next_id
+            #进行简单测试作用
+            # if "desc" not in instance:
+            #     new_instance["desc"] = new_instance["id"]
+            self[new_instance["id"]] = new_instance
+            self.next_id += 1
+            return  new_instance
+        elif instance(instance,Instance):
+            instance.instance_pool = self
+            instance["id"] = self.next_id
+            self[instance["id"]] = instance
+            self.next_id += 1
+            return  instance
+
 
     def get_instance(self, info_dict)-> List[Instance]:
         """
