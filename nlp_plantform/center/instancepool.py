@@ -14,9 +14,23 @@ class InstancePool(dict):
             ["group", "GName", []]
         ]]
 
-    def add_instance(self, info_dict=None):
-        new_instance = Instance(instance_pool=self, labels_dict=info_dict)
-        return new_instance
+    def add_instance(self, instance: Union[dict, Instance]):
+        if isinstance(instance, dict):#创建新的实例并加入实例池
+            new_instance = Instance(labels_dict = instance)
+            new_instance.instance_pool = self
+            new_instance["id"]: int = self.next_id
+            if "desc" not in instance:
+                new_instance["desc"] = new_instance["id"]
+            self[new_instance["id"]] = new_instance
+            self.next_id += 1
+            return new_instance
+        else:#将现有的实例直接加入实例池
+            instance.instance_pool = self
+            instance["id"]: int = self.next_id
+            self[instance["id"]] = instance
+            self.next_id += 1
+            return instance
+
 
     def get_instance(self, info_dict)-> List[Instance]:
         """
