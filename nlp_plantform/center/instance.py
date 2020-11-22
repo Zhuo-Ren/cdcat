@@ -9,6 +9,13 @@ class Instance(dict):
         if not isinstance(labels_dict, dict):
             raise TypeError("param label_dict should be None or a dict.")
 
+        # public: instance_pool
+        self.instance_pool = None
+        """
+        A instance must belong to, and only belong to, one instance pool. 
+        The id of a new instance is given by the instance pool.
+        """
+
         # public: id
         self["id"] = None
         """

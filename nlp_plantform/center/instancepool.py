@@ -27,7 +27,8 @@ class InstancePool(dict):
         The first child of root group must be a instances which is used to receive new instance in GUI.
         """
 
-    def add_instance(self, value=None):
+    def add_instance(self, value: Union[dict, Instance]) -> Instance:
+        new_instance = None
         # if param value is a instance
         if isinstance(value, Instance):
             new_instance = value
