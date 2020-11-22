@@ -35,10 +35,17 @@ class InstancePool(dict):
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
             new_instance = Instance(labels_dict=value)
+
+        # update the new instance
         new_instance["id"] = self.next_id
+        if new_instance["desc"] is None:
+            new_instance["desc"] = new_instance["id"]
         new_instance.instance_pool = self
+        # update the instance pool
         self[new_instance["id"]] = new_instance
         self.next_id += 1
+
+        #
         return new_instance
 
     def get_instance(self, info_dict)-> List[Instance]:
