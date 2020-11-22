@@ -2,33 +2,21 @@ from typing import Dict, List, Tuple, Union  # for type hinting
 
 
 class Instance(dict):
-    def __init__(self, instance_pool, labels_dict: Dict = None):
-        # param check: instance_pool
-        from nlp_plantform.center.instancepool import InstancePool
-        if not isinstance(instance_pool, InstancePool):
-            raise TypeError
-
+    def __init__(self, labels_dict: Dict = None):
         # param check: labels_dict
         if labels_dict is None:
             labels_dict = {}  # 防止默认值为可变元素
         if not isinstance(labels_dict, dict):
             raise TypeError("param label_dict should be None or a dict.")
 
-        # public: instance_pool
-        self.instance_pool = instance_pool
-        """
-        A instance must belong to, and only belong to, one instance pool. 
-        The id of a new instance is given by the instance pool.
-        """
-
         # public: id
-        self["id"] : int = instance_pool.next_id
+        self["id"] = None
         """
         The id of this instance. Start from 0.
         """
 
         # public： desc
-        self["desc"]: str = str(self["id"])
+        self["desc"]: str = None
         if "desc" in labels_dict:
             self["desc"] = labels_dict["desc"]
         """
@@ -38,10 +26,6 @@ class Instance(dict):
         # private: _labels
         from nlp_plantform.center.labels import InstanceLabels
         self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=labels_dict)
-
-        # update instance pool
-        instance_pool[self["id"]] = self
-        instance_pool.next_id += 1
 
     # public: labels
     @property

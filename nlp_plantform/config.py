@@ -1,3 +1,3 @@
-root_path = r"E:\ProgramCode\cdcat"
-data_path = r"E:\ProgramCode\cdcat\data"
+root_path = r"E:\cdcat\cdcat"
+data_path = r"E:\cdcat\cdcat\data"
 

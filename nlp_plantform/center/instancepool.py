@@ -6,7 +6,9 @@ class InstancePool(dict):
     def __init__(self):
         self.next_id : int = 0
         """
-        The id of next instance in this instance pool. Id of instance start of 0. The latest instance id is self。next_id - 1
+        The id of next instance in this instance pool. 
+        Id of instance start of 0. 
+        The latest instance id is self.next_id - 1
         """
 
         self.groups = ["group", None, [
@@ -28,16 +30,17 @@ class InstancePool(dict):
     def add_instance(self, value=None):
         # if param value is a instance
         if isinstance(value, Instance):
-            instance = value
+            new_instance = value
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
-            instance = Instance(instance_pool=self, labels_dict=value)
-        # instance.id
-        # instance.pool
-        # self.next_id
-        return instance
+            new_instance = Instance(labels_dict=value)
+        new_instance["id"] = self.next_id
+        new_instance.instance_pool = self
+        self[new_instance["id"]] = new_instance
+        self.next_id += 1
+        return new_instance
 
-    def get_instance(self, info_dict) -> List[Instance]:
+    def get_instance(self, info_dict)-> List[Instance]:
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 

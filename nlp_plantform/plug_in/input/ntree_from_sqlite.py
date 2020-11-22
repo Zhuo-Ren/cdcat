@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_from_string_plaintext_form
-from  dbsql.dbsql_sqlite import DbSql
+from dbsql.dbsql_sqlite import DbSql
 import nlp_plantform.log_config
 
 
