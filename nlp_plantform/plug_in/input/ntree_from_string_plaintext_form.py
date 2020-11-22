@@ -11,7 +11,7 @@ def input_from_string_plaintext_form(text):
     :param text:
     :return: The parent node.
     """
-    t = NodeTree(labels={}, children=[])
+    t = NodeTree(label={}, children=[])
     for cur_char in text:
         cur_node = NodeTree({'char': True}, [cur_char])
         t.append(cur_node)

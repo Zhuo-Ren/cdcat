@@ -28,7 +28,7 @@ class Instance(dict):
         """
 
         # public： desc
-        self["desc"] : str = str(self["id"])
+        self["desc"]: str = str(self["id"])
         if "desc" in labels_dict:
             self["desc"] = labels_dict["desc"]
         """

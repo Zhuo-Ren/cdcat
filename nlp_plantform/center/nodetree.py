@@ -8,69 +8,38 @@ from nltk.tree import ParentedTree
 
 
 class NodeTree(ParentedTree):
-    def __init__(self, labels: Union[str, Dict] = None, children: Union[None, Dict] = None):
-        """
-        Initial a node based on labels and children.
+    r"""
+    node::
 
-        - Every label in label_sys.js will be added to this node. The value of label is given by label_dict, if not the
-          default value in label_sys.ja will be use.
+        -  parent
+        -  *position*
+        -  labels
+            - nltk_label
+            - XXXX
+    """
+    fixed_keys = []
+    config = {}
 
-        :param labels: label dict of this node.
-        :param children: children of this node.
-        """
-        # param check: children
-        if not isinstance(children, list):
-            raise TypeError("param 'children' should be a list.")
+    def __init__(self, label: Union[str, Dict] = None, children: Union[None, List["NodeTree"]] = None):
+        # parent
+        self.parent = None
+        # labels
+        self.labels = None
+        # fixed label
+        pass
+        # add children
+        pass
 
-        # param check: labels_dict
-        if labels is None:
-            labels = {}  # 防止默认值为可变元素
-        if not isinstance(labels, (str, dict)):
-            raise TypeError("param label_dict should be None or a dict.")
+    # labels g s
+    # nltk_label g s
+    # fixed_labels g s
+    # configured_labels g s
+    # free_labels g s
 
-        # private: _parent
-        self._parent = None
-
-        # private: _labels
-        from nlp_plantform.center.labels import NodeLabels
-        if isinstance(labels, str):
-            labels = {"string": labels}
-        if isinstance(labels, dict):
-            self._labels: NodeLabels = NodeLabels(owner=self, labels_dict=labels)
-
-        # load children
-        list.__init__(self, children)
-        for child in self:
-            if isinstance(child, NodeTree):
-                child._parent = self
-
-    # public: labels
-    @property
-    def labels(self):
-        return self._labels
-    @labels.setter
-    def labels(self, labels_dict):
-        from nlp_plantform.center.labels import NodeLabels
-        # 析构旧label
-        self._labels.clear()
-        # 添加新label
-        self._labels = NodeLabels(owner=self, labels_dict=labels_dict)
-
-    # public: _label 提供给nltk使用
-    @property
-    def _label(self):
-        if "string" in self._labels:
-            return self._labels["string"]
-        else:
-            return ""
-    @_label.setter
-    def _label(self, value):
-        self._labels["string"] = value
-
+    # parent
     def get_parent(self) -> Union[None, "NodeTree"]:
         return self._parent
     parent = get_parent
-
     def set_parent(self, new_parent, new_index):
         raise TypeError("tree obj does not support set_parent, "
                         "tree_obj.set_parent(parent, index) should be"

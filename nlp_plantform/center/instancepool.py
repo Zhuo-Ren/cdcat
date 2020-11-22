@@ -13,12 +13,31 @@ class InstancePool(dict):
             ["instances", "fixed", []],
             ["group", "GName", []]
         ]]
+        """
+        Organization strategy of instances.
+        Compared with **InstancePool**, one instance can appear multi times in **groups**.
+        **groups** is a nested list with element in the form of [TYPE, NAME, CHILDREN].
+        There are two type of element: group and instances.
+        A child of "group" can be "instances" and "group".
+        A child of "instances" must be Instance object
+        
+        The NAME of root group will not be displayed in GUI.
+        The first child of root group must be a instances which is used to receive new instance in GUI.
+        """
 
-    def add_instance(self, info_dict=None):
-        new_instance = Instance(instance_pool=self, labels_dict=info_dict)
-        return new_instance
+    def add_instance(self, value=None):
+        # if param value is a instance
+        if isinstance(value, Instance):
+            instance = value
+        # if param value is not a instance, create a new instance based on it.
+        elif isinstance(value, dict):
+            instance = Instance(instance_pool=self, labels_dict=value)
+        # instance.id
+        # instance.pool
+        # self.next_id
+        return instance
 
-    def get_instance(self, info_dict)-> List[Instance]:
+    def get_instance(self, info_dict) -> List[Instance]:
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 
