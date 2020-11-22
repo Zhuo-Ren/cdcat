@@ -1,6 +1,20 @@
 from nlp_plantform.center.instance import Instance
 from nlp_plantform.center.instancepool import InstancePool
 
+# i1 = Instance（）
+# i2 = Instance（{}）
+# i3 = Instance（{"id","desc"}）
+# i4 = Instance（有desc的字典）
+# p1 = InstancePool()
+# p2 = InstancePool()
+# InstancePool_obj.add_instance({})
+# InstancePool_obj.add_instance({"id": 100 })
+# InstancePool_obj.add_instance({"desc": "aaa"})
+# InstancePool_obj.add_instance(i2)})
+# InstancePool_obj.add_instance(i3)})
+# InstancePool_obj.add_instance(i3)})
+
+
 # 测试Instance的构造函数
 i1 = Instance()
 i2 = Instance()
