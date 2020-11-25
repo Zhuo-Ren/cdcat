@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.instance import Instance
-
+from nlp_plantform.center.MyException import AllocateInstancepoolError
 
 class InstancePool(dict):
     def __init__(self):
@@ -32,10 +32,21 @@ class InstancePool(dict):
         # if param value is a instance
         if isinstance(value, Instance):
             new_instance = value
+            # if new_instance already has been bound to an instance_pool
+            try:
+                if(new_instance.instance_pool is not None):
+                    if(new_instance.instance_pool is self):
+                        raise AllocateInstancepoolError("Add failed, because the instance has been bound to the current intancepool")
+                    else:
+                        raise AllocateInstancepoolError("Add failed, because the instance has been bound to another intancepool")
+            except AllocateInstancepoolError as e:
+                #此处需要改成弹出一个提示框，告知用户添加失败及其原因。
+                print(e.reason)
+                return new_instance
+
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
             new_instance = Instance(labels_dict=value)
-
         # update the new instance
         new_instance["id"] = self.next_id
         if new_instance["desc"] is None:
@@ -45,10 +56,9 @@ class InstancePool(dict):
         self[new_instance["id"]] = new_instance
         self.next_id += 1
 
-        #
         return new_instance
 
-    def get_instance(self, info_dict)-> List[Instance]:
+    def get_instance(self, info_dict) -> List[Instance]:
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 
@@ -70,7 +80,7 @@ class InstancePool(dict):
         else:
             raise RuntimeError("抱歉这个还没实现。")
 
-    def get_instance_by_id(self, id: Union[int, str])-> List[Instance]:
+    def get_instance_by_id(self, id: Union[int, str]) -> List[Instance]:
         """
         get_instance_by_id
 
