@@ -33,16 +33,11 @@ class InstancePool(dict):
         if isinstance(value, Instance):
             new_instance = value
             # if new_instance already has been bound to an instance_pool
-            try:
-                if(new_instance.instance_pool is not None):
-                    if(new_instance.instance_pool is self):
-                        raise AllocateInstancepoolError("Add failed, because the instance has been bound to the current intancepool")
-                    else:
-                        raise AllocateInstancepoolError("Add failed, because the instance has been bound to another intancepool")
-            except AllocateInstancepoolError as e:
-                #此处需要改成弹出一个提示框，告知用户添加失败及其原因。
-                print(e.reason)
-                return new_instance
+            if new_instance.instance_pool is not None:
+                if new_instance.instance_pool is self:
+                    raise AllocateInstancepoolError("Add failed, because the instance has been bound to the current intancepool")
+                else:
+                    raise AllocateInstancepoolError("Add failed, because the instance has been bound to another intancepool")
 
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
