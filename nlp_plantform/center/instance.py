@@ -1,10 +1,10 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 
 
-class Instance(dict):
-    def __init__(self, labels_dict: Dict = None):
+class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
+    def __init__(self, labels_dict: Dict = None):   # 形参后面的冒号仅仅是一个注释作用
         # param check: labels_dict
-        if labels_dict is None:
+        if labels_dict is None:     # 形参为空，则输出空字典
             labels_dict = {}  # 防止默认值为可变元素
         if not isinstance(labels_dict, dict):
             raise TypeError("param label_dict should be None or a dict.")

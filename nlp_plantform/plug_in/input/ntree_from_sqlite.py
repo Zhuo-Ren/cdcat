@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.plug_in.input.ntree_from_string_plaintext_form import input_from_string_plaintext_form
-from dbsql.dbsql_sqlite import DbSql
+from  test_unit.tools.dbsql.dbsql.dbsql_sqlite import DbSql
 import nlp_plantform.log_config
 
 
@@ -53,6 +53,6 @@ def input_ntree_from_sqlite(path: str, table_name: str)-> NodeTree:
         # 新闻节点添加到新闻节点列表
         news_node_list.append(cur_news_node)
     #
-    root = NodeTree(label={}, children=news_node_list)
+    root = NodeTree(labels={}, children=news_node_list)
     return root
 

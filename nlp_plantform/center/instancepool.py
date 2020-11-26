@@ -1,6 +1,9 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.instance import Instance
 
+class AllocateInstancepool(Exception):
+    def __init__(self,reason):
+        self.reason = reason
 
 class InstancePool(dict):
     def __init__(self):
@@ -32,6 +35,17 @@ class InstancePool(dict):
         # if param value is a instance
         if isinstance(value, Instance):
             new_instance = value
+            try:
+                if (new_instance.instance_pool is not None):
+                    if(new_instance.instance_pool is self):
+                         raise  AllocateInstancepool("Add failed,"+
+                            " because the instance has been allocated in this pool")
+                    else:
+                         raise AllocateInstancepool("Add failed,"+
+                            " because the instance has been allocated in other pool")
+            except AllocateInstancepool as err:
+                print(err.reason)
+                return  new_instance
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
             new_instance = Instance(labels_dict=value)
@@ -45,7 +59,6 @@ class InstancePool(dict):
         self[new_instance["id"]] = new_instance
         self.next_id += 1
 
-        #
         return new_instance
 
     def get_instance(self, info_dict)-> List[Instance]:
