@@ -19,6 +19,8 @@ from nlp_plantform.center.instancepool import InstancePool
 i1 = Instance()
 i2 = Instance()
 i3 = Instance()
+i99 = Instance({'id': '55','desc': 'xxx' })
+print(i99)
 print(i1, i1.instance_pool)
 print(i2, i2.instance_pool)
 print(i3, i3.instance_pool)
