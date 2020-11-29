@@ -1,6 +1,5 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.MyException import AllocateInstancepoolError
 
 class InstancePool(dict):
     def __init__(self):
@@ -35,9 +34,9 @@ class InstancePool(dict):
             # if new_instance already has been bound to an instance_pool
             if new_instance.instance_pool is not None:
                 if new_instance.instance_pool is self:
-                    raise AllocateInstancepoolError("Add failed, because the instance has been bound to the current intancepool")
+                    raise Exception("Add failed, because the instance has been bound to the current intancepool")
                 else:
-                    raise AllocateInstancepoolError("Add failed, because the instance has been bound to another intancepool")
+                    raise Exception("Add failed, because the instance has been bound to another intancepool")
 
         # if param value is not a instance, create a new instance based on it.
         elif isinstance(value, dict):
