@@ -3,39 +3,24 @@ from nlp_plantform.center.instancepool import InstancePool
 import pytest
 
 def setup_module():
-    print("\n初始化模块")
+    print("Setup module test_all")
 def teardown_module():
-    print("\n清除模块")
-class Test_instance():
-    """基础测试"""
-    def test_basic001(self):
-        """基础测试001，判断新建i1实例以及生成的pool的结果是否正确"""
-        i001 = Instance()
-        assert i001 == {'id': None, 'desc': None} # 测试节点1
-        assert i001.instance_pool == None  # 测试节点2
-    def test_basic002(self):
-        """基础测试002，判断空字典创建的实例以及生成的pool的结果是否正确"""
-        i002 = Instance({})
-        assert i002 == {'id': None, 'desc': None}  # 测试节点3
-        assert i002.instance_pool == None  # 测试节点4
-    def test_basic003(self):
-        """基础测试003，判断仅有desc描述的字典创建的实例以及生成的pool的结果是否正确"""
-        i003 = Instance({'desc':'东方航空'})
-        assert i003 == {'id': None, 'desc': '东方航空'}  # 测试节点5
-        assert i003.instance_pool == None  # 测试节点6
-    def test_basic004(self):
-        """基础测试004，判断恶意赋予Instance id之后创建的实例以及生成的pool的结果是否正确"""
-        i004 = Instance({'id': '888','desc': '厦门航空'})
-        assert i004 == {'id': None, 'desc': '厦门航空'}  # 测试节点7
-        assert i004.instance_pool == None  # 测试节点8
-        print("\n基础测试完成测试四套，完成测试节点8个，请查看通过/不通过情况\n")
+    print("Teardown module test_all")
+
 
 class Test_instancepool():
-    """Instancepool测试"""
+    def setup(self):
+        print("Start testing a unit of instancepool")
+    def teardown(self):
+        print("Complete testing a unit of instancepool")
+
+    # 测试__init__()
     def test_checkInstancePool(self):
         """初始化Instancepool检查"""
         p = InstancePool()
-        assert p == {}  # 测试节点1
+        assert p == {}
+
+    # 测试add_instance()
     def test_chekNonedict(self):
         """加入空字典的实例"""
         p = InstancePool()
