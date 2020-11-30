@@ -31,6 +31,13 @@ class InstancePool(dict):
         # if param value is a instance
         if isinstance(value, Instance):
             new_instance = value
+            if new_instance.instance_pool is not None:
+                    if new_instance.instance_pool is self:
+                         raise  Exception("Add failed, because the instance has been allocated in this pool")
+                    else:
+                         raise Exception("Add failed, because the instance has been allocated in other pool")
+            # if param value is not a instance, create a new instance based on it.
+
             # if new_instance already has been bound to an instance_pool
             if new_instance.instance_pool is not None:
                 if new_instance.instance_pool is self:
