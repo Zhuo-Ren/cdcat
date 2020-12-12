@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 import copy
 
+#读取配置文件，并将配置信息放入Nodelabels和InstanceLabels的config中。  比我的代码更先进，我是都取出来然后各取所需
 def regiest_cofigured_label_types():
     from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config as cdcat_config
     from nlp_plantform.center.labels import NodeLabels, InstanceLabels
@@ -16,6 +17,12 @@ def regiest_cofigured_label_types():
             cur_label["key"]: cur_label
         })
 
+def read_config():
+    from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
+    import json
+    with open(label_sys_dict_path) as json_file:
+        config = json.load(json_file)
+    return config
 
 class AutoSyncList(list):
 
@@ -152,38 +159,116 @@ class LabelType(object):
     A base class of label type
 
     Attributes:
-        owner: AAA
+        owner: an object of labels
         key: AAA
         config: AAA
         value: AAA
     """
-
+    config = {}
     from nlp_plantform.center.labels import InstanceLabels, NodeLabels
+    owner_type_class = (NodeLabels, InstanceLabels)
 
-    def __init__(self, owner: Union[NodeLabels,InstanceLabels], key, value=None):
+    def __init__(self, info: Dict = {}, objs_dict=None, sync=None):
         # param check: owner
-        from nlp_plantform.center.labels import InstanceLabels, NodeLabels
-        if not isinstance(owner, (NodeLabels, InstanceLabels)):
-            raise TypeError("param 'owner' should be InstanceLabels obj or NodeLabels obj.")
+        self.owner = None
+        if "owner" in info.keys():
+            if not isinstance(info["owner"], self.owner_type_class):
+                raise TypeError("param 'owner' should be InstanceLabels obj or NodeLabels obj")
         # param check: key
-        if not isinstance(key, str):
-            raise TypeError("param 'key' should be a string.")
+        if "key" in info.keys():
+            if not isinstance(info["key"], str):
+                raise TypeError("param 'key' should be a string.")
+
         # param check: value
         pass  # in child class
 
-        # public: owner and owner_labels
-        self.owner = owner
+        #检查这个label是否是一个定制的label
+        """
+        此处还未修改。准备直接使用学长的读取配置文件方法。
+        先读取NodeLabels和InstanceLabels的配置文件，根据该label的拥有者进一步访问配置文件
+        例如，现在访问的是InstanceLabels的配置文件，在配置文件中寻找该"key"，
+        若能找到则说明该label一个定制的label（但还需要验证label类型），
+        进一步对比该label的类型和配置文件中的value_type，若符合，则确定这是一个定制的label；若不符合，则引发TypeError
+        
+        若配置文件中有"key"则该label做为一个定制的label创建出来，若没有则作为FreeLabel创建出来。
+        进一步，调用init方法应在子类中进行。因为我们并不需要创建一个Labels类。
+        """
 
-        # public: key
-        self.key = key
+        """
+        如果是一个定制的label的话，它的value可能存在一些要求：比如，性别"男"或"女"或"未知"，这些是否也需要检验？
+        还是说从前端输入的时候已经限制死了，保证不会出现错误？
+        
+        网络传输造成的信息不一致，如何检验？
+        """
+        if "key" in info.keys():
+            #读取label的配置文件
+            sys_config = read_config()
+            find_flag = False
+            #遍历配置文件，匹配key和value的取值，如果没有对应key则当作FreeLabel创建
+            for labels_owner in sys_config:
+                for label_config in sys_config[labels_owner]:
+                    if info["key"] ==label_config["key"]:
+                        self.key = info["key"]
+                        label_desc = label_config
+                        find_flag = True
+                        break
+                if find_flag is True:
+                    if not info["value"] == label_desc["value_type"]:
+                        raise ValueError
+                    else:
+                        #此时已确定，label是一个定制的标签。
+                        self.value = info["value"]
+                        self.config = label_desc
+            #该label是一个普通的Label
+            if find_flag is False:
+                self.key = info["key"]
+                self.value = info["value"]
+                if "config" in info:
+                    self.config = info["config"]
 
-        # private: value
-        self._value = copy.copy(self.empty_value)
-        if value is not None:
-            self.value = value
-            "这里将调用子类中定义的value的setter，将包含同步功能如果需要的话。"
+        #同步操作
+        if sync is False:
+            """
+            与所属labels创建单向联系（如果该label有owner的话）
+            只在该label中定义他所在的labels
+            """
+            pass
+        else:
+            """
+            与所属labels创建双向联系（如果该label有owner的话）
+            不仅需要在该labels中定义他所在的labels
+            还需要更新labels中的该label(若没有则添加)
+            """
+            pass
+
+        # private: value，为什么要存一个私有的value
+        # self._value = copy.copy(self.empty_value)
+        # if value is not None:
+        #     self.value = value
+        #     "这里将调用子类中定义的value的setter，将包含同步功能如果需要的话。"
+
+    #同instance的疑问，不需要比较type了吗？下面我写的代码等同于不比较type...
+    def __eq__(self, other):
+        if isinstance(LabelType, other):
+            if type(other) == type(self) and other.config == self.config and other.owner == self.owner \
+                    and other.key == self.key and other.value == self.value:
+                return True
+            else:
+                return False
+        elif isinstance(dict, other):
+            if other["config"] == self.config and other["owner"] == self.owner and other["key"] == self.key \
+                    and other["value"] == self.value:
+                return True
+            else:
+                return False
+        else:
+            raise TypeError
 
     # public: config
+
+    """
+    这样的话，label必须得有owner，如果是一个新创建的Freelabel呢？
+    """
     @property
     def config(self) -> Dict:
         """
@@ -198,6 +283,7 @@ class LabelType(object):
     def owner_labels(self):
         return self.owner
 
+    #这个指向的是某个instance对象
     # public: owner_obj
     @property
     def owner_obj(self):
@@ -208,7 +294,7 @@ class LabelType(object):
     def value(self):
         return self._value
     @value.setter
-    def value(self,value):
+    def value(self, value):
         self._value = value  # 如有需要，子类应该添加linkedLabel同步机制
 
     def value_empty(self) -> None:
@@ -232,8 +318,45 @@ class LabelType(object):
     def readable(self):
         return self.value
 
-    def to_info(self):
-        pass
+    """
+    导出info
+    """
+    def to_info(self) -> dict:
+        info = {}
+        info["config"] = self.config
+        info["owner"] = self.owner
+        info["key"] = self.key
+        info["value"] = self.value
+        return info
+
+    def clear(self, sync=False):
+        if sync is False:
+            self.config = {}
+            self.owner = None
+            self.key = None
+            self.value = None
+            return self
+        else:
+            #同步修改Labels中的该label
+            pass
+
+    def set_value(self, value, info, sync=False):
+        if value is not None:
+            #简单情况，value是自定义列表对象。理解为这种：
+            """
+            "value_option": [["yes", "true"], ["no", "false"]]
+            """
+            self.value = value
+        if info is not None:
+            #复杂情况，info是python原生列表对象。理解为这种：
+            """
+            "value_default": {
+                "id": "",
+                "desc": ""
+             }
+            """
+            pass
+        return self
 
     @classmethod
     def from_info(cls, key, value_info, root_node, instance_pool):
@@ -242,13 +365,54 @@ class LabelType(object):
     def ajax_process(self, ajax_param, root_node, instance_pool):
         pass
 
+#FreeLabel类
+class LabelTypeFree(LabelType):
 
-class LabelTypeRadio(LabelType):
-    def __init__(self, owner, key, value: Union[None, str] = None):
+    def __init__(self, info, objs_dict=None, sync=None):
         # public
         self.empty_value = None
+        #FreeLabel无需检验配置文件
+        self._value = info["value"]
         #
-        super().__init__(owner=owner, key=key, value=value)
+        super().__init__(info, objs_dict=None, sync=None)
+
+    #这两个方法 如果每个子类都要的话可否放入TypeLabel父类中？
+    def set_link_require(self, from_labels, key):
+        """
+
+        Args:
+            from_labels: 建立联系的labels对象
+            key: 指向标签
+
+        Returns: True or False
+
+        """
+        pass
+
+    def del_link_require(self, from_labels, key):
+        """
+
+        Args:
+            from_labels: 删除联系的labels对象
+            key: 指向标签
+
+        Returns: True or False
+
+        """
+        pass
+
+#暂时只改了一个LabelTypeRadio类，如果没问题，其他类也采用类似方法
+class LabelTypeRadio(LabelType):
+    #这里的info含value
+    def __init__(self, info, objs_dict=None, sync=None):
+        # public
+        self.empty_value = None
+        #子类中检验value类型
+        if not isinstance(info["value"], self.config[self.key]["value_type"]):
+            raise TypeError
+        self._value = info["value"]
+        #
+        super().__init__(info, objs_dict=None, sync=None)
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
