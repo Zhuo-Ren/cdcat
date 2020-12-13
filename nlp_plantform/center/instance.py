@@ -1,91 +1,105 @@
-from typing import Dict, List, Tuple, Union  # for type hinting
+from typing import Dict, List, Tuple, Union, Optional  # for type hinting
 
+class Instance(object):
+    def __init__(self,
+                 info: Optional[dict] = None, objs_dict: Optional[dict] = None,
+                 load_label: bool = None, sync: bool = None):
+        """
 
-class Instance(dict):
-    def __init__(self, info=None, objs_dict=None, load_label=None, sync=None):  # 形参后面的冒号仅仅是一个注释作用
+        :param info:
+        :param objs_dict:
+        :param load_label:
+        :param sync:
+        """
         # param check: info
-        if info is None:     # 形参为空，则输出空字典
+        if info is None and objs_dict is None:
             info = {}  # 防止默认值为可变元素
-        if not isinstance(info, dict):
-            raise TypeError("param info should be None or a dict.")
-        # public: instance_pool
-        self.instance_pool = None
-        """
-        A instance must belong to, and only belong to, one instance pool. 
-        The id of a new instance is given by the instance pool.
-        """
+
+        # param check: objs_dict
+        pass
+
+        # param check: load_label
+        pass
+
+        # param sync
+        pass
 
         # public: id
-        self["id"] = None
+        self.id: Optional[int] = None
+        """ 
+        The id of this instance. 
+        初始化为None，
+        当instance被添加到pool后获得此值。id自增，从0开始。
         """
-        The id of this instance. Start from 0.
+
+        # public: instance_pool
+        from nlp_plantform.center.instancepool import InstancePool
+        self.instance_pool: Optional[InstancePool] = None
+        """
+        A instance must belong to, and only belong to, one instance pool. 
+        初始化为0.
+        当instance被添加到pool后获得此值。
         """
 
         # public： desc
-        self["desc"]: str = None
+        self.desc: str = ""
+        """
+        The description of this instance. 
+        Initial with ""
+        """
+
+        # public: labels
+        from nlp_plantform.center.labels import InstanceLabels
+        self.labels: InstancePool = None
+        """
+        Labels of the instance.
+        """
+
+        # 1.
         if "desc" in info:
-            self["desc"] = info["desc"]
+            if isinstance(info["desc"], str):
+                self["desc"] = info["desc"]
 
-        """
-        The describe of this instance. Initial with "", not a None.
-        """
+        # 2.
+        if not load_label:
+            self.labels = InstanceLabels(owner=self)
 
-        # private: _labels
-        from nlp_plantform.center.labels import InstanceLabels
-        if load_label is True:
-            self._labels: InstanceLabels = InstanceLabels(owner=self, info=info["labels"], load_label=True)
-        else:
-            self._labels: InstanceLabels = InstanceLabels(owner=self)
+        # 3.
+        if 1:
+            # 多态1
+            if (info is None) and (isinstance(objs_dict, dict)):
+                self.labels  = InstanceLabels(owner=self, objs_dict=objs_dict["labels"], load_label=True, sync=sync)
+            # 多态2
+            elif (isinstance(objs_dict, dict)) and (info is None):
+                self.labels  = InstanceLabels(owner=self, info=info["labels"], load_label=True, sync=sync)
+            # 多态3
+            else:
+                pass
 
-        # instance能有什么需要同步的？如果instance对象加入了实例池，需要把instance_pool和id更新
-        if sync is False:
-            #建立单向关系
-            if "instancepool" in info:
-                #检验instancepool类型
-                from nlp_plantform.center.instancepool import InstancePool
-                if not isinstance(info["instancepool"], InstancePool):
-                    raise TypeError
-                if not isinstance(info["id"], int):
-                    raise  TypeError
-                #因为id是instancepool赋予的，在instancepool赋予id的过程中存在自增，
-                #如何保证此时给的id是正确的，以及后续instancepool加入instance不出现冲突
-                self.instance_pool = info["instancepool"]
-                self.id = info["id"]
-        else:
-            #建立双向联系，
-            #将instance加入instancepool，并保持一致。
-            #将instance和他所拥有的labels同步
-            pass
-
-
-    #判断两个Instance是否完全一致。
-    #self.to_info() == other.to_info()即可？如果这样的话不需要比较type了吗？
     def __eq__(self, other):
-        if isinstance(other, Instance):
-            if type(other) == type(self) and other["id"] == self["id"] and other.instance_pool == self.instance_pool \
-                    and other["desc"] == self["desc"] and other.labels == self._labels:
-                return True
-            else:
-                return False
+        """
+        判断两个Instance对象所承载的信息是否一致。
+        """
+        if not isinstance(other, Instance):
+            pass  # 报错
         else:
-            if other["id"] == self["id"] and other["desc"] == self["desc"]:
-                return True
-            else:
-                return False
+            return self.to_info() == other.to_info()
 
-    # public: labels
-    @property
-    def labels(self):
-        return self._labels
-
-    # public: labels
-    @labels.setter
-    def labels(self, labels_value):
-        from nlp_plantform.center.labels import InstanceLabels
-        # 析构旧label
-        self._labels.clear()
-        # 添加新label
-        self._labels = InstanceLabels(owner=self, info=labels_value, load_label=True)
+    def to_info(self, style: str = "value") -> Dict :
+        """
+        将instance转换成info
+        """
+        info = {}
+        if style == "id":
+            info["id"] = self.id
+        elif style == "value":
+            info["id"] = self.id
+            # info["instancepool"] = self.instance_pool
+            info["desc"] = self["desc"]
+            info["labels"] = self.labels.to_info()
+        else:
+            pass
+        return info
 
     def readable(self, nolink=False) -> dict:
         """
@@ -110,14 +124,3 @@ class Instance(dict):
         r["id"] = str(self["id"])
         r["desc"] = self["desc"]
         return r
-
-    #将instance转换成info
-    def to_info(self):
-        #info里有什么：desc，labels
-        #如果已经加入了实例池 那么需不需要导出id和instancepool？？？
-        info = {}
-        info["id"] = self.id
-        info["instancepool"] = self.instance_pool
-        info["desc"] = self["desc"]
-        info["labels"] = self.labels
-        return info

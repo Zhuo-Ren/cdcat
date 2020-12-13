@@ -3,12 +3,18 @@ from nlp_plantform.center.instance import Instance
 from nlp_plantform.center.nodetree import NodeTree
 from nlp_plantform.center.labeltypes import regiest_cofigured_label_types
 
-def read_config():
+
+def read_config() -> Dict:
+    """
+    如果要使用cdcat，那么需要读取用户为cdcat所定制的label配置。
+    :return: Return config dict.
+    """
     from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
     import json
     with open(label_sys_dict_path) as json_file:
         config = json.load(json_file)
     return config
+
 
 class Labels(dict):
     # statistic: config
@@ -17,10 +23,13 @@ class Labels(dict):
     # statistic: type
     owner_type_str = ""
 
-    # statistic: type_class
+    # statistic: owner_type_class
     owner_type_class = Instance, NodeTree
+
     #info : {'key1': xxx, 'key2':xxx, 'key3':qqq}
-    def __init__(self, owner: Union[Instance, NodeTree], info: Dict = {}, objs_dict=None, load_label=None, sync=None):
+    def __init__(self, owner: Union[Instance, NodeTree],
+                 info: Dict = {}, objs_dict=None,
+                 sync=None):
         """
         Init a labels obj.
 
@@ -42,25 +51,26 @@ class Labels(dict):
         if not isinstance(info, dict):
             raise TypeError
 
-        # private: owner
+        # param check: objs_dict
+        pass
+
+        # public: owner
         self.owner = owner
 
-        #这是干嘛的
-        # private: owner_obj
+        # public: owner_obj
         self.owner_obj = owner
 
-        #读取所有config
+        # public: config
         self.config = read_config()
 
         # add label
-        if load_label is True:
-            for cur_label_key, cur_label_value in info.items():
-                #检查cur_label_value类型是否正确
-                from nlp_plantform.center.labeltypes import LabelType
-                if isinstance(cur_label_value, LabelType):
-                    self[cur_label_key] = cur_label_value
-                else:
-                    raise TypeError
+        for cur_label_key, cur_label_value in info.items():
+            #检查cur_label_value类型是否正确
+            from nlp_plantform.center.labeltypes import LabelType
+            if isinstance(cur_label_value, LabelType):
+                self[cur_label_key] = cur_label_value
+            else:
+                raise TypeError
         # add relationship with label
         if sync is False:
             """
@@ -176,6 +186,7 @@ class Labels(dict):
     #     for cur_label_key in self.keys():
     #         output_dict.update({cur_label_key: self[cur_label_key].readable()})
     #     return str(output_dict)
+
 
 class InstanceLabels(Labels):
     # static

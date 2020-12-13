@@ -3,6 +3,7 @@ from nlp_plantform.center.instance import Instance
 
 class InstancePool(dict):
     def __init__(self):
+        # public: next_id
         self.next_id : int = 0
         """
         The id of next instance in this instance pool. 
@@ -10,6 +11,7 @@ class InstancePool(dict):
         The latest instance id is self.next_id - 1
         """
 
+        # public: groups
         self.groups = ["group", None, [
             ["instances", "fixed", []],
             ["group", "GName", []]
