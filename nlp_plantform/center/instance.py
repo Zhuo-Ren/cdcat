@@ -1,13 +1,12 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 
-
 class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
-    def __init__(self, labels_dict: Dict = None):   # 形参后面的冒号仅仅是一个注释作用
-        # param check: labels_dict
-        if labels_dict is None:     # 形参为空，则输出空字典
-            labels_dict = {}  # 防止默认值为可变元素
-        if not isinstance(labels_dict, dict):
-            raise TypeError("param label_dict should be None or a dict.")
+    def __init__(self, info=None, objs_dict=None, load_label=None, sync=None):   # 形参后面的冒号仅仅是一个注释作用
+        # param check: info
+        if info is None:     # 形参为空，则输出空字典
+            info = {}  # 防止默认值为可变元素
+        if not isinstance(info, dict):
+            raise TypeError("param info should be None or a dict.")
 
         # public: instance_pool
         self.instance_pool = None
@@ -15,24 +14,45 @@ class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
         A instance must belong to, and only belong to, one instance pool. 
         The id of a new instance is given by the instance pool.
         """
-
         # public: id
         self["id"] = None
         """
         The id of this instance. Start from 0.
         """
-
         # public： desc
         self["desc"]: str = None
-        if "desc" in labels_dict:
-            self["desc"] = labels_dict["desc"]
+        if "desc" in info:
+            self["desc"] = info["desc"]
         """
         The describe of this instance. Initial with "", not a None.
         """
-
         # private: _labels
         from nlp_plantform.center.labels import InstanceLabels
-        self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=labels_dict)
+        if load_label is True:
+            self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=info["labels"])
+        else:
+            self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict={})
+
+        if sync is False:
+            #建立单向关系
+            pass
+        else:
+            #同步
+            pass
+
+    #判断两个Instance是否完全一致。
+    def __eq__(self, other):
+        if isinstance(other, Instance):
+            if type(other) == type(self) and other["id"] == self["id"] and other.instance_pool == self.instance_pool \
+                    and other["desc"] == self["desc"] and other.labels == self._labels:
+                return True
+            else:
+                return False
+        else:
+            if other["id"] == self["id"] and other["desc"] == self["desc"]:
+                return True
+            else:
+                return False
 
     # public: labels
     @property
@@ -71,3 +91,9 @@ class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
         r["id"] = str(self["id"])
         r["desc"] = self["desc"]
         return r
+
+    def to_info(self) -> dict:
+        info = {}
+        info["desc"] = self["desc"]
+        info["labels"] = self.labels
+        return info

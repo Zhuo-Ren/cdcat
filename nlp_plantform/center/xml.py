@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union
-from nlp_plantform.center.new_instance import Instance
-from nlp_plantform.center.new_instancepool import InstancePool
-from  nlp_plantform.center.nodetree import NodeTree
+from nlp_plantform.center.instance import Instance
+from nlp_plantform.center.instancepool import InstancePool
+from nlp_plantform.center.nodetree import NodeTree
 import xmltodict
 
 """info的格式如下，包含了instancepool和nodes"""
