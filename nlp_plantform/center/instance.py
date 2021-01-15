@@ -1,58 +1,166 @@
-from typing import Dict, List, Tuple, Union  # for type hinting
+from typing import Dict,Optional, List, Tuple, Union  # for type hinting
 
-class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
-    def __init__(self, info=None, objs_dict=None, load_label=None, sync=None):   # 形参后面的冒号仅仅是一个注释作用
+
+class Instance(dict):
+    def __init__(self, info: Optional[Dict] = None, objs_dict: Optional[Dict] = None,
+                 load_label: bool = None, sync: bool = None):
+
+        """
+                Init of Instance obj.
+
+
+                objs_dict优先级高于info.
+
+                如果给了objs_dict,那么就不管info了。
+
+                如果没给objs_dict，那么根据info来构造。
+
+                如果俩都没给，就相当于不赋值。
+
+                example::
+
+                    info = {
+
+                        "instance_pool_id": 9,  # pool没id，先不管
+
+                        "id": 9
+
+                        "desc": "apple"
+
+                        "labels": {
+
+                            "freelabel1": info of this label,
+
+                            "freelabel2": info of this label,
+
+                            "token": info of this label,
+
+                            "type": info of this label
+
+                        }
+
+                    }
+
+                :param info: the information of initialize instance object,
+                            and its labels param is simple describe
+
+                :param objs_dict: the information of initialize instance object,
+                                    and its labels param is labels object
+
+                :param load_label: whether to load labels
+
+                :param sync: whether to synchronize
+
+                """
+
+        # 防止默认值为可变元素
+        if info is None and objs_dict is None:
+            info = {}
+
         # param check: info
-        if info is None:     # 形参为空，则输出空字典
-            info = {}  # 防止默认值为可变元素
-        if not isinstance(info, dict):
+        if objs_dict is None and not isinstance(info, dict):
             raise TypeError("param info should be None or a dict.")
 
+        """
+                查一下为什么{}不可变。
+
+                默认值在函数默认定义时计算（通常是加载模块的时候），因此默认值成了函数的属性，
+
+                所以，初始化类对象的时候，只要默认值是可变对象，并且未传入这个参数，这个类的这个参数，就会指向函数给默认值开辟的空间
+
+                比如：函数的功能是在列表中添加一个"1"，不传入参数，直接调用会在默认空间中的对应列表添加"1"，
+
+                但是当我们指定一个新的列表【11，12，】时，它会直接指向这个列表，再添加"1"，此时参数指向的列表发生了变化！！
+
+                为了防止这种情况发生：
+
+                如果定义函数接受可变参数时，应该考虑是否期望修改传入的参数
+
+                对于可变参数，确认未传入时，要为对象新建参数（例如，{},[]），如果希望修改传入的参数，则直接赋值(self.a = a)
+
+                否则，赋值为参数的副本（self.a = list(a)）。
+
+                当没有传入可变参数时，每次都新创建一个dict对象{}就可以防止可变参数了。
+
+        """
+
+        # param check: objs_dict
+        if not isinstance(objs_dict, dict):
+            raise TypeError
+        else:
+            from nlp_plantform.center.labels import InstanceLabels
+            if not isinstance(objs_dict["labels"], InstanceLabels):
+                raise TypeError
+
+        # param check: sync
+        if not isinstance(sync, bool):
+            raise TypeError
+
         # public: instance_pool
-        self.instance_pool = None
+        from nlp_plantform.center.instancepool import InstancePool
+        self.instance_pool: Optional[InstancePool] = None
+
         """
         A instance must belong to, and only belong to, one instance pool. 
+
         The id of a new instance is given by the instance pool.
+
+        初始化为None.
+
+        当instance被添加到pool后获得此值。
         """
+
         # public: id
-        self["id"] = None
+        self.id = None
         """
         The id of this instance. Start from 0.
         """
+
         # public： desc
-        self["desc"]: str = None
-        if "desc" in info:
-            self["desc"] = info["desc"]
+        self.desc: Optional[str] = None
         """
         The describe of this instance. Initial with "", not a None.
         """
+
         # private: _labels
         from nlp_plantform.center.labels import InstanceLabels
-        if load_label is True:
-            self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict=info["labels"])
-        else:
-            self._labels: InstanceLabels = InstanceLabels(owner=self, labels_dict={})
+        self._labels: Optional[InstanceLabels] = None
 
-        if sync is False:
-            #建立单向关系
-            pass
-        else:
-            #同步
+        # 多态1: 只要传入objs_dict，就是用objs_dict,不管info
+        if objs_dict is not None:
             pass
 
-    #判断两个Instance是否完全一致。
-    def __eq__(self, other):
-        if isinstance(other, Instance):
-            if type(other) == type(self) and other["id"] == self["id"] and other.instance_pool == self.instance_pool \
-                    and other["desc"] == self["desc"] and other.labels == self._labels:
-                return True
+        # 多态2: 没有传入objs_dict，则使用info，
+        if info is not None and objs_dict is None:
+            pass
+
+        if "desc" in info:
+            if isinstance(info["desc"], str):
+                self.desc = info["desc"]
             else:
-                return False
+                raise TypeError
+
+        # 2
+        if not load_label:
+            self.labels = InstanceLabels(owner=self)
+
+        # 3.sync直接在InstanceLabels中使用，有这个类的初始化完成
         else:
-            if other["id"] == self["id"] and other["desc"] == self["desc"]:
-                return True
+            # 多态1：没有传入info，但是传入了objs_dict
+            if (info is None) and (isinstance(objs_dict, dict)):
+                self.labels = InstanceLabels(owner=self, objs_dict=objs_dict["labels"],
+                                             sync=sync)
+            # 多态2:传入了info，没有传入objs_dict
+            elif (isinstance(info, dict)) and (objs_dict is None):
+                self.labels = InstanceLabels(owner=self, info=info["labels"], sync=sync)
+            # 多态3：同时传入了info和objs_dict，objs_dict优先
+            elif (isinstance(info, dict)) and (isinstance(objs_dict, dict)):
+                self.labels = InstanceLabels(owner=self, objs_dict=objs_dict["labels"],
+                                             sync=sync)
+            # 多态4:没有传入info也没有传入objs_dict
             else:
-                return False
+                self.labels = InstanceLabels(owner=self)
+
 
     # public: labels
     @property
@@ -68,32 +176,35 @@ class Instance(dict):   # Instance初始的参数为labels_dict默认值为None
         # 添加新label
         self._labels = InstanceLabels(owner=self, labels_value=labels_value)
 
-    def readable(self, nolink=False) -> dict:
+    # 判断两个Instance是否完全一致。
+    def __eq__(self, other) -> bool:
+
         """
-        This function returns a readable info dict of this instance.
-
-        The word "readable" here means: If you print(a_instance) and get <__main__.Instance object at 0x00002CF4E6>,
-        this is unreadable; if you print(a_instance.readable()) and get {"id": 23, "desc": "埃航", "token": True}, this is
-        readable.
-
-        The readable info dict includes two parts: "id" and other labels.
-
-        example::
-            > a_instance.readable()
-            {"id": 23, "desc": "埃航", "token": True}
-
-        :return: readable info dict of this instance.
+        Determine whether the info carried by the two Instance objects is consistent.
+        :param other:
+        :return:
         """
-        if nolink == True:
-            r = self._labels.readable(nolink=True)
-        else:
-            r = self._labels.readable()
-        r["id"] = str(self["id"])
-        r["desc"] = self["desc"]
-        return r
+        # if isinstance(other, Instance):
+        #     if type(other) == type(self) and other["id"] == self[
+        #         "id"] and other.instance_pool == self.instance_pool \
+        #             and other["desc"] == self["desc"] and other.labels == self._labels:
+        #         return True
+        #     else:
+        #         return False
+        # else:
+        #     if other["id"] == self["id"] and other["desc"] == self["desc"]:
+        #         return True
+        #     else:
+        #         return False
+
+        if type(other) == type(self):
+            if self.to_info() == other.to_info():
+                return True
+        return False
 
     def to_info(self) -> dict:
         info = {}
         info["desc"] = self["desc"]
         info["labels"] = self.labels
         return info
+
