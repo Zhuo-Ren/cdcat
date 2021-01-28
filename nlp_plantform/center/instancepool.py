@@ -5,9 +5,15 @@ from nlp_plantform.center.instance import Instance
 class InstancePool(dict):
     def __init__(self, info=None, load_label=None, sync=None):
         """
-               :param info:
-               :param load_label:
-               :param sync:
+               :param info: the information of initialize instance object,
+                            and its labels param is simple describe
+               :type info:Dict
+
+               :param load_label:whether to load labels
+               :type load_label:bool = None
+
+               :param sync: whether to synchronize
+               :type sync: bool = None
 
         """
 
@@ -45,10 +51,12 @@ class InstancePool(dict):
 
         """
 
-    def add_instance(self,new_instance) -> Instance:
+    def add_instance(self,new_instance):
         """
-            :param new_instance:
-            :return:
+            :param new_instance: the Instance to be added
+            :type new_instance: nlp_platform.center.instance.Instance
+            :return : the new Instance to be added
+            :rtype:nlp_platform.center.instance.Instance
         """
         if not isinstance(new_instance,Instance):
             raise Exception("new_instance must be a Instance!")
@@ -70,13 +78,14 @@ class InstancePool(dict):
 
         return new_instance
 
-    def get_instance(self, info_dict) -> List[Instance]:
+    def get_instance(self, info_dict):
         """
         This is a polymorphic functions which accepts multiple kinds of input and search for eligible instance.
 
-        :param info_dict:
-
-        :return: a list of eligible instance
+        :param info_dict:multiple kinds of input
+        :type info_dict:dict
+        :return: a list of eligible Instance
+        :rtype: List[Instance]
         """
         if "id" in info_dict:
             target_instance_list = self.get_instance_by_id(info_dict["id"])
@@ -92,12 +101,14 @@ class InstancePool(dict):
         else:
             raise RuntimeError("抱歉这个还没实现。")
 
-    def get_instance_by_id(self, id: Union[int, str]) -> List[Instance]:
+    def get_instance_by_id(self, id):
         """
         get_instance_by_id
 
-        :param id:
+        :param id:the id of a Instance
+        :type id: Union[int, str]
         :return:  a list of eligible instance
+        :rtype: List[Instance]
         """
         if isinstance(id, str):
             id = int(id)
@@ -108,7 +119,14 @@ class InstancePool(dict):
         except:
             return []
 
-    def delete_instance(self,target_instance)-> List[Instance]:
+    def delete_instance(self,target_instance):
+        """
+
+        :param target_instance: the Instance to be deleted
+        :type target_instance:nlp_platform.center.instance.Instance
+        :return:  a list of eligible instance
+        :rtype: List[Instance]
+        """
         delete_list = self.get_instance(target_instance)
         if len(delete_list) == 1:
             return []
@@ -116,6 +134,11 @@ class InstancePool(dict):
             pass
 
     def del_instancelink(self, instance_to_be_del):
+        """
+        :param instance_to_be_del: the Instance to be deleted
+        :type instance_to_be_del:Instance
+        :return: None
+        """
 
         def del_instancelink_from(group_or_instances, instance_to_be_del):
             if group_or_instances[0] == "group":
@@ -135,16 +158,27 @@ class InstancePool(dict):
 
         del_instancelink_from(self.groups, instance_to_be_del)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
+        """
+        :param other: the other Instance to check
+        :type other: nlp_platform.center.instance.Instance
+        :return: whether A equal to B
+        :rtype:bool
+        """
         return self.to_info() == other.to_info()
 
-    def to_info(self) -> dict:
+    def to_info(self):
+        """
+        get a type of info
+        :return: info
+        :rtype: Dict
+        """
         info = {}
         info["desc"] = self.desc
         info["labels"] = self.labels
         return info
 
-    def statistic(self, ifprint=False) -> Dict:
+    def statistic(self, ifprint=False):
 
         """
         calc the statistic info.
@@ -158,8 +192,9 @@ class InstancePool(dict):
                 ...
             }
         :param ifprint: whether print the result.
-
+        :type ifprint:bool = False
         :return: A statistic info dict likes shown above.
+        :rtype: Dict
 
         """
         temp = {}

@@ -2,12 +2,10 @@ from typing import Dict,Optional, List, Tuple, Union  # for type hinting
 
 
 class Instance(dict):
-    def __init__(self, info: Optional[Dict] = None, objs_dict: Optional[Dict] = None,
-                 load_label: bool = None, sync: bool = None):
+    def __init__(self, info, objs_dict, load_label=None, sync=None):
 
         """
                 Init of Instance obj.
-
 
                 objs_dict优先级高于info.
 
@@ -43,14 +41,17 @@ class Instance(dict):
 
                 :param info: the information of initialize instance object,
                             and its labels param is simple describe
+                :type info: Optional[Dict] = None
 
                 :param objs_dict: the information of initialize instance object,
                                     and its labels param is labels object
+                :type objs_dict: Optional[Dict] = None
 
                 :param load_label: whether to load labels
+                :type load_label: bool = None
 
                 :param sync: whether to synchronize
-
+                :type sync: bool = None
                 """
 
         # 防止默认值为可变元素
@@ -177,12 +178,15 @@ class Instance(dict):
         self._labels = InstanceLabels(owner=self, labels_value=labels_value)
 
     # 判断两个Instance是否完全一致。
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other):
 
         """
         Determine whether the info carried by the two Instance objects is consistent.
-        :param other:
-        :return:
+
+        :param other: the other Instance to check
+        :type other: nlp_platform.center.instance.Instance
+        :return: whether a equal to b
+        :rtype:bool
         """
         # if isinstance(other, Instance):
         #     if type(other) == type(self) and other["id"] == self[
@@ -202,7 +206,11 @@ class Instance(dict):
                 return True
         return False
 
-    def to_info(self) -> dict:
+    def to_info(self):
+        """
+        :return:info
+        :rtype:dict
+        """
         info = {}
         info["desc"] = self["desc"]
         info["labels"] = self.labels
