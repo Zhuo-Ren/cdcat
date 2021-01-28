@@ -1,4 +1,4 @@
-from nlp_plantform.center.nodetree import NodeTree
+from nlp_platform.center.nodetree import NodeTree
 
 
 def input_from_string_plaintext_form(text):

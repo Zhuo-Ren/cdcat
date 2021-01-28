@@ -1,5 +1,5 @@
-from nlp_plantform.config import data_path
-from nlp_plantform.center.instancepool import InstancePool
+from nlp_platform.config import data_path
+from nlp_platform.center.instancepool import InstancePool
 import _pickle as cPickle
 
 

@@ -89,7 +89,7 @@ class Instance(dict):
         if not isinstance(objs_dict, dict):
             raise TypeError
         else:
-            from nlp_plantform.center.labels import InstanceLabels
+            from nlp_platform.center.labels import InstanceLabels
             if not isinstance(objs_dict["labels"], InstanceLabels):
                 raise TypeError
 
@@ -98,7 +98,7 @@ class Instance(dict):
             raise TypeError
 
         # public: instance_pool
-        from nlp_plantform.center.instancepool import InstancePool
+        from nlp_platform.center.instancepool import InstancePool
         self.instance_pool: Optional[InstancePool] = None
 
         """
@@ -124,7 +124,7 @@ class Instance(dict):
         """
 
         # private: _labels
-        from nlp_plantform.center.labels import InstanceLabels
+        from nlp_platform.center.labels import InstanceLabels
         self._labels: Optional[InstanceLabels] = None
 
         # 多态1: 只要传入objs_dict，就是用objs_dict,不管info
@@ -171,7 +171,7 @@ class Instance(dict):
     # public: labels
     @labels.setter
     def labels(self, labels_value):
-        from nlp_plantform.center.labels import InstanceLabels
+        from nlp_platform.center.labels import InstanceLabels
         # 析构旧label
         self._labels.clear()
         # 添加新label

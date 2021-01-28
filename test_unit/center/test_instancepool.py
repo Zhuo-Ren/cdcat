@@ -1,5 +1,5 @@
-from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.instancepool import InstancePool
+from nlp_platform.center.instance import Instance
+from nlp_platform.center.instancepool import InstancePool
 import pytest
 
 def setup_module():

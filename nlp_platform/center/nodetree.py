@@ -1028,7 +1028,7 @@ class NodeTree(ParentedTree):
         """do not care *children*, we deal with *parent* only, cause the two are the same thing"""
 
         # labels
-        from nlp_plantform.center.labels import NodeLabels
+        from nlp_platform.center.labels import NodeLabels
         node._labels = NodeLabels(owner=node, labels_dict=info["labels"])
 
     # Parsing-------------------------------------------------------

@@ -1,5 +1,5 @@
-from nlp_plantform.config import data_path
-from nlp_plantform.center.nodetree import NodeTree
+from nlp_platform.config import data_path
+from nlp_platform.center.nodetree import NodeTree
 import _pickle as cPickle
 
 

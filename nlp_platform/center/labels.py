@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple, Union, Optional  # for type hinting
-from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.nodetree import NodeTree
+from nlp_platform.center.instance import Instance
+from nlp_platform.center.nodetree import NodeTree
 
 #from nlp_plantform.center.labeltypes import regiest_cofigured_label_types
 
@@ -10,7 +10,7 @@ def read_config() -> Dict:
     如果要使用cdcat，那么需要读取用户为cdcat所定制的label配置。
     :return: Return config dict.
     """
-    from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
+    from nlp_platform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
     import json
     with open(label_sys_dict_path) as json_file:
         config = json.load(json_file)
@@ -62,7 +62,7 @@ class Labels(dict):
             if not isinstance(objs_dict, dict):
                 raise TypeError
             else:
-                from nlp_plantform.center.labeltypes import LabelType
+                from nlp_platform.center.labeltypes import LabelType
                 for cur_label_key, cur_label_value in objs_dict.items():
                     if cur_label_key is "owner":
                         if not isinstance(cur_label_value, self.owner_type_class):
@@ -94,12 +94,12 @@ class Labels(dict):
             # public: label
             for cur_label_key, cur_label_value in info.items():
                 if cur_label_key in self.config:# 这个地方有待考究
-                    from nlp_plantform.center.labeltypes import labeltypes
+                    from nlp_platform.center.labeltypes import labeltypes
                     new_label = labeltypes[cur_label_key].__init__(info=cur_label_value,
                                                                    objs_dict=None, sync=sync)
                     self[cur_label_key] = new_label
                 else:
-                    from nlp_plantform.center.labeltypes import LabelTypeFree
+                    from nlp_platform.center.labeltypes import LabelTypeFree
                     new_label = LabelTypeFree(info=cur_label_value, objs_dict=None, sync=sync)
                     self[cur_label_key] = new_label
 
@@ -124,7 +124,7 @@ class Labels(dict):
             raise TypeError
 
         # param check: value
-        from nlp_plantform.center.labeltypes import LabelType
+        from nlp_platform.center.labeltypes import LabelType
         if not isinstance(value, LabelType):
             raise TypeError
 
@@ -142,7 +142,7 @@ class Labels(dict):
                 break
         if find_flag is True:
             #若查到了则对比该key对应的类型是否与labeltypes中存储的类型一致，若一致则是定制的label；若不一致，则报错
-            from nlp_plantform.center.labeltypes import labeltypes
+            from nlp_platform.center.labeltypes import labeltypes
             if not isinstance(value, labeltypes[label_info["value_type"]]):
                 raise Exception("key和value不对应配置文件")
             if value.owner != self:
@@ -151,7 +151,7 @@ class Labels(dict):
                 raise RuntimeError
         else:
             #这是一个FreeLabel
-            from nlp_plantform.center.labeltypes import LabelTypeFree
+            from nlp_platform.center.labeltypes import LabelTypeFree
             if not isinstance(value, LabelTypeFree):
                 raise TypeError
 
@@ -162,7 +162,7 @@ class Labels(dict):
         dict.__setitem__(self, key, value)  # sync of new value is done by the __init__ of the value.
 
     def __delitem__(self, key):
-        from nlp_plantform.center.labeltypes import labeltypes
+        from nlp_platform.center.labeltypes import labeltypes
         if key in self.config:
             self[key].value_empty() # 同步要显式实现
         super().__delitem__(key)
@@ -267,7 +267,7 @@ class InstanceLabels(Labels):
     owner_type_str = "instance"
 
     # static
-    from nlp_plantform.center.instance import Instance
+    from nlp_platform.center.instance import Instance
     owner_type_class = Instance
 
     # static: config
@@ -285,7 +285,7 @@ class NodeLabels(Labels):
     owner_type_str = "node"
 
     # static
-    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_platform.center.nodetree import NodeTree
     owner_type_class = NodeTree
 
     # static: config

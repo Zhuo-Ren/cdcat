@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
-from nlp_plantform.center.instance import Instance
+from nlp_platform.center.instance import Instance
 
 
 class InstancePool(dict):

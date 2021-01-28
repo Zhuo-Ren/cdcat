@@ -1,13 +1,13 @@
 from typing import Dict, List, Tuple, Union, Optional  # for type hinting
-from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.nodetree import NodeTree
-from nlp_plantform.center.labels import Labels
+from nlp_platform.center.instance import Instance
+from nlp_platform.center.nodetree import NodeTree
+from nlp_platform.center.labels import Labels
 import copy
 
 #读取配置文件，并将配置信息放入Nodelabels和InstanceLabels的config中。  比我的代码更先进，我是都取出来然后各取所需
 def regiest_cofigured_label_types():
-    from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config as cdcat_config
-    from nlp_plantform.center.labels import NodeLabels, InstanceLabels
+    from nlp_platform.plug_in.manual_annotation_tool.cdcat import config as cdcat_config
+    from nlp_platform.center.labels import NodeLabels, InstanceLabels
     import json
     with open(cdcat_config.label_sys_dict_path, 'r', encoding='utf8') as labelf:
         label_sys_dict = json.load(labelf)
@@ -21,7 +21,7 @@ def regiest_cofigured_label_types():
         })
 
 def read_config() -> Dict:
-    from nlp_plantform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
+    from nlp_platform.plug_in.manual_annotation_tool.cdcat.config import label_sys_dict_path
     import json
     with open(label_sys_dict_path) as json_file:
         config = json.load(json_file)
@@ -84,7 +84,7 @@ class AutoSyncList(list):
             icon_label_key = stock_label.config["linkto"]
             if icon_label_key not in icon.labels:
                 # 如果前台修改的这个标签，在接穗中还没有创建，要先创建空标签
-                from nlp_plantform.center.labeltypes import labeltypes
+                from nlp_platform.center.labeltypes import labeltypes
                 cur_label_class = labeltypes[icon.labels.config[icon_label_key]["value_type"]]
                 icon.labels[icon_label_key] = cur_label_class(owner=icon.labels, key=icon_label_key, value=None)
             icon_label = icon.labels[icon_label_key]
@@ -168,7 +168,7 @@ class LabelType(object):
         value: value of label
     """
     config = {}
-    from nlp_plantform.center.labels import InstanceLabels, NodeLabels
+    from nlp_platform.center.labels import InstanceLabels, NodeLabels
     owner_type_class = (NodeLabels, InstanceLabels)
 
     def __init__(self, info: Optional[dict] = None, objs_dict: Optional[dict] = None, sync: bool = False):
@@ -441,8 +441,8 @@ class LabelTypeRadio(LabelType):
         #
         super().__init__(info, objs_dict=None, sync=None)
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -472,8 +472,8 @@ class LabelTypeCheckbox(LabelType):
         #
         super().__init__(owner, key, value)
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -503,8 +503,8 @@ class LabelTypeMenuOne(LabelType):
         #
         super().__init__(owner, key, value)
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -534,8 +534,8 @@ class LabelTypeMenuMulti(LabelType):
         #
         super().__init__(owner, key, value)
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -566,8 +566,8 @@ class LabelTypeTextReadonly(LabelType):
         super().__init__(owner, key, value)
 
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -594,8 +594,8 @@ class LabelTypeTextInput(LabelType):
         super().__init__(owner, key, value)
 
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -619,10 +619,10 @@ class LabelTypeTextInput(LabelType):
 
 
 class LabelTypeNode(LabelType):
-    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_platform.center.nodetree import NodeTree
     def __init__(self, owner, key, value: Union[None, NodeTree] =None):
         # param check
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         if isinstance(value, NodeTree)or (value is None):
             raise TypeError
         # public
@@ -631,7 +631,7 @@ class LabelTypeNode(LabelType):
         super().__init__(owner, key, value)
 
     # public: value
-    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_platform.center.nodetree import NodeTree
     @property
     def value(self) -> Union[None, NodeTree]:
         """
@@ -647,7 +647,7 @@ class LabelTypeNode(LabelType):
 
         :param value: A obj that represent the new value of the label. It can be None, Instance obj, or instance info dict.
         """
-        from nlp_plantform.center.instance import Instance
+        from nlp_platform.center.instance import Instance
         # get the real_value
         if value in [None, self.empty_value]:
             new_value = copy.copy(self.empty_value)
@@ -668,7 +668,7 @@ class LabelTypeNode(LabelType):
 
     def sync_del(self, value: NodeTree) -> None:
         # param check
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         if not isinstance(value, NodeTree):
             raise TypeError("param 'value' should be a Instance obj")
         # sync check
@@ -679,7 +679,7 @@ class LabelTypeNode(LabelType):
 
     def sync_add(self, value: NodeTree) -> None:
         # param check
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         if not isinstance(value, NodeTree):
             raise TypeError("param 'value' should be a Instance obj")
         #
@@ -695,8 +695,8 @@ class LabelTypeNode(LabelType):
     def from_info(cls, key, value_info, root_node, instance_pool):
         return cls(owner=None, key=key, value=root_node[value_info])
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -728,10 +728,10 @@ class LabelTypeNode(LabelType):
 
 
 class LabelTypeInstance(LabelType):
-    from nlp_plantform.center.instance import Instance
+    from nlp_platform.center.instance import Instance
     def __init__(self, owner, key, value: Union[None, Dict, Instance]=None):
         # param check
-        from nlp_plantform.center.instance import Instance
+        from nlp_platform.center.instance import Instance
         if (not isinstance(value, Instance)) and (value is not None):
             raise TypeError
         # public: empty_value
@@ -740,7 +740,7 @@ class LabelTypeInstance(LabelType):
         super().__init__(owner, key, value)
 
     # public: value
-    from nlp_plantform.center.instance import Instance
+    from nlp_platform.center.instance import Instance
     @property
     def value(self) -> Union[None, Instance]:
         """
@@ -756,7 +756,7 @@ class LabelTypeInstance(LabelType):
 
         :param value: A obj that represent the new value of the label. It can be None, Instance obj, or instance info dict.
         """
-        from nlp_plantform.center.instance import Instance
+        from nlp_platform.center.instance import Instance
         # get the real_value
         if value in [None, self.empty_value]:
             new_value = copy.copy(self.empty_value)
@@ -776,7 +776,7 @@ class LabelTypeInstance(LabelType):
             linked_label_key = self.config["linkto"]
             # 如果linked_label还没创建，那要先初始化一个空label给他
             if linked_label_key not in linked_obj.labels:
-                from nlp_plantform.center.labeltypes import labeltypes
+                from nlp_platform.center.labeltypes import labeltypes
                 linked_label_class = labeltypes[linked_obj.labels.config[linked_label_key]["value_type"]]
                 linked_label_value = linked_label_class(owner=linked_obj.labels, key=linked_label_key, value=None)
                 self._value.labels[self.config["linkto"]] = linked_label_value
@@ -785,7 +785,7 @@ class LabelTypeInstance(LabelType):
 
     def sync_del(self, value: Instance) -> None:
         # param check
-        from nlp_plantform.center.instance import Instance
+        from nlp_platform.center.instance import Instance
         if not isinstance(value, Instance):
             raise TypeError("param 'value' should be a Instance obj")
         # sync check
@@ -796,7 +796,7 @@ class LabelTypeInstance(LabelType):
 
     def sync_add(self, value: Instance) -> None:
         # param check
-        from nlp_plantform.center.instance import Instance
+        from nlp_platform.center.instance import Instance
         if not isinstance(value, Instance):
             raise TypeError("param 'value' should be a Instance obj")
         #
@@ -812,8 +812,8 @@ class LabelTypeInstance(LabelType):
     def from_info(cls, key, value_info, root_node, instance_pool):
         return cls(owner=None, key=key, value=instance_pool.get_instance({"id": value_info}))
 
-    from nlp_plantform.center.nodetree import NodeTree
-    from nlp_plantform.center.instancepool import InstancePool
+    from nlp_platform.center.nodetree import NodeTree
+    from nlp_platform.center.instancepool import InstancePool
 
     def ajax_process(self,
                      ajax_param: str,
@@ -857,7 +857,7 @@ class LabelTypeNodeList(LabelType):
         :param value: A obj that represent the label value.
         """
         # public: empty_value
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         self.empty_value = AutoSyncList(owner=self, init_value=[], type_limit=NodeTree)
         #
         super().__init__(owner, key, value)
@@ -878,7 +878,7 @@ class LabelTypeNodeList(LabelType):
 
         :param value: A obj that represent the new value of the label. It can be None, Instance obj, or instance info dict.
         """
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         # get the real_value
         if value in [None, self.empty_value]:
             new_value = copy.copy(self.empty_value)
@@ -902,7 +902,7 @@ class LabelTypeNodeList(LabelType):
 
     def sync_add(self, value):
         # param check
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         if not isinstance(value, NodeTree):
             raise TypeError
         #
@@ -910,7 +910,7 @@ class LabelTypeNodeList(LabelType):
 
     def sync_del(self, value):
         # param check
-        from nlp_plantform.center.nodetree import NodeTree
+        from nlp_platform.center.nodetree import NodeTree
         if not isinstance(value, NodeTree):
             raise TypeError
         #
@@ -934,7 +934,7 @@ class LabelTypeNodeList(LabelType):
                 target_obj.append(AutoSyncList(owner=target_obj))
             # append一个node
             else:
-                from nlp_plantform.center.nodetree import NodeTree
+                from nlp_platform.center.nodetree import NodeTree
                 child_node_position =  NodeTree.str_to_position(child)
                 child_node = root_node[child_node_position]
                 # 如果node已经在label的value中了，那么不让重复添加

@@ -1,7 +1,7 @@
-from nlp_plantform.config import data_path
-from nlp_plantform.plug_in.input.ntree_from_pickle import input_ntree_from_pickle
-from nlp_plantform.plug_in.input.instances_from_pickle import input_instances_from_pickle
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
+from nlp_platform.config import data_path
+from nlp_platform.plug_in.input.ntree_from_pickle import input_ntree_from_pickle
+from nlp_platform.plug_in.input.instances_from_pickle import input_instances_from_pickle
+from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 import json
 
 # input
@@ -12,7 +12,7 @@ node_list = []
 ntree_position_list = ntree.walk_position()
 for cur_node_position in ntree_position_list:
     cur_node = ntree[cur_node_position]
-    from nlp_plantform.center.nodetree import NodeTree
+    from nlp_platform.center.nodetree import NodeTree
     if isinstance(cur_node, NodeTree):
         cur_node_dict = cur_node.to_info()
         node_list.append(cur_node_dict)

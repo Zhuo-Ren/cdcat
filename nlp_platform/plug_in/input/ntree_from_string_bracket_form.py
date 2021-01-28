@@ -1,4 +1,4 @@
-from nlp_plantform.center.nodetree import NodeTree
+from nlp_platform.center.nodetree import NodeTree
 
 
 def input_ntree_from_string_bracket_form(bracketstring: str) -> NodeTree:

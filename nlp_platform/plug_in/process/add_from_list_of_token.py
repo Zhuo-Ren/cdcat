@@ -1,4 +1,4 @@
-from nlp_plantform.center.nodetree import NodeTree
+from nlp_platform.center.nodetree import NodeTree
 from typing import Dict, List, Tuple, Union
 
 def add_from_list_of_token(basetree: NodeTree, token_list: List[str]):

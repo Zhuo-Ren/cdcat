@@ -1,15 +1,15 @@
 from flask import Flask, render_template, request, jsonify
 from typing import Dict, List, Tuple, Union  # for type hinting
-import nlp_plantform.log_config
+import nlp_platform.log_config
 import json
 import logging
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat import config
-from nlp_plantform.center.nodetree import NodeTree
-from nlp_plantform.center.instance import Instance
-from nlp_plantform.center.instancepool import InstancePool
-from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
-from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
-from nlp_plantform.center.labeltypes import regiest_cofigured_label_types
+from nlp_platform.plug_in.manual_annotation_tool.cdcat import config
+from nlp_platform.center.nodetree import NodeTree
+from nlp_platform.center.instance import Instance
+from nlp_platform.center.instancepool import InstancePool
+from nlp_platform.plug_in.output.instances_to_pickle import output_instances_to_pickle
+from nlp_platform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
+from nlp_platform.center.labeltypes import regiest_cofigured_label_types
 
 regiest_cofigured_label_types()
 
@@ -333,7 +333,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                     cur_label_ajax_parm = request.form.get(cur_label_key)
                     #
                     if cur_label_key not in cur_labels:
-                        from nlp_plantform.center.labeltypes import labeltypes
+                        from nlp_platform.center.labeltypes import labeltypes
                         cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
                     cur_label = cur_labels[cur_label_key]
                     cur_label.ajax_process(cur_label_ajax_parm, root_node, instance_pool)
@@ -353,7 +353,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             logging.debug("addInstance_node->：position=" + str(position))
             instance = instance_pool.add_instance({"desc": node.text()})
             if "mention_list" not in instance.labels:
-                from nlp_plantform.center.labeltypes import labeltypes
+                from nlp_platform.center.labeltypes import labeltypes
                 instance.labels["mention_list"] = labeltypes["nodelist"](owner=instance.labels, key="mention_list")
             instance.labels["mention_list"].value.append([node])
             node.add_label({"instance": instance})
@@ -398,7 +398,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                     cur_label_ajax_param = request.form.get(cur_label_key)
                     # 如果前台修改的这个标签还没有创建，要先创建空标签
                     if cur_label_key not in cur_labels:
-                        from nlp_plantform.center.labeltypes import labeltypes
+                        from nlp_platform.center.labeltypes import labeltypes
                         cur_label_class = labeltypes[cur_labels.config[cur_label_key]["value_type"]]
                         cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
                     # 根据前台信息，修改当前标签
