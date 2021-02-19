@@ -125,3 +125,7 @@ class InstancePool(dict):
             print("coref_num: ", r["coref_num"])
 
         return r
+
+    def to_dict(self):
+        for k,v in self.item():
+            v.to_dict()
