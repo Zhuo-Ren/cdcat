@@ -127,5 +127,7 @@ class InstancePool(dict):
         return r
 
     def to_dict(self):
-        for k,v in self.item():
-            v.to_dict()
+        info_dict = {}
+        for key in self:
+            info_dict.update({key: self[key].to_dict()})
+        return info_dict

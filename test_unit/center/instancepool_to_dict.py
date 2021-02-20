@@ -1,8 +1,18 @@
-from nlp_plantform.plug_in.input.instances_from_pickle import input_instances_from_pickle
 from nlp_plantform.config import data_path
+from nlp_plantform.center.instancepool import InstancePool
+import _pickle as cPickle
+from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 
-instancepool = input_instances_from_pickle(data_path + r"\instances.pkl")
-r = instancepool.to_dict()
+
+def input_instances_from_pickle(path: str = data_path + r'/instances.pkl') -> InstancePool:
+    with open(path, 'rb') as pkl_file:
+        instances = cPickle.load(pkl_file)
+    return instances
+
+
+ip = input_instances_from_pickle(data_path + r"/instances.pkl")
+print(ip.to_dict())
+
 """
 0: {
     "id": 0,
