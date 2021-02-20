@@ -176,6 +176,10 @@ class LabelType(object):
 
         # public: key
         self.key = key
+        """
+        测试用
+        """
+        self.empty_value = []
 
         # private: value
         self._value = copy.copy(self.empty_value)
@@ -235,6 +239,11 @@ class LabelType(object):
     def ajax_process(self, ajax_param, root_node, instance_pool):
         pass
 
+    def to_dict(self):
+        position_list = []
+        for v in self._value:
+            position_list.append(v.position())
+        return position_list
 
 class LabelTypeRadio(LabelType):
     def __init__(self, owner, key, value: Union[None, str] = None):

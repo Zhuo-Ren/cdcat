@@ -100,7 +100,11 @@ class Labels(dict):
     #     for cur_label_key in self.keys():
     #         output_dict.update({cur_label_key: self[cur_label_key].readable()})
     #     return str(output_dict)
-
+    def to_dict(self):
+        info_dict = {}
+        for label_key in self:
+            info_dict.update({label_key: self[label_key].to_dict()})
+        return info_dict
 
 class InstanceLabels(Labels):
     # static
