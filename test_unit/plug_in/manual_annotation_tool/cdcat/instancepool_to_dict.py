@@ -9,7 +9,48 @@ def input_instances_from_pickle(path: str = data_path + r'/instances.pkl') -> In
     return instances
 
 ip = input_instances_from_pickle(data_path + r"/instances.pkl")
-print(ip.to_dict())
+info = ip.to_dict()
+
+ip.format_print(info)
+
+
+'''
+#每个逗号后强制添加新行
+pprint.pprint(info, width=1)
+效果：
+{0: {'desc': '埃航',
+     'id': 0,
+     'labels': {'mention_list': [(0,
+                                  0,
+                                  0),
+                                 (0,
+                                  3),
+                                 (0,
+                                  97),
+                                 (1,
+                                  309,
+                                  0),
+                                 (1,
+                                  586,
+                                  0)]}},
+ 1: {'desc': '埃航客机',
+     'id': 1,
+     'labels': {'mention_list': [(0,
+                                  0,
+                                  1),
+                                 (0,
+                                  4),
+                                 (0,
+                                  21),
+                                 (0,
+                                  72,
+                                  0)]}}}
+'''
+
+"""
+json的中文不被转义的方法。dumps函数中加入参数ensure_ascii=False即可
+"""
+
 
 """
 0: {
