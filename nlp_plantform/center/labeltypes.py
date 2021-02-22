@@ -240,10 +240,11 @@ class LabelType(object):
         pass
 
     def to_dict(self):
-        position_list = []
+        info_dict = []
         for v in self._value:
-            position_list.append(v.position())
-        return position_list
+            info_dict.append(v.position())
+        return info_dict
+
 
 class LabelTypeRadio(LabelType):
     def __init__(self, owner, key, value: Union[None, str] = None):

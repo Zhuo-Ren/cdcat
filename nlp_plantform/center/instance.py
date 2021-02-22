@@ -86,4 +86,5 @@ class Instance(dict):
         info_dict["desc"] = self["desc"]
         if self.labels is not None:
             info_dict.update({"labels": self.labels.to_dict()})
+
         return info_dict
