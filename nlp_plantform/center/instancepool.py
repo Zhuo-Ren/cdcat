@@ -131,3 +131,39 @@ class InstancePool(dict):
         for key in self:
             info_dict.update({key: self[key].to_dict()})
         return info_dict
+
+    def format_print(self, info_dict: Dict = None):
+        info_dict = str(info_dict)
+        flag0 = False  # ','是否在[]内
+        flag1 = False  # ','是否在()内
+        s1 = ''
+        for c in info_dict:
+            if c is '{':
+                s1 += '\t'
+                print('{\n%s' % s1, end="")
+            elif c is '}':
+                s1 = s1[1:]
+                print('}\n%s' % s1, end="")
+            elif c is '[':
+                s1 += '\t'
+                flag0 = True
+                print('\n%s[\n' % s1, end="")
+            elif c is ']':
+                flag0 = False
+                print('\n%s]' % s1, end="")
+                s1 = s1[1:]
+            elif c is '(':
+                flag1 = True
+                print('%s(' % s1, end="")
+            elif c is ')':
+                flag1 = False
+                print(')', end="")
+            elif c is ',':
+                if flag0 is True and flag1 is True:
+                    print(c, end="")
+                elif flag0 is True and flag1 is False:
+                    print(',\n', end="")
+                elif flag0 is False:
+                    print(',\n%s' % s1, end="")
+            else:
+                print(c, end="")
