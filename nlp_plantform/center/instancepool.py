@@ -126,10 +126,10 @@ class InstancePool(dict):
 
         return r
 
-    def to_dict(self):
+    def to_info(self):
         info_dict = {}
         for key in self:
-            info_dict.update({key: self[key].to_dict()})
+            info_dict.update({key: self[key].to_info()})
         return info_dict
 
     def format_print(self, info_dict: Dict = None):

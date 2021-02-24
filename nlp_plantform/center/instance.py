@@ -81,11 +81,11 @@ class Instance(dict):
         r["desc"] = self["desc"]
         return r
 
-    def to_dict(self):
+    def to_info(self):
         info_dict = {}
         info_dict["id"] = self["id"]
         info_dict["desc"] = self["desc"]
         if self.labels is not None:
-            info_dict.update({"labels": self.labels.to_dict()})
+            info_dict.update({"labels": self.labels.to_info()})
 
         return info_dict
