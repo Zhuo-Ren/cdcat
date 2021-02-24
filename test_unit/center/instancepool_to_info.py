@@ -4,7 +4,7 @@ import json
 
 
 ip = input_instances_from_pickle(data_path + r"\instances.pkl")
-info = ip.to_dict()
+info = ip.to_info()
 # print输出
 ip.format_print(info)
 # json输出

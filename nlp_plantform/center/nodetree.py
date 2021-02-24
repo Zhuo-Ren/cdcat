@@ -1074,6 +1074,7 @@ class NodeTree(ParentedTree):
                 else:
                     f.write(c)
         f.close()
+
     # Parsing-------------------------------------------------------
     @classmethod
     def fromstring(cls, s, brackets='()', read_node=None, read_leaf=None,
