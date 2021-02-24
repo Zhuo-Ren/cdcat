@@ -101,10 +101,14 @@ class Labels(dict):
     #         output_dict.update({cur_label_key: self[cur_label_key].readable()})
     #     return str(output_dict)
 
-    def to_dict(self):
+    def to_info(self):
         info_dict = {}
+        from nlp_plantform.center.labeltypes import LabelType
         for label_key in self:
-            info_dict.update({label_key: self[label_key].to_dict()})
+            if isinstance(self[label_key], LabelType):
+                info_dict.update({label_key: self[label_key].to_info()})
+            else:
+                info_dict.update({label_key: self[label_key]})
         return info_dict
 
 

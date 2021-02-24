@@ -1,8 +1,11 @@
 from nlp_plantform.plug_in.input.ntree_from_pickle import input_ntree_from_pickle
 from nlp_plantform.config import data_path
 
-root = input_ntree_from_pickle(path = data_path + r'\ntree.pkl')
-print(1)
+root = input_ntree_from_pickle(path = data_path + r'/ntree.pkl')
+info = root.to_info()
+
+root.info_print(info)
+
 """
 {
     (): {

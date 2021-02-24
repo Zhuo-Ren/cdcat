@@ -990,7 +990,90 @@ class NodeTree(ParentedTree):
         output_dict["position"] = self.position(output_type="string")
         output_dict["text"] = "".join(self.all_leaves())
         return output_dict
+    """
+    Obtain info of a NodeTree 
+    """
+    def get_info(self):
+        info_dict = {}
+        child_list = []
+        info_dict["position"] = self.position()
+        if self.get_parent() is None:
+            info_dict["parent"] = self.get_parent()
+        else:
+            info_dict["parent"] = self.get_parent().position()
+        # 获取child
+        for child in self:
+            if isinstance(child, str):
+                pass
+            else:
+                child_list.append(child.position())
+        info_dict.update({'child': child_list})
+        if self._labels is not None:
+            info_dict.update({"labels": self._labels.to_info()})
+        return info_dict
 
+    """
+    Level traversal of a tree
+    """
+    def to_info(self, info_dict: Dict = None):
+        info_dict = {}
+        queue = []
+        queue.append(self)
+        while queue != []:
+            info_dict.update({queue[0].position(): queue[0].get_info()})
+            for i in queue[0]:
+                if i is not None:
+                    if isinstance(i, NodeTree):
+                        queue.append(i)
+            queue.pop(0)
+        return info_dict
+
+    """
+    print a tree's info to a file (nodetree_test.txt)
+    """
+    def info_print(self, info_dict: Dict = None):
+        with open('nodetree_test.txt', 'w') as f:
+            if info_dict is not None:
+                info = str(info_dict)
+            else:
+                raise Exception("info_dict is none")
+            flag0 = False  # ','是否在[]内
+            flag1 = False  # ','是否在()内
+            s1 = ''
+            for c in info:
+                if c is '{':
+                    s1 += '\t'
+                    f.write('{\n%s' % s1)
+                elif c is '}':
+                    s1 = s1[1:]
+                    f.write('}\n%s' % s1)
+                elif c is '[':
+                    s1 += '\t'
+                    flag0 = True
+                    f.write('\n%s[' % s1)
+                elif c is ']':
+                    flag0 = False
+                    f.write('\n%s]' % s1)
+                    s1 = s1[1:]
+                elif c is '(' and flag0 is True:
+                    flag1 = True
+                    f.write('\n%s(' % s1)
+                elif c is '(' and flag0 is False:
+                    flag1 = True
+                    f.write('(')
+                elif c is ')':
+                    flag1 = False
+                    f.write(')')
+                elif c is ',':
+                    if flag1 is True:
+                        f.write(c)
+                    elif flag1 is False and flag0 is False:
+                        f.write(',\n%s' % s1)
+                    elif flag1 is False and flag0 is True:
+                        f.write(',')
+                else:
+                    f.write(c)
+        f.close()
     # Parsing-------------------------------------------------------
     @classmethod
     def fromstring(cls, s, brackets='()', read_node=None, read_leaf=None,

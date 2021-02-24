@@ -240,7 +240,7 @@ class LabelType(object):
     def ajax_process(self, ajax_param, root_node, instance_pool):
         pass
 
-    def to_dict(self):
+    def to_info(self):
         info_dict = []
         for v in self._value:
             info_dict.append(v.position())
@@ -619,6 +619,12 @@ class LabelTypeInstance(LabelType):
 
     from nlp_plantform.center.nodetree import NodeTree
     from nlp_plantform.center.instancepool import InstancePool
+
+    def to_info(self):
+        if self.value == self.empty_value:
+            return None
+        else:
+            return self.value.to_info()
 
     def ajax_process(self,
                      ajax_param: str,
