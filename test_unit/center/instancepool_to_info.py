@@ -3,10 +3,10 @@ from nlp_plantform.plug_in.input.instances_from_pickle import input_instances_fr
 import json
 
 
-ip = input_instances_from_pickle(data_path + r"\instances.pkl")
+ip = input_instances_from_pickle(data_path + r"/instances.pkl")
 info = ip.to_info()
 # print输出
-ip.format_print(info)
+ip.info_to_file()
 # json输出
 s = json.dumps(info, indent=1, ensure_ascii=False)
 f = open("tt.txt", "w", encoding="utf8")
