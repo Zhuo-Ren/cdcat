@@ -728,7 +728,7 @@ class LabelTypeNodeList(LabelType):
         self._value.sync_del(value)
 
     def readable(self):
-        return  self._value.readable()
+        return [i.readable() for i in self._value]
 
     def ajax_process(self, ajax_param, root_node, instance_pool):
         ajax_param = eval(ajax_param)
