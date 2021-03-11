@@ -991,7 +991,7 @@ class NodeTree(ParentedTree):
         output_dict["text"] = "".join(self.all_leaves())
         return output_dict
     """
-    Obtain info of a NodeTree 
+    Obtaining info of a NodeTree 
     """
     def get_info(self):
         info_dict = {}
@@ -1013,7 +1013,8 @@ class NodeTree(ParentedTree):
         return info_dict
 
     """
-    Level traversal of a tree
+    Obtaining info of a tree
+    Level traversal
     """
     def to_info(self, info_dict: Dict = None):
         info_dict = {}
@@ -1029,14 +1030,17 @@ class NodeTree(ParentedTree):
         return info_dict
 
     """
-    print a tree's info to a file (nodetree_test.txt)
+    Info(type: dict) to info(type: str)
     """
-    def info_print(self, info_dict: Dict = None):
+    def info_to_str(self, info_dict: Dict = None):
+        return str(info_dict)
+
+    """
+    Info(type: str) to a file
+    """
+    def info_to_file(self):
         with open('nodetree_test.txt', 'w') as f:
-            if info_dict is not None:
-                info = str(info_dict)
-            else:
-                raise Exception("info_dict is none")
+            info = self.info_to_str(self.to_info())
             flag0 = False  # ','是否在[]内
             flag1 = False  # ','是否在()内
             s1 = ''
@@ -1046,11 +1050,13 @@ class NodeTree(ParentedTree):
                     f.write('{\n%s' % s1)
                 elif c is '}':
                     s1 = s1[1:]
-                    f.write('}\n%s' % s1)
+                    f.write('\n%s}' % s1)
+                elif c is ' ':
+                    pass
                 elif c is '[':
                     s1 += '\t'
                     flag0 = True
-                    f.write('\n%s[' % s1)
+                    f.write('[')
                 elif c is ']':
                     flag0 = False
                     f.write('\n%s]' % s1)

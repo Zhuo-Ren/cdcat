@@ -126,44 +126,61 @@ class InstancePool(dict):
 
         return r
 
+    """
+    Getting info(type: dict) of an object of Instancepool
+    """
     def to_info(self):
         info_dict = {}
         for key in self:
             info_dict.update({key: self[key].to_info()})
         return info_dict
 
-    def format_print(self, info_dict: Dict = None):
-        info_dict = str(info_dict)
+    """
+    Info(type: dict) to info(type: str) 
+    """
+    def info_to_str(self, info_dict: Dict = None):
+        return str(info_dict)
+
+    """
+    Info(type: str) to a file
+    """
+
+    def info_to_file(self):
+        info_dict = self.info_to_str(self.to_info())
         flag0 = False  # ','是否在[]内
         flag1 = False  # ','是否在()内
         s1 = ''
-        for c in info_dict:
-            if c is '{':
-                s1 += '\t'
-                print('{\n%s' % s1, end="")
-            elif c is '}':
-                s1 = s1[1:]
-                print('}\n%s' % s1, end="")
-            elif c is '[':
-                s1 += '\t'
-                flag0 = True
-                print('\n%s[\n' % s1, end="")
-            elif c is ']':
-                flag0 = False
-                print('\n%s]' % s1, end="")
-                s1 = s1[1:]
-            elif c is '(':
-                flag1 = True
-                print('%s(' % s1, end="")
-            elif c is ')':
-                flag1 = False
-                print(')', end="")
-            elif c is ',':
-                if flag0 is True and flag1 is True:
-                    print(c, end="")
-                elif flag0 is True and flag1 is False:
-                    print(',\n', end="")
-                elif flag0 is False:
-                    print(',\n%s' % s1, end="")
-            else:
-                print(c, end="")
+        with open('instancepool_test.txt', 'w')as f:
+            for c in info_dict:
+                if c is '{':
+                    s1 += '\t'
+                    f.write('{\n%s' % s1)
+                elif c is '}':
+                    s1 = s1[1:]
+                    f.write('\n%s}' % s1)
+                elif c is ' ':
+                    pass
+                elif c is '[':
+                    s1 += '\t'
+                    flag0 = True
+                    f.write('[\n')
+                elif c is ']':
+                    flag0 = False
+                    f.write('\n%s]' % s1)
+                    s1 = s1[1:]
+                elif c is '(':
+                    flag1 = True
+                    f.write('%s(' % s1)
+                elif c is ')':
+                    flag1 = False
+                    f.write(')')
+                elif c is ',':
+                    if flag0 is True and flag1 is True:
+                        f.write(c)
+                    elif flag0 is True and flag1 is False:
+                        f.write(',\n')
+                    elif flag0 is False:
+                        f.write(',\n%s' % s1)
+                else:
+                    f.write(c)
+        f.close()

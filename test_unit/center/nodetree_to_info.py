@@ -4,7 +4,7 @@ from nlp_plantform.config import data_path
 root = input_ntree_from_pickle(path = data_path + r'/ntree.pkl')
 info = root.to_info()
 
-root.info_print(info)
+root.info_to_file()
 
 """
 {
