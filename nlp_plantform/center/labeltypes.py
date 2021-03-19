@@ -737,7 +737,7 @@ class LabelTypeNodeList(LabelType):
         target_obj = self.value
         for i in target_obj_index:
             target_obj = target_obj[i]
-        # append操作
+        # append操作 test
         if action == 'append':
             child = ajax_param["child"]
             # append一个空list
