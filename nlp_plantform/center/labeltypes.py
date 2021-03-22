@@ -177,11 +177,6 @@ class LabelType(object):
         # public: key
         self.key = key
 
-        """
-        测试用
-        """
-        self.empty_value = []
-
         # private: value
         self._value = copy.copy(self.empty_value)
         if value is not None:
@@ -561,7 +556,8 @@ class LabelTypeInstance(LabelType):
     @value.setter
     def value(self, value: Union[None, Instance]) -> None:
         """
-        Set the label a new value. **And the linked label of this label will be changed synchronously.**
+        Set the label a new value. **And the linked label of this label will be
+        changed synchronously.**
 
         :param value: A obj that represent the new value of the label. It can be None, Instance obj, or instance info dict.
         """
