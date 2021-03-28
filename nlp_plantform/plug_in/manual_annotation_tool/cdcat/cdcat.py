@@ -10,6 +10,7 @@ from nlp_plantform.center.instancepool import InstancePool
 from nlp_plantform.plug_in.output.instances_to_pickle import output_instances_to_pickle
 from nlp_plantform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
 from nlp_plantform.center.labeltypes import regiest_cofigured_label_types
+from datetime import timedelta
 
 regiest_cofigured_label_types()
 
@@ -22,7 +23,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     :param unit_level:
     """
     app = Flask(__name__)
-
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
     with open(config.lang_dict_path, 'r', encoding='utf8') as langf:
         lang_dict = json.load(langf)
 

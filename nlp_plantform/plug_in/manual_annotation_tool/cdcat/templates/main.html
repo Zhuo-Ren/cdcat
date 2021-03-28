@@ -16,7 +16,7 @@
     <link href="../static/jquery-layout-1.4.0/my-layout.css" rel="stylesheet">
     <!-- jquery tree view -->
     <link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.css" />
-	<link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/screen.css" />
+<!--	<link rel="stylesheet" href="https://static.runoob.com/assets/js/jquery-treeview/screen.css" />-->
 	<script src="https://static.runoob.com/assets/js/jquery-treeview/jquery.treeview.js" type="text/javascript"></script>
     <!-- jquery sortable -->
     <style>
@@ -253,6 +253,15 @@
 <!--            </div>-->
             <button id="addInstancePlus" class="circleButton">+</button>
             <button id="addInstanceArrow" class="circleButton">→</button>
+            <div id =" rcmWindow">
+                <div id= "best_rcm">最佳匹配:
+                    <ul id = "best_rcmWindowOutput" class="instances"></ul>
+                </div>
+                <div id = "likely_rcm">可能匹配：
+                    <ul id = "rcmWindowOutput" class="instances"></ul>
+                </div>
+            </div>
+            <hr/>
             <div id="allInstanceDiv">
 {#                <!--                {% for i in instance_dict: %}-->#}
 {#                <!--                    <button class="instance" name={{instance_dict[i]["id"]}}>-->#}

@@ -1,7 +1,13 @@
 // 全局变量。array of html elements。选中的文本所对应的元素的数组。
 // var selectedElements = 0;
 // var selectedIndex = undefined;
+
 var SelectedElementIndexList  = undefined;
+var k = 0;
+
+
+
+
 
 // 设置ajax不要异步执行
 $.ajaxSetup({
@@ -238,9 +244,9 @@ function PythonStyleToJsStyle(data){
         }
 
         /**
-         * Given a list of jquery.HtmlElement in majorTextWindow, this function highlights them.
-         * This function will not check whether the given elements really belong to majorTextWindow. The elements will be
-         * highlighted as long as they are existing.
+             * Given a list of jquery.HtmlElement in majorTextWindow, this function highlights them.
+             * This function will not check whether the given elements really belong to majorTextWindow. The elements will be
+             * highlighted as long as they are existing.
          *
          * @param elementList
          */
@@ -334,7 +340,7 @@ function PythonStyleToJsStyle(data){
 
         function nodeInfoWindow_showNoNode() {
             $("#nodeInfo-noSelect").css("display", "none");
-            $("#nodeInfo-noNode").css("display", "block");
+                $("#nodeInfo-noNode").css("display", "block");
             $("#nodeInfo-selectedNode").css("display", "none");
         }
 
@@ -553,6 +559,8 @@ function PythonStyleToJsStyle(data){
             } else {
                 liObj.text('　');
             }
+
+
             // shift拖拉：复制元素
             liObj.mousedown(function (e) {
                 if (e.shiftKey) {
@@ -615,7 +623,7 @@ function PythonStyleToJsStyle(data){
             return liObj
         }
 
-        function generateInstances(instancesTuple) {
+        function generateInstances(instancesTuple){
             let instancesType = instancesTuple[0];
             let instancesName = instancesTuple[1];
             let instancesInfo = instancesTuple[2];
@@ -662,6 +670,7 @@ function PythonStyleToJsStyle(data){
             let groupType = groupTuple[0];
             let groupName = groupTuple[1];
             let groupInfo = groupTuple[2];
+            //一开始groupinfo 是一个array（2），分别是["instances","Ename",array(xxx)]\[""group","Gname","array(xxx)"]
             // param check
             if (groupType !== "group") {
                 alert("出错了");
@@ -760,6 +769,7 @@ function PythonStyleToJsStyle(data){
                     }
                     liObj.append(curItemObj);
                 }
+
                 liObj.click(function (e) {
                     // 防止点击事件冒泡到父元素
                     e.stopPropagation();
@@ -1313,6 +1323,13 @@ function PythonStyleToJsStyle(data){
                 for (let i = 0; i < selectedElementsBefore.length; i++) {
                     selectedElementsBefore[i][0].style = "color: black";
                 }
+                //清除上次的推荐内容
+                //这个地方需要优化，清除后就不可再次加入了
+//                $("#rcmWindowOutput").html("")
+                $("#rcmWindowOutput").empty();
+                $("#best_rcmWindowOutput").empty();
+//                $("#rcmWindowOutput").stopPropagation();
+
             }
             // 获取这次的选区，并更新全局变量
             SelectedElementIndexList = majorTextWindow_getSelectedIndexFromGui();
@@ -1331,14 +1348,80 @@ function PythonStyleToJsStyle(data){
                     selectedElementsNow[0].attr("id"),
                     selectedElementsNow[selectedElementsNow.length - 1].attr("id"),
                 );
+                let w =$(".instances_li")
+                let index_list = []
+                let find_element_list = []
+                let desc_simple_list = []
+                let desc_complex_list = []
+                let text_pool = []
+                let str_text_pool = []
+                for(i=0; i<w.length; i++)
+                {
+                    index_list[i] = $(w[i]).attr("name")
+                }
+                for(i=0 ; i<index_list.length; i++)
+                {
+                    find_element_list[i] = getInstanceById(index_list[i])
+                    //注意find_element_list[i][1]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
+                    desc_complex_list[i] = find_element_list[i][1]["mention_list"]
+                    desc_simple_list[i] = find_element_list[i][1]["desc"]
+                }
+                //console.log(desc_complex_list)
+                for(i=0; i<desc_complex_list.length; i++)
+                {
+                    if(desc_complex_list[i].length != 1){
+                        text_pool[i] = new Array();
+                        for( k=0; k<desc_complex_list[i].length; k++)
+                        {
+                            text_pool[i][k] = desc_complex_list[i][k]["text"].toString();
+                            text_pool[i] = text_pool[i].concat(desc_simple_list[i]);
+                            str_text_pool[i] = text_pool[i].join("");
+                        }
+                    }
+                    if(desc_complex_list[i].length == 1){
+                        text_pool[i] = desc_complex_list[i][0]["text"].toString();
+                        str_text_pool[i] = text_pool[i];
+                    }
+//                        console.log(str_text_pool[i])
+                }
                 // 区分是否为标注对象
                 if (r[0] != "success") {
+                    //节点不存在的情况下，r返回的列表为{"failed","no such node"};
                     nodeInfoWindow_showNoNode();
-                } else {
+                    let mark_mouseip_list = [];
+                    let mark_merge_list = [];
+                    for(i=0; i<selectedElementsNow.length; i++)
+                    {
+                        mark_mouseip_list[i] = selectedElementsNow[i].prop("innerText")
+                    }
+                    mark_merge_list = mark_mouseip_list.join("")
+                    for(i=0; i<str_text_pool.length; i++)
+                    {
+                        if((str_text_pool[i].match(mark_merge_list))&&(desc_simple_list[i] != mark_merge_list)){
+                            $("#rcmWindowOutput").append(w[i]);
+                         }
+                         else if(desc_simple_list[i] == mark_merge_list){
+                            $("#best_rcmWindowOutput").append(w[i]);
+                         }
+                    }
+                }
+                else {
+                    //节点存在的情况下，以下功能已实现
                     nodeInfoWindow_updateNodeInfo(r[1]);
                     nodeInfoWindow_showNodeInfo();
+                    //console.log(r[1]["text"]);
+                    for(i=0; i<str_text_pool.length; i++)
+                    {
+                        if((str_text_pool[i].match(r[1]["text"]))&&(desc_simple_list[i] != r[1]["text"])){
+                            $("#rcmWindowOutput").append(w[i]);
+                         }
+                        else if(desc_simple_list[i] == r[1]["text"]){
+                            $("#best_rcmWindowOutput").append(w[i]);
+                         }
+                    }
+                   }
                 }
-            }
+
         }
         // select a mention, get the corresponding node, and fill current slot with the node.
         else if (slotNum == 1) {
