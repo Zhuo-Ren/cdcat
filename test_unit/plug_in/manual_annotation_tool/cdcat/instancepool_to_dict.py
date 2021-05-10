@@ -1,7 +1,7 @@
-from nlp_plantform.config import data_path
-from nlp_plantform.center.instancepool import InstancePool
+from nlp_platform.config import data_path
+from nlp_platform.center.instancepool import InstancePool
 import _pickle as cPickle
-from nlp_plantform.plug_in.input.instances_from_pickle import input_instances_from_pickle
+from nlp_platform.plug_in.input.instances_from_pickle import input_instances_from_pickle
 
 
 ip = input_instances_from_pickle(data_path + r"/instances.pkl")

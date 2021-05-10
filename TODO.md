@@ -6,18 +6,17 @@
   这些共指显然是重复的。应该用instanc间的包含关系来描述。
   
 待完成：
-- node的标签系统配置
-  - value_tyep = instance的标签类型
+- 文件目录树
+  - 以目录的方式，显示文件结构树
+  - 文件名称写全
 - input和output的格式支持
-- debug: 如果curNode已指向一个instance
 - 为每个节点添加“来源”属性，以应对以下情况：
     - XXX宣布XXX将XXX
     - 新华社 XXX 报道
-  
-  这个功能通过node标签系统中，instance类型标签的功能实现。
-- instance list可拖动
 - ajax期间鼠标暂停
-
-已完成：
-- debug：选中文本红色消失
-- 翻译配置文件
+- √ instance推荐系统
+  - √ 新添加一个推荐框。
+  - √ 每当选中一个指称时，搜索所以实例的desc和aka。
+  - √ 如果指称在某个实例的desc或aka中，就在推荐框中显示它。
+- 多人协作
+- 标注可视化

@@ -5,9 +5,9 @@ This program:
  2. get instances from a new empty Instances object.
  3. annotate with CDCAT
 """
-from nlp_plantform.config import data_path
-from nlp_plantform.center.instancepool import InstancePool
-from nlp_plantform.plug_in.input.ntree_from_sqlite import input_ntree_from_sqlite
+from nlp_platform.config import data_path
+from nlp_platform.center.instancepool import InstancePool
+from nlp_platform.plug_in.input.ntree_from_sqlite import input_ntree_from_sqlite
 
 
 # input
@@ -15,5 +15,5 @@ ntree = input_ntree_from_sqlite(data_path + "/main.sqlite", "websiteTabel")  # ç
 instances = InstancePool()
 
 # annotate those text with CDCAT
-from nlp_plantform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
+from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 cdcat(ntree, instances, {"article": True})
