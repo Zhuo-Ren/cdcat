@@ -1398,10 +1398,14 @@ function PythonStyleToJsStyle(data){
                     for(i=0; i<str_text_pool.length; i++)
                     {
                         if((str_text_pool[i].match(mark_merge_list))&&(desc_simple_list[i] != mark_merge_list)){
-                            $("#rcmWindowOutput").append(w[i]);
+                            //$("#rcmWindowOutput").append(w[i]);
+                            let q = $(w[i]).clone(true);
+                            $("#rcmWindowOutput").append(q);
                          }
                          else if(desc_simple_list[i] == mark_merge_list){
-                            $("#best_rcmWindowOutput").append(w[i]);
+                            //$("#best_rcmWindowOutput").append(w[i]);
+                            let q = $(w[i]).clone(true);
+                            $("#best_rcmWindowOutput").append(q);
                          }
                     }
                 }
@@ -1413,10 +1417,12 @@ function PythonStyleToJsStyle(data){
                     for(i=0; i<str_text_pool.length; i++)
                     {
                         if((str_text_pool[i].match(r[1]["text"]))&&(desc_simple_list[i] != r[1]["text"])){
-                            $("#rcmWindowOutput").append(w[i]);
+                            let q = $(w[i]).clone(true);
+                            $("#rcmWindowOutput").append(q);
                          }
                         else if(desc_simple_list[i] == r[1]["text"]){
-                            $("#best_rcmWindowOutput").append(w[i]);
+                            let q = $(w[i]).clone(true);
+                            $("#best_rcmWindowOutput").append(q);
                          }
                     }
                    }
