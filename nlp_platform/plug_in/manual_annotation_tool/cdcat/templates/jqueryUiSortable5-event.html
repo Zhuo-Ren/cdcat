@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI 排序（Sortable） - 处理空列表</title>
+    <!-- jquery-->
+    <script src="../static/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+    <!-- jquery ui-->
+    <link rel="stylesheet" href="../static/jquery-ui-1.12.1/jquery-ui.css">
+    <script src="../static/jquery-ui-1.12.1/jquery-ui.js"></script>
+    <script src="../static/jquery-ui-1.12.1/my-ui.js"></script>
+
+    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+
+    <style>
+        .sortable {
+            list-style-type: none; margin:10px; background: #eee; padding: 5px; width: 143px;
+        }
+        ul::after {content:" ";display: table;clear: both;}
+        .sortable li {
+            float:left; margin: 5px; padding: 5px; font-size: 1.2em; width: 20px;
+        }
+    </style>
+    <script>
+        $(function() {
+            $( ".sortable"  ).sortable({
+                connectWith: "ul",
+                update: function(){console.log(1)}
+            });
+            $( ".sortable" ).disableSelection();
+        });
+    </script>
+</head>
+<body>
+
+<ul class="sortable">
+    <li class="ui-state-default">1</li>
+    <li class="ui-state-default">2</li>
+    <li class="ui-state-default">3</li>
+    <li class="ui-state-default">4</li>
+    <li class="ui-state-default">5</li>
+</ul>
+
+<ul class="sortable">
+</ul>
+
+<br style="clear:both">
+
+
+</body>
+</html>

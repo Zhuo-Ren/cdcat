@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI 排序（Sortable） - 连接列表</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="http://jqueryui.com/resources/demos/style.css">
+    <style>
+        .group, .items { list-style-type: none; margin: 2px; padding: 0 0 40px 0; margin-right: 10px; }
+        ul::after {content:" ";display: table;clear: both;}
+        .group_li{ margin: 0 ; padding: 5px; border: 1px solid red;}
+        .item_li {float: left; padding: 0 7px 0 0; margin: 3px; background: black;}
+        li::marker{ heigh: 0; width: 0;}
+        button {padding: 0;}
+    </style>
+    <script>
+        $(function() {
+            $( ".group" ).sortable({
+                connectWith: ".group"
+            }).disableSelection();
+        });
+        $(function() {
+            $( ".items" ).sortable({
+                connectWith: ".items"
+            }).disableSelection();
+        });
+    </script>
+</head>
+<body>
+<div style="width: 300px">
+    <ul class="group">
+        <li class="group_li">
+            <button>></button>Item 1
+            <ul class="group">
+                <li class="group_li">
+                    Item 1
+                </li>
+                <li class="group_li">
+                    Item 2
+                </li>
+            </ul>
+        </li>
+        <li class="group_li">
+            <button>></button>Item 2
+            <ul class="group">
+                <li class="group_li">
+                    Item 1
+                </li>
+                <li class="group_li">
+                    Item 2
+                </li>
+            </ul>
+        </li>
+        <li class="group_li">
+            Item 3
+            <div>
+                <ul class="items" >
+                    <li class="item_li" ><button>Item 1</button></li>
+                    <li class="item_li" ><button>Item 2</button></li>
+                    <li class="item_li" ><button>Item 3</button></li>
+                    <li class="item_li" ><button>Item 1</button></li>
+                    <li class="item_li" ><button>Item 2</button></li>
+                    <li class="item_li" ><button>Item 3</button></li>
+                    <li class="item_li" ><button>Item 1</button></li>
+                    <li class="item_li" ><button>Item 2</button></li>
+                    <li class="item_li" ><button>Item 3</button></li>
+                </ul>
+            </div>
+        </li>
+        <li class="group_li">
+            Item 4
+        </li>
+        <li class="group_li">
+            Item 5
+            <ul class="items">
+                <li class="item_li" ><button>Item 1</button></li>
+                <li class="item_li" ><button>Item 2</button></li>
+                <li class="item_li" ><button>Item 3</button></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

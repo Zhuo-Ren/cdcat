@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>aaa</title>
+	<link href="../static/jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet">
+    <script src="../static/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
+    <script src="../static/jquery-ui-1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+    <div style="width:150px; height:500px; border:1px solid red" id="f">
+        <div style="width:100px; height:100px; border:1px solid red" id="1" class="d">
+            123
+        </div>
+        <div style="width:100px; height:100px; border:1px solid red" id="2" class="d">
+            456
+        </div>
+    </div>
+    <script>
+        $( function() {
+            $( "#1" ).resizable({containment: "#f"});
+            $( "#2" ).resizable({containment: "#f"});
+        } );
+    </script>
+</body>
+</html>
