@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 
 
-class Instance(dict):
+class Node(dict):
     # static
     config = {}
 
@@ -26,7 +26,6 @@ class Instance(dict):
             label_config = self.config[key]
             self[key] = labeltypes[label_config[key]["type"]](label_config)
 
-
     def to_info(self, include_id_label=True, include_fixed_label=True):
         r = {}
         if self._labels is not None:
@@ -40,6 +39,7 @@ class Instance(dict):
 
 # 加载配置
 import json
+
 with open('./label_config.json', 'r', encoding='utf8') as f:
     label_config = json.load(f)
-Instance.config = label_config["Instance"]
+Node.config = label_config["None"]

@@ -1,0 +1,22 @@
+{
+    "Instance": {
+        "id": {
+            "type": "LabelTypeTextReadonly",
+            "init_value": "'%03d' % randint(0, 999)",
+        },
+        "desc": {
+            "type": "LabelTypeTextInput",
+            "init_value": "self['id']"
+        },
+        "type": {
+            "type": "LabelTypeMenuOne",
+            "init_value": "none",
+            "optional_value": ["none", "entity", "event"]
+        }
+    },
+    "Node": {
+        "id": {
+            "type": "LabelTypeTextReadonly"
+        }
+    }
+}
