@@ -1,17 +1,21 @@
 {
     "Instance": {
+        "PRELIMINARY_CODE": "from random import randint \n ",
         "id": {
-            "type": "LabelTypeTextReadonly",
-            "init_value": "'%03d' % randint(0, 999)",
+            "type": "SimpleLabel",
+            "value_type_hint": "str",
+            "value_init": "'%03d' % randint(0, 999)",
         },
         "desc": {
-            "type": "LabelTypeTextInput",
-            "init_value": "self['id']"
+            "type": "SimpleLabel",
+            "value_type_hint": "str",
+            "value_init": "self['id']"
         },
         "type": {
-            "type": "LabelTypeMenuOne",
-            "init_value": "none",
-            "optional_value": ["none", "entity", "event"]
+            "type": "SimpleLabel",
+            "value_type_hint": "str",
+            "value_init": "none",
+            "value_optional": ["none", "entity", "event"]
         }
     },
     "Node": {
