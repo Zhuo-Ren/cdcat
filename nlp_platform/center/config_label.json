@@ -3,11 +3,13 @@
         "PRELIMINARY_CODE": "from random import randint \n ",
         "LABELS": {
             "id": {
+                "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "str",
-                "value_init": "'%03d' % randint(0, 999)",
+                "value_init": "'%03d' % randint(0, 999)"
             },
             "desc": {
+                "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "str",
                 "value_init": "self['id']"
@@ -17,6 +19,12 @@
                 "value_type_hint": "str",
                 "value_init": "none",
                 "value_optional": ["none", "entity", "event"]
+            },
+            "mentions": {
+                "type": "RelationLabel",
+                "relation_name": "mention_to_instance",
+                "index_self": "1",
+                "index_value": "0"
             }
         }
     },
@@ -24,21 +32,30 @@
         "PRELIMINARY_CODE": "from random import randint \n ",
         "LABELS": {
             "id": {
+                "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "str",
                 "value_init": "'%03d' % randint(0, 999)",
-            },
-            "desc": {
-                "type": "SimpleLabel",
-                "value_type_hint": "str",
-                "value_init": "self['id']"
             },
             "type": {
                 "type": "SimpleLabel",
                 "value_type_hint": "str",
                 "value_init": "none",
                 "value_optional": ["none", "entity", "event"]
+            },
+            "refer": {
+                "type": "RelationLabel",
+                "relation_name": "mention_to_instance",
+                "index_self": "0",
+                "index_value": "1"
             }
+        }
+    },
+    "Relation": {
+        "mention_to_instance": {
+            "type": "DRT",
+            "max_out_degree": "1",
+            "max_in_degeree": "none"
         }
     }
 }

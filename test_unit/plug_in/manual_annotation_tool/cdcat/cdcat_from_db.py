@@ -11,9 +11,11 @@ from nlp_platform.plug_in.input.ntree_from_sqlite import input_ntree_from_sqlite
 
 
 # input
-ntree = input_ntree_from_sqlite(data_path + "/main.sqlite", "websiteTabel")  # 爬虫中table笔误写成了tabel
-instances = InstancePool()
+node_pool = input_ntree_from_sqlite(data_path + "/main.sqlite", "websiteTabel")  # 爬虫中table笔误写成了tabel
+instance_pool = InstancePool()
+relation_pool = None
 
 # annotate those text with CDCAT
 from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
-cdcat(ntree, instances, {"article": True})
+cdcat(node_pool, instance_pool, relation_pool)
+

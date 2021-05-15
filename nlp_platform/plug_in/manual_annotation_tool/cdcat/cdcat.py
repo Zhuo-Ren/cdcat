@@ -1,69 +1,52 @@
 from flask import Flask, render_template, request, jsonify
 from typing import Dict, List, Tuple, Union  # for type hinting
+#
 import nlp_platform.log_config
-import json
 import logging
-from nlp_platform.plug_in.manual_annotation_tool.cdcat import config
-from nlp_platform.center.nodetree import NodeTree
+#
+from nlp_platform.center.node import Node
+from nlp_platform.center.nodepool import NodePool
 from nlp_platform.center.instance import Instance
 from nlp_platform.center.instancepool import InstancePool
-from nlp_platform.plug_in.output.instances_to_pickle import output_instances_to_pickle
-from nlp_platform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
-from nlp_platform.center.labeltypes import regiest_cofigured_label_types
-from datetime import timedelta
+from nlp_platform.center.relation import Relation
+from nlp_platform.center.relationpool import RelationPool
 
-regiest_cofigured_label_types()
 
-def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) -> None:
+def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> None:
     """
     This is a manual annotation tool for cross-document coreference.
 
-    :param root_node: nodes info in the form of *center.ntree*.
+    :param node_pool: nodes info in the form of *center.ntree*.
     :param instance_pool: instances info in the form of *center.instances*.
-    :param unit_level:
     """
+    # 1. app init
     app = Flask(__name__)
+    from datetime import timedelta
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
-    with open(config.lang_dict_path, 'r', encoding='utf8') as langf:
-        lang_dict = json.load(langf)
 
-    with open(config.label_sys_dict_path, 'r', encoding='utf8') as labelf:
-        label_sys_dict = json.load(labelf)
+    # 2. load config files
+    # 2.1 load config.py
+    from nlp_platform.plug_in.manual_annotation_tool.cdcat import config
+    # 2.2 load config_label.json
+    import json
+    import sys
+    import os
+    cur_file_path = os.path.abspath(sys.argv[0])
+    cur_folder_path = os.path.dirname(cur_file_path)
+    config_label_file_path = os.path.join(cur_folder_path, "config_label.json")
+    with open(config_label_file_path, 'r', encoding='utf8') as f:
+        config_label = json.load(f)
+    # 2.3 load config_lang.json
+    config_lang_file_path = os.path.join(cur_folder_path, "config_lang.json")
+    with open(config_lang_file_path, 'r', encoding='utf8') as f:
+        config_lang = json.load(f)
+
 
     @app.route('/')
     def init():
-        # instance_pool.groups = \
-        # ["group", None, [
-        #     ["instances", "fixed", [
-        #
-        #     ]],
-        #     ["group", "GName", [
-        #         ["instances", "EName", [
-        #             instance_pool.add_instance(),
-        #             instance_pool.add_instance()
-        #         ]],
-        #         ["instances", "EName", [
-        #             instance_pool.add_instance()
-        #         ]],
-        #         ["group", "GName", [
-        #             ["instances", "EName", [
-        #                 instance_pool.add_instance(),
-        #                 instance_pool.add_instance()
-        #             ]]
-        #         ]]
-        #     ]],
-        #     ["instances", "EName", [
-        #         instance_pool.add_instance()
-        #     ]],
-        #     ["group", "GName", [
-        #         ["instances", "EName", [
-        #             instance_pool.add_instance(), instance_pool.add_instance()
-        #         ]]
-        #     ]]
-        # ]]
         return render_template("main.html",
-                               langDict=lang_dict,
-                               labelSysDict=label_sys_dict)
+                               langDict=config_lang,
+                               labelSysDict=config_label)
 
     @app.route('/getText', methods=["POST"])
     def getText():
@@ -83,7 +66,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                 "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
-            text_node_position = root_node.str_to_position(text_node_position)
+            text_node_position = node_pool.str_to_position(text_node_position)
         except:
             raise RuntimeError(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
@@ -91,10 +74,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                 "getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
             return jsonify(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
-        logging.debug("getText--：the node text is:" + root_node[text_node_position].text())
+        logging.debug("getText--：the node text is:" + node_pool[text_node_position].text())
         #
         text_unit_list = []
-        for cur_nleaf in root_node[text_node_position].all_nleaves():
+        for cur_nleaf in node_pool[text_node_position].all_nleaves():
             p = [str(i) for i in cur_nleaf.position()]
             text_unit_list.append({
                 "char": cur_nleaf[0],
@@ -142,9 +125,9 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         """
 
         # 迭代函数
-        def walk_to_file(node: root_node):
-            content = [root_node.position_to_str(node.position())]
-            for cur_node in root_node:
+        def walk_to_file(node: node_pool):
+            content = [node_pool.position_to_str(node.position())]
+            for cur_node in node_pool:
                 try:
                     if cur_node.get_label()["article"] == True:
                         is_file = True
@@ -154,7 +137,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                     is_file = False
                 if is_file:
                     content.append((
-                        root_node.position_to_str(cur_node.position()),
+                        node_pool.position_to_str(cur_node.position()),
                         cur_node.text()[0:7]
                     ))
                 else:
@@ -162,7 +145,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
             return content
 
         # 获取目录结构
-        content = walk_to_file(root_node)
+        content = walk_to_file(node_pool)
         # 返回目录结构
         return jsonify(content)
 
@@ -261,7 +244,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         try:
             children_node_position_list = [i.split("-") for i in children_node_position_list]
             children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
-            children_node_list = [root_node[i] for i in children_node_position_list]
+            children_node_list = [node_pool[i] for i in children_node_position_list]
         except:
             raise RuntimeError(
                 "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
@@ -272,7 +255,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
         logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
         # create new node
         try:
-            new_node: NodeTree = root_node.add_parent({}, children_node_list)
+            new_node: NodeTree = node_pool.add_parent({}, children_node_list)
         except RuntimeError:
             logging.debug("addNode<-Error：" + "can not create the new node.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
@@ -291,18 +274,18 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
     @app.route('/getNode', methods=["POST"])
     def getNode():
         # get params(for js function "getNodeByPosition")
-        position = root_node.str_to_position(request.form.get("position"))
+        position = node_pool.str_to_position(request.form.get("position"))
         # get params(for js function "getNodeByChild")
-        start_position = root_node.str_to_position(request.form.get("start"))
-        end_position = root_node.str_to_position(request.form.get("end"))
+        start_position = node_pool.str_to_position(request.form.get("start"))
+        end_position = node_pool.str_to_position(request.form.get("end"))
         # get node(for js function "getNodeByPositon")
         if position:
             logging.debug("getNode->：position=" + str(position))
-            node = root_node[position]
+            node = node_pool[position]
         # get node(for js function "getNodeByChild")
         elif start_position and end_position:
             logging.debug("getNode->：position=" + str(start_position) + '-' + str(end_position))
-            node = root_node.is_annotated(root_node, start_position, end_position)
+            node = node_pool.is_annotated(node_pool, start_position, end_position)
         # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
@@ -318,9 +301,9 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
-        position = root_node.str_to_position(request.form.get("position"))
+        position = node_pool.str_to_position(request.form.get("position"))
         logging.debug("setNode->：position=" + str(position))
-        node = root_node[position]
+        node = node_pool[position]
         if node is None:
             logging.debug("setNode--：no such node")
             logging.debug("getNode<-：\"\"")
@@ -337,7 +320,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                         from nlp_platform.center.labeltypes import labeltypes
                         cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
                     cur_label = cur_labels[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_parm, root_node, instance_pool)
+                    cur_label.ajax_process(cur_label_ajax_parm, node_pool, instance_pool)
             logging.debug("setNode<-：" + str(["success", node.readable()]))
             return jsonify(["success", node.readable()])
 
@@ -347,10 +330,10 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        position = root_node.str_to_position(request.form.get("position"))
+        position = node_pool.str_to_position(request.form.get("position"))
         if position:  # 使用快捷键，基于一个node创建instance
             # 因为→键的实现改成了模拟多次点击，所以这一段逻辑暂时用不到了。
-            node = root_node[position]
+            node = node_pool[position]
             logging.debug("addInstance_node->：position=" + str(position))
             instance = instance_pool.add_instance({"desc": node.text()})
             if "mention_list" not in instance.labels:
@@ -404,7 +387,7 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
                         cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
                     # 根据前台信息，修改当前标签
                     cur_label = cur_labels[cur_label_key]
-                    r = cur_label.ajax_process(cur_label_ajax_param, root_node, instance_pool)
+                    r = cur_label.ajax_process(cur_label_ajax_param, node_pool, instance_pool)
                     if r is not None:
                         logging.debug("setInstance<-：" + str(["failed", r]))
                         return jsonify(["failed", r])
@@ -484,7 +467,9 @@ def cdcat(root_node: NodeTree, instance_pool: InstancePool, unit_level: Dict) ->
 
     @app.route('/save', methods=["POST"])
     def save():
-        output_ntree_to_pickle(root_node)
+        from nlp_platform.plug_in.output.instances_to_pickle import output_instances_to_pickle
+        from nlp_platform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
+        output_ntree_to_pickle(node_pool)
         output_instances_to_pickle(instance_pool)
         return jsonify({"success": True})
 
