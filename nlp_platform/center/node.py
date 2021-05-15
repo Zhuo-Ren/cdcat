@@ -66,6 +66,11 @@ class Node(dict):
 
 # 加载配置
 import json
-with open('./label_config.json', 'r', encoding='utf8') as f:
+import sys
+import os
+cur_file_path = os.path.abspath(sys.argv[0])
+cur_folder_path = os.path.dirname(cur_file_path)
+target_file_path = os.path.join(cur_folder_path, "config_label.json")
+with open(target_file_path, 'r', encoding='utf8') as f:
     config = json.load(f)
-Node.config = config["Node"]
+Instance.config = config["Instance"]
