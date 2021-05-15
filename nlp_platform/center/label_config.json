@@ -1,26 +1,44 @@
 {
     "Instance": {
         "PRELIMINARY_CODE": "from random import randint \n ",
-        "id": {
-            "type": "SimpleLabel",
-            "value_type_hint": "str",
-            "value_init": "'%03d' % randint(0, 999)",
-        },
-        "desc": {
-            "type": "SimpleLabel",
-            "value_type_hint": "str",
-            "value_init": "self['id']"
-        },
-        "type": {
-            "type": "SimpleLabel",
-            "value_type_hint": "str",
-            "value_init": "none",
-            "value_optional": ["none", "entity", "event"]
+        "LABELS": {
+            "id": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "'%03d' % randint(0, 999)",
+            },
+            "desc": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "self['id']"
+            },
+            "type": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "none",
+                "value_optional": ["none", "entity", "event"]
+            }
         }
     },
     "Node": {
-        "id": {
-            "type": "LabelTypeTextReadonly"
+        "PRELIMINARY_CODE": "from random import randint \n ",
+        "LABELS": {
+            "id": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "'%03d' % randint(0, 999)",
+            },
+            "desc": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "self['id']"
+            },
+            "type": {
+                "type": "SimpleLabel",
+                "value_type_hint": "str",
+                "value_init": "none",
+                "value_optional": ["none", "entity", "event"]
+            }
         }
     }
 }
