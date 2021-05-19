@@ -18,7 +18,7 @@ class NodePool(dict):
         # 如果key重复，就报错
         pass
         #
-        self[node["id"]] = node
+        self[node["id"]["value"]] = node
         node.pool = self
 
     def __setitem__(self, key, value):

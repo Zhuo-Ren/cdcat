@@ -18,6 +18,15 @@ class InstancePool(dict):
         corpus = None
         """指向Corpus对象"""
 
+    def add(self, instance):
+        # param check
+        pass
+        # 如果key重复，就报错
+        pass
+        #
+        self[instance["id"]["value"]] = instance
+        instance.pool = self
+
     def add_instancelink(self, i_id):
         self.groups[0][2][0][2].append(i_id)
 

@@ -51,6 +51,7 @@ class Node(dict):
         from nlp_platform.center.labeltypes import label_types
         for label_key, label_config in self.config["LABELS"].items():
             label_config["key"] = label_key
+            label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
             self[label_key] = label_types[label_config["type"]](config=label_config)
 
     @property
@@ -59,9 +60,9 @@ class Node(dict):
 
     @pool.setter
     def pool(self, value):
-        from nlp_platform.center.instancepool import InstancePool
-        if not isinstance(value, InstancePool):
-            if (value is not None) & (not isinstance(value, InstancePool)):
+        from nlp_platform.center.nodepool import NodePool
+        if not isinstance(value, NodePool):
+            if (value is not None) & (not isinstance(value, NodePool)):
                 raise TypeError
         self._pool = value
 

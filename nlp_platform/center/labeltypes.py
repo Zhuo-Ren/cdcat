@@ -50,6 +50,8 @@ class Label(dict):
         else:
             self.required = False
 
+    def to_info(self):
+        pass
 
 class SimpleLabel(Label):
     """
@@ -90,7 +92,7 @@ class SimpleLabel(Label):
 
         # PRELIMINARY_CODE
         if "PRELIMINARY_CODE" in config:
-            eval(config["PRELIMINARY_CODE"])
+            exec(config["PRELIMINARY_CODE"])
 
         # public;["value_init"]
         self["value_init"] = config["value_init"]
@@ -109,7 +111,7 @@ class SimpleLabel(Label):
             if not eval(self["value_type_hint"]):
                 raise TypeError("Value of this label do not match the type hint.")
         if "value_optional" in self:
-            if value not in self["value_optional"] :
+            if value not in self["value_optional"]:
                 raise TypeError("Value of this label do not match the options.")
         self["value"] = value
 
@@ -121,6 +123,7 @@ class SimpleLabel(Label):
             if "value_optional" in self:
                 if value not in self["value_optional"]:
                     raise TypeError("Value of this label do not match the options.")
+            super().__setitem__(key, value)
         else:
             super().__setitem__(key, value)
 
@@ -212,11 +215,11 @@ class RelationLabel(Label):
         :type config: dict
         """
         # 父类的初始化
-        super().__init__(owner, config)
+        super().__init__(owner=owner, config=config)
 
         # PRELIMINARY_CODE
         if "PRELIMINARY_CODE" in config:
-            eval(config["PRELIMINARY_CODE"])
+            exec(config["PRELIMINARY_CODE"])
 
         # public;["table_name"]
         self["table_name"] = config["table_name"]
@@ -227,11 +230,8 @@ class RelationLabel(Label):
         # public: ["index_value"]
         self["index_value"] = config["index_value"]
 
-        # public: ["value_init"]
-        self["value_init"] = config["value_init"]
-
         # public: ["value"]
-        self["value"] = eval(self["value_init"])
+        pass
 
     def __getitem__(self, key):
         if key == "value":
@@ -286,6 +286,10 @@ class RelationLabel(Label):
                         other_obj = c.np[other_id]
                     #
                     r_obj_list.append(other_obj)
+
+            return r_obj_list
+        else:
+            return super().__getitem__(key)
 
     def __setitem__(self, key, value):
         if key == "value":

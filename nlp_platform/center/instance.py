@@ -46,23 +46,25 @@ class Instance(dict):
             raise TypeError("param label_dict should be None or a dict.")
 
         # public: pool
-        self.pool = None
+        self._pool = None
 
         # labels
         from nlp_platform.center.labeltypes import label_types
         for label_key, label_config in self.config["LABELS"].items():
-            self[label_key] = label_types[label_config["type"]](config=label_config)
+            label_config["key"] = label_key
+            label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
+            self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
     @property
     def pool(self):
-        return self.pool
+        return self._pool
 
     @pool.setter
     def pool(self, value):
         from nlp_platform.center.instancepool import InstancePool
         if (value is not None) & (not isinstance(value, InstancePool)):
             raise TypeError
-        self.pool = value
+        self._pool = value
 
     def to_info(self):
         r = {}

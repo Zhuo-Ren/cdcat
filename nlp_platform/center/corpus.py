@@ -24,7 +24,7 @@ class Corpus(object):
     def np(self):
         return self._np
 
-    @tp.setter
+    @np.setter
     def np(self, value):
         from nlp_platform.center.nodepool import NodePool
         if not isinstance(value, NodePool):
@@ -36,7 +36,7 @@ class Corpus(object):
     def ip(self):
         return self._ip
 
-    @tp.setter
+    @ip.setter
     def ip(self, value):
         from nlp_platform.center.instancepool import InstancePool
         if not isinstance(value, InstancePool):

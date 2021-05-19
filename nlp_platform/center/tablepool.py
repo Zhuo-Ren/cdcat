@@ -33,3 +33,12 @@ class TablePool(dict):
                 self[cur_table_name] = Urt(
                     max_degree=eval(self.config["max_degree"]),
                 )
+
+    # def add(self, node):
+    #     # param check
+    #     pass
+    #     # 如果key重复，就报错
+    #     pass
+    #     #
+    #     self[node["id"]] = node
+    #     node.pool = self

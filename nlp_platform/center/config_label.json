@@ -5,24 +5,24 @@
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "isinstanceof(value, str)",
+                "value_type_hint": "isinstance(value, str)",
                 "value_init": "'%03d' % randint(0, 999)"
             },
             "desc": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "isinstanceof(value, str)",
-                "value_init": "self['id']"
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "self['owner']['id']['value']"
             },
             "type": {
                 "type": "SimpleLabel",
-                "value_type_hint": "isinstanceof(value, str)",
-                "value_init": "none",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'none'",
                 "value_optional": ["none", "entity", "event"]
             },
             "mentions": {
                 "type": "RelationLabel",
-                "relation_name": "mention_to_instance",
+                "table_name": "mention_to_instance",
                 "index_self": "1",
                 "index_value": "0"
             }
@@ -45,7 +45,7 @@
             },
             "refer": {
                 "type": "RelationLabel",
-                "relation_name": "mention_to_instance",
+                "table_name": "mention_to_instance",
                 "index_self": "0",
                 "index_value": "1"
             }
