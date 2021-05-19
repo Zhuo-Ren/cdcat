@@ -5,18 +5,18 @@
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "str",
+                "value_type_hint": "isinstanceof(value, str)",
                 "value_init": "'%03d' % randint(0, 999)"
             },
             "desc": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "str",
+                "value_type_hint": "isinstanceof(value, str)",
                 "value_init": "self['id']"
             },
             "type": {
                 "type": "SimpleLabel",
-                "value_type_hint": "str",
+                "value_type_hint": "isinstanceof(value, str)",
                 "value_init": "none",
                 "value_optional": ["none", "entity", "event"]
             },
@@ -34,13 +34,13 @@
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "str",
-                "value_init": "'%03d' % randint(0, 999)",
+                "value_type_hint": "True",
+                "value_init": "'No:0-0'"
             },
             "type": {
                 "type": "SimpleLabel",
-                "value_type_hint": "str",
-                "value_init": "none",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'none'",
                 "value_optional": ["none", "entity", "event"]
             },
             "refer": {
@@ -54,8 +54,8 @@
     "Relation": {
         "mention_to_instance": {
             "type": "DRT",
-            "max_out_degree": "1",
-            "max_in_degeree": "none"
+            "max_o_degree": "1",
+            "max_i_degree": "None"
         }
     }
 }

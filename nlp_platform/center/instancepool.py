@@ -4,12 +4,19 @@ from nlp_platform.center.instance import Instance
 
 class InstancePool(dict):
     def __init__(self):
+        """
+        不必传owner，因为corpus对象会处理。
+
+        """
         self.groups = [
             "group", None, [
                 ["instances", "fixed", []],
                 ["group", "GName", []]
             ]
         ]
+        # public
+        corpus = None
+        """指向Corpus对象"""
 
     def add_instancelink(self, i_id):
         self.groups[0][2][0][2].append(i_id)

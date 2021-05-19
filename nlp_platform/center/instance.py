@@ -5,9 +5,10 @@ class Instance(dict):
     """
     属性:
      - Instance.config
-     - instance.instance_pool
+     - instance.pool
      - node["标签"]
     """
+
     # static
     config = {}
     """
@@ -35,13 +36,8 @@ class Instance(dict):
         }
     """
 
-    def __init__(self, pool=None, info: Dict = None):
+    def __init__(self, info: Dict = None):
         super().__init__()
-
-        # param check: instance_pool
-        from nlp_platform.center.instancepool import InstancePool
-        if (pool is not None) & (not isinstance(pool, InstancePool)):
-            raise TypeError
 
         # param check: info
         if info is None:
@@ -49,13 +45,24 @@ class Instance(dict):
         if not isinstance(info, dict):
             raise TypeError("param label_dict should be None or a dict.")
 
-        # public: instance_pool
-        self.instance_pool = pool
+        # public: pool
+        self.pool = None
 
         # labels
         from nlp_platform.center.labeltypes import label_types
         for label_key, label_config in self.config["LABELS"].items():
-            self[label_key] = label_types[label_config["type"]](label_config)
+            self[label_key] = label_types[label_config["type"]](config=label_config)
+
+    @property
+    def pool(self):
+        return self.pool
+
+    @pool.setter
+    def pool(self, value):
+        from nlp_platform.center.instancepool import InstancePool
+        if (value is not None) & (not isinstance(value, InstancePool)):
+            raise TypeError
+        self.pool = value
 
     def to_info(self):
         r = {}
@@ -68,7 +75,7 @@ class Instance(dict):
 import json
 import sys
 import os
-cur_file_path = os.path.abspath(sys.argv[0])
+cur_file_path = os.path.abspath(__file__)
 cur_folder_path = os.path.dirname(cur_file_path)
 target_file_path = os.path.join(cur_folder_path, "config_label.json")
 with open(target_file_path, 'r', encoding='utf8') as f:
