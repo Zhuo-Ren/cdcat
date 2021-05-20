@@ -52,7 +52,7 @@ class Node(dict):
         for label_key, label_config in self.config["LABELS"].items():
             label_config["key"] = label_key
             label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
-            self[label_key] = label_types[label_config["type"]](config=label_config)
+            self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
     @property
     def pool(self):

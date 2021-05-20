@@ -4,9 +4,9 @@ class Corpus(object):
         from nlp_platform.center.nodepool import NodePool
         from nlp_platform.center.instancepool import InstancePool
         self.raw = {}
-        self._tp = TablePool()
-        self._np = NodePool()
-        self._ip = InstancePool()
+        self._tp = TablePool(corpus=self)
+        self._np = NodePool(corpus=self)
+        self._ip = InstancePool(corpus=self)
 
     @property
     def tp(self):

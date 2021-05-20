@@ -3,7 +3,7 @@ from nlp_platform.center.instance import Instance
 
 
 class InstancePool(dict):
-    def __init__(self):
+    def __init__(self, corpus=None):
         """
         不必传owner，因为corpus对象会处理。
 
@@ -15,7 +15,7 @@ class InstancePool(dict):
             ]
         ]
         # public
-        corpus = None
+        self.corpus = corpus
         """指向Corpus对象"""
 
     def add(self, instance):

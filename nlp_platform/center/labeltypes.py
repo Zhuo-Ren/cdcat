@@ -50,8 +50,12 @@ class Label(dict):
         else:
             self.required = False
 
-    def to_info(self):
-        pass
+    # def to_info(self):
+    #     if self["key"] == "id":
+    #         return {"id": self["value"]}
+    #     else:
+    #         pass
+    #         # return {"test": "test"}
 
 class SimpleLabel(Label):
     """
@@ -127,6 +131,8 @@ class SimpleLabel(Label):
         else:
             super().__setitem__(key, value)
 
+    def to_info(self):
+        return {self["key"]: self["value"]}
 
 class ListLabel(Label):
     pass
@@ -201,8 +207,8 @@ class RelationLabel(Label):
 
             >>> c = {
                     "relation_name": "mention_to_instance",
-                    "index_self": 1,
-                    "index_value": 0
+                    "index_self": "1",
+                    "index_value": "0"
                 }
             >>> RelationLabel(owner = a_table_pool, config = c)
 
@@ -244,10 +250,10 @@ class RelationLabel(Label):
                 # 有向图
                 if "index_self" in self:
                     try:
-                        if self["index_self"] == 0:
-                            r = t[self_id, None]
-                        elif self["index_self"] == 1:
-                            r = t[None, self_id]
+                        if self["index_self"] == "0":
+                            r = t[self_id["value"], None]
+                        elif self["index_self"] == "1":
+                            r = t[None, self_id["value"]]
                     except KeyError:
                         return None
                 # 无向图
@@ -302,7 +308,8 @@ class RelationLabel(Label):
         else:
             super().__setitem__(key, value)
 
-
+    def to_info(self):
+        return {self["key"]: self["value"]}
 
 
 label_types = {

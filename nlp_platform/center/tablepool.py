@@ -4,13 +4,13 @@ from nlp_platform.center.table import UndirectedRelationTable as Urt
 
 
 class TablePool(dict):
-    def __init__(self):
+    def __init__(self, corpus=None):
         """
         不必传owner，因为corpus对象会处理。
 
         """
         # public
-        corpus = None
+        self.corpus = corpus
         """指向Corpus对象"""
 
         # 加载配置
