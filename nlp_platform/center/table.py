@@ -54,36 +54,39 @@ class DirectedRelationTable(object):  # 有向图
             raise TypeError
         #
         for key, value in content.items():
-            # check: key
-            if not isinstance(key, tuple):
-                raise TypeError
-            if len(key) != 2:
-                raise TypeError
-            # check: relation repetition
-            """ This function is useless, because there can not be repetition in dict.
-            if self.have(key) > 0:
-                raise RuntimeError("This relation already exits.")
-            """
-            # check: in and out degree
-            if self.max_o_degree is not None:
-                if self.have((key[0], None)) >= max_o_degree:
-                    raise RuntimeError("exceed the out degree limit.")
-            if self.max_i_degree is not None:
-                if self.have((None, key[1])) >= max_i_degree:
-                    raise RuntimeError("exceed the in degree limit.")
-            # add cur item
-            self.center[key] = value
-            # update idx
-            try:
-                self.idx_o[key[0]][key[1]] = None
-            except KeyError:
-                self.idx_o[key[0]] = {}
-                self.idx_o[key[0]][key[1]] = None
-            try:
-                self.idx_i[key[1]][key[0]] = None
-            except KeyError:
-                self.idx_i[key[1]] = {}
-                self.idx_i[key[1]][key[0]] = None
+            self.add_item(key, value)
+
+    def add_item(self, key, value):
+        # check: key
+        if not isinstance(key, tuple):
+            raise TypeError
+        if len(key) != 2:
+            raise TypeError
+        # check: relation repetition
+        """ This function is useless, because there can not be repetition in dict.
+        if self.have(key) > 0:
+            raise RuntimeError("This relation already exits.")
+        """
+        # check: in and out degree
+        if self.max_o_degree is not None:
+            if self.have((key[0], None)) >= self.max_o_degree:
+                raise RuntimeError("exceed the out degree limit.")
+        if self.max_i_degree is not None:
+            if self.have((None, key[1])) >= self.max_i_degree:
+                raise RuntimeError("exceed the in degree limit.")
+        # add cur item
+        self.center[key] = value
+        # update idx
+        try:
+            self.idx_o[key[0]][key[1]] = None
+        except KeyError:
+            self.idx_o[key[0]] = {}
+            self.idx_o[key[0]][key[1]] = None
+        try:
+            self.idx_i[key[1]][key[0]] = None
+        except KeyError:
+            self.idx_i[key[1]] = {}
+            self.idx_i[key[1]][key[0]] = None
 
     def __getitem__(self, key):
         """
@@ -149,7 +152,12 @@ class DirectedRelationTable(object):  # 有向图
         if len(key) != 2:
             raise RuntimeError
         #
-        self.center[key] = value
+        if key in self.center:
+            # 如果当前key已有 直接改
+            self.center[key] = value
+        else:
+            # 如果没有 创建
+            self.add_item(key, value)
 
     def have(self, key):
         """
@@ -276,33 +284,37 @@ class UndirectedRelationTable(object):  # 无向图
             raise TypeError
         #
         for key, value in content.items():
-            # check: key
-            if not isinstance(key, tuple):
-                raise TypeError
-            if len(key) != 2:
-                raise TypeError
-            # check: relation repetition
-            if self.have(key) > 0:
-                raise RuntimeError("This relation already exits.")
-            # check: degree
-            if self.max_degree is not None:
-                if self.have((key[0])) >= max_degree:
-                    raise RuntimeError("exceed the degree limit.")
-                if self.have((key[1])) >= max_degree:
-                    raise RuntimeError("exceed the degree limit.")
-            # add cur item
-            self.center[key] = value
-            # update idx
-            try:
-                self.idx_a[key[0]][key[1]] = None
-            except KeyError:
-                self.idx_a[key[0]] = {}
-                self.idx_a[key[0]][key[1]] = None
-            try:
-                self.idx_b[key[1]][key[0]] = None
-            except KeyError:
-                self.idx_b[key[1]] = {}
-                self.idx_b[key[1]][key[0]] = None
+            self.add_item(key, value)
+
+    def add_item(self, key, value):
+        # check: key
+        if not isinstance(key, tuple):
+            raise TypeError
+        if len(key) != 2:
+            raise TypeError
+        # check: relation repetition
+        if self.have(key) > 0:
+            raise RuntimeError("This relation already exits.")
+        # check: degree
+        if self.max_degree is not None:
+            if self.have((key[0])) >= self.max_degree:
+                raise RuntimeError("exceed the degree limit.")
+            if self.have((key[1])) >= self.max_degree:
+                raise RuntimeError("exceed the degree limit.")
+        # add cur item
+        self.center[key] = value
+        # update idx
+        try:
+            self.idx_a[key[0]][key[1]] = None
+        except KeyError:
+            self.idx_a[key[0]] = {}
+            self.idx_a[key[0]][key[1]] = None
+        try:
+            self.idx_b[key[1]][key[0]] = None
+        except KeyError:
+            self.idx_b[key[1]] = {}
+            self.idx_b[key[1]][key[0]] = None
+
 
     def __getitem__(self, key):
         """
@@ -362,7 +374,13 @@ class UndirectedRelationTable(object):  # 无向图
         if len(key) != 2:
             raise RuntimeError
         #
-        self.center[key] = value
+        if key in self.center:
+            # 如果当前key已有 直接改
+            self.center[key] = value
+        else:
+            # 如果没有 创建
+            self.add_item(key, value)
+
 
     def have(self, key):
         """

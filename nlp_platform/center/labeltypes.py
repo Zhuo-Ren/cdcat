@@ -127,7 +127,12 @@ class SimpleLabel(Label):
             if "value_optional" in self:
                 if value not in self["value_optional"]:
                     raise TypeError("Value of this label do not match the options.")
-            super().__setitem__(key, value)
+            if self["key"] == "id":
+                if self["owner"].pool is not None:
+                    self["owner"].pool[value] = self["owner"].pool.pop(self["value"])
+                super().__setitem__(key, value)
+            else:
+                super().__setitem__(key, value)
         else:
             super().__setitem__(key, value)
 
@@ -259,7 +264,7 @@ class RelationLabel(Label):
                 # 无向图
                 else:
                     try:
-                        r = t[self_id]
+                        r = t[self_id["value"]]
                     except KeyError:
                         return None
             r_relations = r.to_dict()
@@ -270,14 +275,14 @@ class RelationLabel(Label):
                 # 有向图
                 if "index_self" in self:
                     # 识别哪个节点是自己，哪个节点是值
-                    other_id = cur_relation[self["index_value"]]
-                    # 把id转成节点对象
-                    if other_id[0:2] == "i:":
-                        other_obj = c.ip[other_id]
-                    elif other_id[0:2] == "n:":
-                        other_obj = c.np[other_id]
+                    other_id = cur_relation[eval(self["index_value"])]
+                    # # 把id转成节点对象
+                    # if other_id[0:2] == "i:":
+                    #     other_obj = c.ip[other_id]
+                    # elif other_id[0:2] == "n:":
+                    #     other_obj = c.np[other_id]
                     #
-                    r_obj_list.append(other_obj)
+                    r_obj_list.append(other_id)
                 # 无向图
                 else:
                     # 识别哪个节点是自己，哪个节点是值
@@ -285,19 +290,21 @@ class RelationLabel(Label):
                         other_id = cur_relation[1]
                     else:
                         other_id = cur_relation[0]
-                    # 把id转成节点对象
-                    if other_id[0:2] == "i:":
-                        other_obj = c.ip[other_id]
-                    elif other_id[0:2] == "n:":
-                        other_obj = c.np[other_id]
+                    # # 把id转成节点对象
+                    # if other_id[0:2] == "i:":
+                    #     other_obj = c.ip[other_id]
+                    # elif other_id[0:2] == "n:":
+                    #     other_obj = c.np[other_id]
                     #
-                    r_obj_list.append(other_obj)
+                    r_obj_list.append(other_id)
 
             return r_obj_list
         else:
             return super().__getitem__(key)
 
     def __setitem__(self, key, value):
+        # value需要一个区分规则（因为n1["refer"]["value"] = "100"的时候，仅传了一个参数（出结点/入结点），但有时需要同时传入出结点/入结点+边值）。
+        # 关系图（出结点，入结点） = 边值 此时仅考虑了赋予出/入结点的情况
         if key == "value":
             if "value_type_hint" in self:
                 if not eval(self["value_type_hint"]):
@@ -305,6 +312,30 @@ class RelationLabel(Label):
             if "value_optional" in self:
                 if value not in self["value_optional"]:
                     raise TypeError("Value of this label do not match the options.")
+
+            c = self["owner"].pool.corpus
+            t = c.tp[self["table_name"]]
+            self_id = self["owner"]["id"]
+
+            # 获取对应的relations
+            if 1:
+                # 有向图
+                if "index_self" in self:
+                    try:
+                        if self["index_self"] == "0":
+                            t[self_id["value"], value] = None
+                        elif self["index_self"] == "1":
+                            t[value, self_id["value"]] = None
+                    except KeyError:
+                        return None
+
+                # 无向图
+                else:
+                    try:
+                        # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
+                        t[self_id["value"], value] = None
+                    except KeyError:
+                        return None
         else:
             super().__setitem__(key, value)
 

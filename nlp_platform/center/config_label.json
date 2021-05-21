@@ -6,7 +6,7 @@
                 "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "isinstance(value, str)",
-                "value_init": "'%03d' % randint(0, 999)"
+                "value_init": "'i:%03d' % randint(0, 999)"
             },
             "desc": {
                 "required": "True",
@@ -35,7 +35,7 @@
                 "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "True",
-                "value_init": "'No:0-0'"
+                "value_init": "'n:0-0'"
             },
             "type": {
                 "type": "SimpleLabel",
