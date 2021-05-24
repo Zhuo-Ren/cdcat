@@ -29,12 +29,12 @@
         }
     },
     "Node": {
-        "PRELIMINARY_CODE": "import nlp_platform.center.config_label_preliminary.py",
+        "PRELIMINARY_CODE": "import nlp_platform.center.config_label_preliminary",
         "LABELS": {
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "node_value_check(value)",
+                "value_type_hint": "True",
                 "value_init": "'n:unnamed.raw:0-0'"
             },
             "type": {
