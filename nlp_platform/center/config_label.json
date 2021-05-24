@@ -29,13 +29,13 @@
         }
     },
     "Node": {
-        "PRELIMINARY_CODE": "from random import randint \n ",
+        "PRELIMINARY_CODE": "import nlp_platform.center.config_label_preliminary.py",
         "LABELS": {
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
-                "value_type_hint": "True",
-                "value_init": "'n:0-0'"
+                "value_type_hint": "node_value_check(value)",
+                "value_init": "'n:unnamed.raw:0-0'"
             },
             "type": {
                 "type": "SimpleLabel",
