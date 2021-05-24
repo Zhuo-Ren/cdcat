@@ -12,8 +12,8 @@ def save_info(data_dir, data, desc):
     """
     with open(os.path.join(data_dir, f'xx.{desc}.json'), 'w', encoding='utf-8') as f:
         if desc == "raw":
-            data_dict = json.dumps(data)
+            data_dict = json.dumps(data, ensure_ascii=False, indent=4)
         else:
-            data_dict = json.dumps(data.to_info())
+            data_dict = json.dumps(data.to_info(), ensure_ascii=False, indent=4)
 
         f.write(data_dict)
