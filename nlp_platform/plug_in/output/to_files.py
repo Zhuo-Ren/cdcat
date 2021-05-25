@@ -1,8 +1,9 @@
-import json
-import os
+from nlp_platform.plug_in.output.raw_to_text import raw_to_text
+from nlp_platform.plug_in.output.instances_to_json import instances_to_json
+from nlp_platform.plug_in.output.nodes_to_json import nodes_to_json
 
 
-def save_info(data_dir, data, desc):
+def save(dir, corpus=None):
     """
     将数据（dict或str）转存为json格式
     :param data_dir: info文件存储目录
@@ -10,10 +11,8 @@ def save_info(data_dir, data, desc):
     :param desc: 可选项："raw" "instances" "nodes"
     :return:
     """
-    with open(os.path.join(data_dir, f'xx.{desc}.json'), 'w', encoding='utf-8') as f:
-        if desc == "raw":
-            data_dict = json.dumps(data, ensure_ascii=False, indent=4)
-        else:
-            data_dict = json.dumps(data.to_info(), ensure_ascii=False, indent=4)
-
-        f.write(data_dict)
+    if corpus is None:
+        raise Exception("corpus can not be None")
+    raw_to_text(dir=dir, corpus=corpus)
+    instances_to_json(dir=dir, corpus=corpus)
+    nodes_to_json(dir=dir, corpus=corpus)

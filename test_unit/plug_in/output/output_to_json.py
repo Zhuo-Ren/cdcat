@@ -1,3 +1,7 @@
+from nlp_platform.center.instance import Instance
+from nlp_platform.center.node import Node
+from nlp_platform.center.corpus import Corpus
+
 # 初始化Corpus
 s = str("10日，埃航一架飞机坠毁，事故导致机上150人全部死亡。当日，埃航展开事故遇难者的赔偿工作")
 
@@ -143,15 +147,16 @@ n14["refer"]["value"] = "i:008"
 relation_0 = n1["refer"]["value"]
 relation_1 = i1["mentions"]["value"]
 
+c.raw = s
+
 # 输入一个路径 把内容输出到路径下 输出到xx.raw raw里存纯文本 xx.nodes存node的信息（nodepool.to_info） xx.instances (instancepool.to_info)
 # 输出为.json 或 .xml
 
 
-from nlp_platform.plug_in.output.to_files import save_info
+from nlp_platform.plug_in.output.to_files import save
 
-save_info(data_dir="../center", data=s, desc="raw")
-save_info(data_dir="../center", data=c.ip, desc="instances")
-save_info(data_dir="../center", data=c.np, desc="nodes")
+save(dir="./", corpus=c)
+
 
 
 
