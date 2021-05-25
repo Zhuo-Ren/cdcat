@@ -55,6 +55,13 @@ class Instance(dict):
             label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
             self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
+
+        for key, value in info.items():
+            if key == "mentions":
+                pass
+            else:
+                self[key]["value"] = value
+
     @property
     def pool(self):
         return self._pool

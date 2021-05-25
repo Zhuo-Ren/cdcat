@@ -3,11 +3,18 @@ from nlp_platform.center.instance import Instance
 
 
 class InstancePool(dict):
-    def __init__(self, corpus=None):
+    def __init__(self, corpus=None, info=None):
         """
         不必传owner，因为corpus对象会处理。
 
         """
+        # param check: info
+        if info is None:
+            info = {} # 防止默认值为可变元素
+        if not isinstance(info, dict):
+            raise TypeError("param label_dict should be None or a dict.")
+
+
         self.groups = [
             "group", None, [
                 ["instances", "fixed", []],
@@ -17,6 +24,11 @@ class InstancePool(dict):
         # public
         self.corpus = corpus
         """指向Corpus对象"""
+
+        for instance_info in info.values():
+            i = Instance(info=instance_info)
+            self.add(i)
+
 
     def add(self, instance):
         # param check
