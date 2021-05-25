@@ -11,17 +11,17 @@ import os
 from nlp_platform.plug_in.input.from_files import file_to_corpus
 
 
-c1 = file_to_corpus(file_dir="../center", desc="raw")
+c1 = file_to_corpus(file_dir="../../center", desc="raw")
 
 # 创建instance和node对象，但不能存储mentions和refer标签，因为创建两个对象前后是相关的
-c1 = file_to_corpus(file_dir="../center", corpus=c1, desc="instances")
-c1 = file_to_corpus(file_dir="../center", corpus=c1, desc="nodes")
+c1 = file_to_corpus(file_dir="../../center", corpus=c1, desc="instances")
+c1 = file_to_corpus(file_dir="../../center", corpus=c1, desc="nodes")
 
 from nlp_platform.plug_in.input.from_files import create_relation_by_file
 
 # 采用xx.instances.json创建关系
 # c1 = create_relation_by_file(file_dir="../center", corpus=c1, desc="instances")
 # 采用xx.nodes.json创建关系
-c1 = create_relation_by_file(file_dir="../center", corpus=c1, desc="nodes")
+c1 = create_relation_by_file(file_dir="../../center", corpus=c1, desc="nodes")
 print(1)
 

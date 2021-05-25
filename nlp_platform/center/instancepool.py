@@ -26,8 +26,7 @@ class InstancePool(dict):
         """指向Corpus对象"""
 
         for instance_info in info.values():
-            i = Instance(info=instance_info)
-            self.add(i)
+            i = Instance(info=instance_info, pool=self)
 
 
     def add(self, instance):

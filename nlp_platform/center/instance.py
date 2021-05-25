@@ -36,7 +36,7 @@ class Instance(dict):
         }
     """
 
-    def __init__(self, info: Dict = None):
+    def __init__(self, info: Dict = None, pool=None):
         super().__init__()
 
         # param check: info
@@ -55,12 +55,15 @@ class Instance(dict):
             label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
             self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
+        from nlp_platform.center.instancepool import InstancePool
+        if isinstance(pool, InstancePool):
+            pool.add(self)
 
         for key, value in info.items():
-            if key == "mentions":
-                pass
-            else:
-                self[key]["value"] = value
+            # if key == "mentions":
+            #     pass
+            # else:
+            self[key]["value"] = value
 
     @property
     def pool(self):

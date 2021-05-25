@@ -306,36 +306,46 @@ class RelationLabel(Label):
         # value需要一个区分规则（因为n1["refer"]["value"] = "100"的时候，仅传了一个参数（出结点/入结点），但有时需要同时传入出结点/入结点+边值）。
         # 关系图（出结点，入结点） = 边值 此时仅考虑了赋予出/入结点的情况
         if key == "value":
-            if "value_type_hint" in self:
-                if not eval(self["value_type_hint"]):
-                    raise TypeError("Value of this label do not match the type hint.")
-            if "value_optional" in self:
-                if value not in self["value_optional"]:
-                    raise TypeError("Value of this label do not match the options.")
+            if isinstance(value, str):
+                # 如果当前已经存在值，就把现有值对应的关系删了
+                pass
+                # print("这个功能没实现")
+                # 把关系加到表里
+                if "value_type_hint" in self:
+                    if not eval(self["value_type_hint"]):
+                        raise TypeError("Value of this label do not match the type hint.")
+                if "value_optional" in self:
+                    if value not in self["value_optional"]:
+                        raise TypeError("Value of this label do not match the options.")
 
-            c = self["owner"].pool.corpus
-            t = c.tp[self["table_name"]]
-            self_id = self["owner"]["id"]
+                c = self["owner"].pool.corpus
+                t = c.tp[self["table_name"]]
+                self_id = self["owner"]["id"]
 
-            # 获取对应的relations
-            if 1:
-                # 有向图
-                if "index_self" in self:
-                    try:
-                        if self["index_self"] == "0":
+                # 获取对应的relations
+                if 1:
+                    # 有向图
+                    if "index_self" in self:
+                        try:
+                            if self["index_self"] == "0":
+                                t[self_id["value"], value] = None
+                            elif self["index_self"] == "1":
+                                t[value, self_id["value"]] = None
+                        except KeyError:
+                            return None
+
+                    # 无向图
+                    else:
+                        try:
+                            # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
                             t[self_id["value"], value] = None
-                        elif self["index_self"] == "1":
-                            t[value, self_id["value"]] = None
-                    except KeyError:
-                        return None
+                        except KeyError:
+                            return None
 
-                # 无向图
-                else:
-                    try:
-                        # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
-                        t[self_id["value"], value] = None
-                    except KeyError:
-                        return None
+            elif isinstance(value, list):
+                for i in value:
+                    self.__setitem__(key=key, value=i)
+
         else:
             super().__setitem__(key, value)
 
