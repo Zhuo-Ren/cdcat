@@ -9,8 +9,4 @@ import json
 import os
 
 from nlp_platform.plug_in.input.from_files import from_files
-c = Corpus()
-c = from_files(file_dir="../output", corpus=c)
-
-print(1)
-
+c = from_files(file_dir="../output")

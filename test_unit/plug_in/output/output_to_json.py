@@ -152,12 +152,5 @@ c.raw = s
 # 输入一个路径 把内容输出到路径下 输出到xx.raw raw里存纯文本 xx.nodes存node的信息（nodepool.to_info） xx.instances (instancepool.to_info)
 # 输出为.json 或 .xml
 
-
 from nlp_platform.plug_in.output.to_files import save
-
 save(dir="./", corpus=c)
-
-
-
-
-print(1)
