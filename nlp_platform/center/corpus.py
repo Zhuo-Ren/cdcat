@@ -3,7 +3,8 @@ class Corpus(object):
         from nlp_platform.center.tablepool import TablePool
         from nlp_platform.center.nodepool import NodePool
         from nlp_platform.center.instancepool import InstancePool
-        self.raw = {}
+        from nlp_platform.center.raw import Raw
+        self.raw = Raw()
         self._tp = TablePool(corpus=self)
         self._np = NodePool(corpus=self)
         self._ip = InstancePool(corpus=self)
