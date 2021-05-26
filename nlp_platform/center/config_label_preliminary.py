@@ -3,7 +3,7 @@ from random import randint
 
 def node_id_check(s):
     import re
-    r = re.findall(r'^n:[\\r"/"0-9a-zA-Z\u4e00-\u9fa5]+:([;\d-]+)', s)
+    r = re.findall(r'^n:[\\"/"\w\u4e00-\u9fa5.]+:([;\d-]+)', s)
     if r == []:
         return False
     r = re.findall(r"(\d+)-(\d+);?", str(r))
