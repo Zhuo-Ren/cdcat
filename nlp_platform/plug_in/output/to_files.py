@@ -1,7 +1,7 @@
 from nlp_platform.plug_in.output.raw_to_text import raw_to_text
 from nlp_platform.plug_in.output.instances_to_json import instances_to_json
 from nlp_platform.plug_in.output.nodes_to_json import nodes_to_json
-
+import os
 
 def save(dir, corpus):
     """
@@ -19,3 +19,9 @@ def save(dir, corpus):
     raw_to_text(dir=dir, raw=corpus.raw)
     instances_to_json(dir=dir, ip=corpus.ip)
     nodes_to_json(dir=dir, np=corpus.np)
+
+
+
+
+
+
