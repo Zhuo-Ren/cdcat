@@ -10,7 +10,8 @@ raw = {
     "folder1": {
         "text1.raw.txt": "10日，埃航一架飞机坠毁，事故导致机上150人全部死亡。"
     },
-    "text2.raw.txt": "当日，埃航展开事故遇难者的赔偿工作"
+    "text2.raw.txt": "当日，埃航展开事故遇难者的赔偿工作",
+    "text3.raw.txt": "测试用"
 }
 c.raw = Raw(raw)
 
@@ -163,12 +164,11 @@ print(i1["mentions"]["value"])
 
 # nid核实 OK
 # 拆分输出
-from nlp_platform.plug_in.output.to_files import save
-save(dir="../plug_in/output", corpus=c)
+# from nlp_platform.plug_in.output.to_files import save
+# save(dir="../plug_in/output", corpus=c)
 
 print(1)
 # 拆分输入
-
-from nlp_platform.plug_in.input.from_files import from_multiple_files
-a = from_multiple_files("../plug_in/output")
+from nlp_platform.plug_in.input.from_files import from_files
+c1 = from_files(file_dir="../plug_in/output")
 print(1)

@@ -8,6 +8,6 @@ def instances_from_json(file_dir, corpus):
     if not isinstance(corpus, Corpus):
         raise TypeError
     #
-    with open(os.path.join(file_dir, f'xx.instances.json'), 'r', encoding='utf-8') as f:
+    with open(os.path.join(file_dir, f'instances.json'), 'r', encoding='utf-8') as f:
         ip_info = json.load(f)
         corpus.ip = InstancePool(corpus=corpus, info=ip_info)
