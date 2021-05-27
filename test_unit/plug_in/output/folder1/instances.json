@@ -1,0 +1,20 @@
+{
+    "i:100": {
+        "id": "i:100",
+        "desc": "测试1",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:99-100",
+            "n:text2.raw.txt:321-34"
+        ]
+    },
+    "i:101": {
+        "id": "i:101",
+        "desc": "测试2",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:213132-231",
+            "n:text2.raw.txt:3231-12323"
+        ]
+    }
+}
