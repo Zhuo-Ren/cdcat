@@ -8,10 +8,9 @@ def raw_to_text(dir, raw):
         raise TypeError
     #
     for key, value in raw.items():
-        if re.search("raw.txt", key, flags=0): # 碰到的是一个存放raw的txt文件
+        if re.search("raw.txt", key, flags=0): # 碰到的是一个存放raw的text文件
             with open(os.path.join(dir, f'{key[:-8]}.raw.txt'), 'w', encoding='utf-8') as f:
-                data_dict = json.dumps(raw[key], ensure_ascii=False, indent=4)
-                f.write(data_dict)
+                f.write(raw[key])
         else: # 碰到的是一个文件夹
             if os.path.exists(os.path.join(dir, key)): # 已存在该文件夹，直接进入
                 raw_to_text(dir=os.path.join(dir, key), raw=raw[key])

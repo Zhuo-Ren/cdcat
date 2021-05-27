@@ -1,50 +1,3 @@
-from nlp_platform.center.instance import Instance
-from nlp_platform.center.node import Node
-from nlp_platform.center.corpus import Corpus
-
-# 初始化Corpus
-s = str("10日，埃航一架飞机坠毁，事故导致机上150人全部死亡。当日，埃航展开事故遇难者的赔偿工作")
-
-i1 = Instance()
-i1["id"]["value"] = "i:000"
-i1["desc"]["value"] = "10日"
-i1["type"]["value"] = "entity"
-
-i2 = Instance()
-i2["id"]["value"] = "i:001"
-i2["desc"]["value"] = "埃航"
-i2["type"]["value"] = "entity"
-
-i3 = Instance()
-i3["id"]["value"] = "i:002"
-i3["desc"]["value"] = "一架飞机"
-i3["type"]["value"] = "entity"
-
-i4 = Instance()
-i4["id"]["value"] = "i:003"
-i4["desc"]["value"] = "坠毁"
-i4["type"]["value"] = "event"
-
-i5 = Instance()
-i5["id"]["value"] = "i:005"
-i5["desc"]["value"] = "导致"
-i5["type"]["value"] = "event"
-
-i6 = Instance()
-i6["id"]["value"] = "i:006"
-i6["desc"]["value"] = "遇难者"
-i6["type"]["value"] = "entity"
-
-i7 = Instance()
-i7["id"]["value"] = "i:007"
-i7["desc"]["value"] = "死亡"
-i7["type"]["value"] = "event"
-
-i8 = Instance()
-i8["id"]["value"] = "i:008"
-i8["desc"]["value"] = "赔偿工作"
-i8["type"]["value"] = "event"
-
 from nlp_platform.center.corpus import Corpus
 from nlp_platform.center.raw import Raw
 from nlp_platform.center.node import Node
@@ -57,7 +10,8 @@ raw = {
     "folder1": {
         "text1.raw.txt": "10日，埃航一架飞机坠毁，事故导致机上150人全部死亡。"
     },
-    "text2.raw.txt": "当日，埃航展开事故遇难者的赔偿工作"
+    "text2.raw.txt": "当日，埃航展开事故遇难者的赔偿工作",
+    "text3.raw.txt": "测试用"
 }
 c.raw = Raw(raw)
 
