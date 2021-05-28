@@ -1,4 +1,4 @@
-from nlp_platform.config import data_path
+from nlp_platform.center.config import data_path
 from nlp_platform.plug_in.input.instances_from_pickle import input_instances_from_pickle
 import json
 

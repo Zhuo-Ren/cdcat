@@ -9,7 +9,8 @@ class Node(dict):
      - node["标签"]
     """
     # static
-    config = {}
+    from nlp_platform.center.config import Config
+    config = Config.get_config()["center_config"]["Node"]
     """
         for example::
         {
@@ -78,15 +79,3 @@ class Node(dict):
         for label_key in self:
             r.update(self[label_key].to_info())
         return r
-
-
-# 加载配置
-import json
-import sys
-import os
-cur_file_path = os.path.abspath(__file__)
-cur_folder_path = os.path.dirname(cur_file_path)
-target_file_path = os.path.join(cur_folder_path, "config_label.json")
-with open(target_file_path, 'r', encoding='utf8') as f:
-    config = json.load(f)
-Node.config = config["Node"]

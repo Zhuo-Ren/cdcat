@@ -10,7 +10,8 @@ class Instance(dict):
     """
 
     # static
-    config = {}
+    from nlp_platform.center.config import Config
+    config = Config.get_config()["center_config"]["Instance"]
     """
         for example::
         {
@@ -81,15 +82,3 @@ class Instance(dict):
         for label_key in self:
             r.update(self[label_key].to_info())
         return r
-
-
-# 加载配置
-import json
-import sys
-import os
-cur_file_path = os.path.abspath(__file__)
-cur_folder_path = os.path.dirname(cur_file_path)
-target_file_path = os.path.join(cur_folder_path, "config_label.json")
-with open(target_file_path, 'r', encoding='utf8') as f:
-    config = json.load(f)
-Instance.config = config["Instance"]

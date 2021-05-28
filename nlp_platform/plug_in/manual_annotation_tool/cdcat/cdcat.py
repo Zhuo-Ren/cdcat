@@ -1,15 +1,10 @@
 from flask import Flask, render_template, request, jsonify
-from typing import Dict, List, Tuple, Union  # for type hinting
 #
-import nlp_platform.log_config
 import logging
 #
-from nlp_platform.center.node import Node
 from nlp_platform.center.nodepool import NodePool
 from nlp_platform.center.instance import Instance
 from nlp_platform.center.instancepool import InstancePool
-from nlp_platform.center.relation import Relation
-from nlp_platform.center.relationpool import RelationPool
 
 
 def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> None:
@@ -26,7 +21,6 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
     # 2. load config files
     # 2.1 load config.py
-    from nlp_platform.plug_in.manual_annotation_tool.cdcat import config
     # 2.2 load config_label.json
     import json
     import sys

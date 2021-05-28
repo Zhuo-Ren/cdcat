@@ -1,4 +1,4 @@
-from nlp_platform.config import data_path
+from nlp_platform.center.config import data_path
 from nlp_platform.center.instancepool import InstancePool
 import _pickle as cPickle
 from nlp_platform.center.labeltypes import regiest_cofigured_label_types

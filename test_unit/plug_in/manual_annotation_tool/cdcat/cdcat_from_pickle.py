@@ -4,7 +4,7 @@ This program:
  1. read raw text from a sqlite file.
  2. annotate those text with CDCAT
 """
-from nlp_platform.config import data_path
+from nlp_platform.center.config import data_path
 from nlp_platform.plug_in.input.ntree_from_pickle import input_ntree_from_pickle
 from nlp_platform.plug_in.input.instances_from_pickle import input_instances_from_pickle
 from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat

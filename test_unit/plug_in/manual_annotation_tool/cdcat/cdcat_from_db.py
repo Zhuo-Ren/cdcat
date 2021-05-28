@@ -5,7 +5,7 @@ This program:
  2. get instances from a new empty Instances object.
  3. annotate with CDCAT
 """
-from nlp_platform.config import data_path
+from nlp_platform.center.config import data_path
 from nlp_platform.center.instancepool import InstancePool
 from nlp_platform.plug_in.input.ntree_from_sqlite import input_ntree_from_sqlite
 
