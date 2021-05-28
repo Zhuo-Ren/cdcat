@@ -1,12 +1,12 @@
 {
     "Instance": {
-        "PRELIMINARY_CODE": "from random import randint \n ",
+        "PRELIMINARY_CODE": "import datetime \nimport random",
         "LABELS": {
             "id": {
                 "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "isinstance(value, str)",
-                "value_init": "'i:%03d' % randint(0, 999)"
+                "value_init": "'i:%s%03d'%(datetime.datetime.now().strftime('%Y%m%d%H%M%S%d'),random.randint(0,999))"
             },
             "desc": {
                 "required": "True",
