@@ -35,7 +35,7 @@
                 "required": "True",
                 "type": "SimpleLabel",
                 "value_type_hint": "node_id_check(value)",
-                "value_init": "'n:unnamedraw:0-0'"
+                "value_init": "'n:InitId:0-0'"
             },
             "type": {
                 "type": "SimpleLabel",

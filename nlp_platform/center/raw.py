@@ -30,4 +30,4 @@ class Raw(dict):
                 print("索引范围不正确")
                 return KeyError
         else:
-            return self
+            return super().__getitem__(key)

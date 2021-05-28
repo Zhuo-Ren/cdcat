@@ -156,6 +156,6 @@ n14["refer"]["value"] = "i:008"
 
 from nlp_platform.plug_in.output.to_files import save
 
-save(dir="./", corpus=c)
+save(dir=".\corpus", corpus=c)
 
 print(1)

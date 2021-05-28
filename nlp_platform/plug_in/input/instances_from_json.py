@@ -28,7 +28,7 @@ def from_multiple_files(dir: str, corpus):
         folder_or_file_path = os.path.join(dir, folder_or_file_name)  # 路径拼接成相对路径
         if os.path.isfile(folder_or_file_path):
             if re.search("instances.json", folder_or_file_name, flags=0):
-                with open(folder_or_file_path, 'r') as f:
+                with open(folder_or_file_path, 'r', encoding='utf8') as f:
                     instances_info = json.load(f)
                     for instance_info in instances_info.values():
                         Instance(info=instance_info, pool=corpus.ip)

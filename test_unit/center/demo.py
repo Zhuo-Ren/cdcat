@@ -161,14 +161,3 @@ n14["refer"]["value"] = "i:008"
 print(n1["refer"]["value"])
 print(i1["mentions"]["value"])
 # print(n2.text)
-
-# nid核实 OK
-# 拆分输出
-# from nlp_platform.plug_in.output.to_files import save
-# save(dir="../plug_in/output", corpus=c)
-
-print(1)
-# 拆分输入
-from nlp_platform.plug_in.input.from_files import from_files
-c1 = from_files(file_dir="../plug_in/output")
-print(1)

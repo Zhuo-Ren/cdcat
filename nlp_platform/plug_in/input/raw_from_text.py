@@ -25,7 +25,7 @@ def from_multiple_files(dir: str):
         folder_or_file_path = os.path.join(dir, folder_or_file_name)  # 路径拼接成相对路径
         if os.path.isfile(folder_or_file_path):
             if re.search(".raw.txt", folder_or_file_name, flags=0):
-                with open(folder_or_file_path, 'r') as f:
+                with open(folder_or_file_path, 'r', encoding='utf8') as f:
                     raw[folder_or_file_name] = f.read()
         elif os.path.isdir(folder_or_file_path):
             raw[folder_or_file_name] = from_multiple_files(dir=folder_or_file_path)
