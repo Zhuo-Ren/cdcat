@@ -6,6 +6,7 @@ class Node(dict):
     属性:
      - Node.config
      - node.pool
+     - node.text
      - node["标签"]
     """
     # static
@@ -71,6 +72,10 @@ class Node(dict):
                 pass
             else:
                 self[key]["value"] = value
+
+    @property
+    def text(self):
+        return self.pool.corpus.raw[self["id"]["value"]]
 
     @property
     def pool(self):
