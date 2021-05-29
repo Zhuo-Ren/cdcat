@@ -11,7 +11,17 @@ class Instance(dict):
 
     # static
     from nlp_platform.center.config import Config
-    config = Config.get_config()["center_config"]["Instance"]
+    # config = Config.get_config()["center_config"]["Instance"]
+    import os
+    import json
+    from nlp_platform.center.tablepool import SearchFile
+    cur_file_path = os.path.abspath(__file__)
+    rootPath = cur_file_path[:cur_file_path.find("cdcat\\") + len("cdcat\\")]
+    json_folder = os.path.join(rootPath, "test_unit")
+    target_file_path = SearchFile('config_label.json', json_folder)
+    with open(target_file_path, 'r', encoding='utf8') as f:
+        config = json.load(f)["Instance"]
+
     """
         for example::
         {

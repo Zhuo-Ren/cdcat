@@ -1,7 +1,15 @@
 from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_platform.center.table import DirectedRelationTable as Drt
 from nlp_platform.center.table import UndirectedRelationTable as Urt
+import os
 
+
+def SearchFile(filename, pathname):
+    for root, dirs, files in os.walk(pathname, False):
+        for name in files:
+            if filename == name:
+                return os.path.join(root, name)
+    return None
 
 class TablePool(dict):
     def __init__(self, corpus=None):
@@ -18,8 +26,9 @@ class TablePool(dict):
         import sys
         import os
         cur_file_path = os.path.abspath(__file__)
-        cur_folder_path = os.path.dirname(cur_file_path)
-        target_file_path = os.path.join(cur_folder_path, "config_label.json")
+        rootPath = cur_file_path[:cur_file_path.find("cdcat\\") + len("cdcat\\")]
+        json_folder = os.path.join(rootPath, "test_unit")
+        target_file_path = SearchFile('config_label.json', json_folder)
         with open(target_file_path, 'r', encoding='utf8') as f:
             config = json.load(f)
         self.config = config["Relation"]

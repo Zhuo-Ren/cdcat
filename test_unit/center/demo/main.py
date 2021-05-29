@@ -145,3 +145,4 @@ n14["refer"]["value"] = "i:008"
 print(n1["refer"]["value"])
 print(i1["mentions"]["value"])
 # print(n2.text)
+print(n1.pool.corpus.raw[n1["id"]["value"]])

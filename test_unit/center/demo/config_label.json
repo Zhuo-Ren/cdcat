@@ -29,7 +29,7 @@
         }
     },
     "Node": {
-        "PRELIMINARY_CODE": "import nlp_platform.center.config_label_preliminary",
+        "PRELIMINARY_CODE": "import test_unit.center.demo.config_label_preliminary",
         "LABELS": {
             "id": {
                 "required": "True",
