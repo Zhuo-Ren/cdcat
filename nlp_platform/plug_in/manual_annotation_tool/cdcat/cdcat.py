@@ -5,9 +5,11 @@ import logging
 from nlp_platform.center.nodepool import NodePool
 from nlp_platform.center.instance import Instance
 from nlp_platform.center.instancepool import InstancePool
+from nlp_platform.center.corpus import Corpus
+from nlp_platform.center.raw import Raw
 
 
-def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> None:
+def cdcat(corpus: Corpus) -> None:
     """
     This is a manual annotation tool for cross-document coreference.
 
@@ -60,7 +62,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
                 "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
-            text_node_position = node_pool.str_to_position(text_node_position)
+            text_node_position = corpus.np.str_to_position(text_node_position)
         except:
             raise RuntimeError(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
@@ -68,10 +70,10 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
                 "getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
             return jsonify(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
-        logging.debug("getText--：the node text is:" + node_pool[text_node_position].text())
+        logging.debug("getText--：the node text is:" + corpus.np[text_node_position].text())
         #
         text_unit_list = []
-        for cur_nleaf in node_pool[text_node_position].all_nleaves():
+        for cur_nleaf in corpus.np[text_node_position].all_nleaves():
             p = [str(i) for i in cur_nleaf.position()]
             text_unit_list.append({
                 "char": cur_nleaf[0],
@@ -117,41 +119,46 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
         :return: jsonify(content)
         """
-
         # 迭代函数
-        def walk_to_file(node: node_pool):
-            content = [node_pool.position_to_str(node.position())]
-            for cur_node in node_pool:
-                try:
-                    if cur_node.get_label()["article"] == True:
-                        is_file = True
-                    else:
-                        is_file = False
-                except:
-                    is_file = False
-                if is_file:
-                    content.append((
-                        node_pool.position_to_str(cur_node.position()),
-                        cur_node.text()[0:7]
-                    ))
+        import re
+        def walk_to_file(raw, content=None):
+            if content == None:
+                content = []
+                content.append("raw")
+            for key, value in raw.items():
+                if re.search("raw.txt", key, flags=0):
+                    content.append(("0", key))
                 else:
-                    content.append(walk_to_file(cur_node))
+                    l = []
+                    l.append(key)
+                    walk_to_file(raw[key], content=l)
+                    content.append(l)
             return content
 
         # 获取目录结构
-        content = walk_to_file(node_pool)
+        content = walk_to_file(corpus.raw)
         # 返回目录结构
+ #        content=["folder1",
+ #  [
+ #   "folder11", ("0-0-0", "text11.raw.txt") # 不读这个"0-0-0"
+ #  ],
+ #  ("0-0-0", "text2.raw.txt"),
+ #  [
+ #   "folder12",
+ #   ("0-0-0", "text12.raw.txt")
+ #  ]
+ # ]
         return jsonify(content)
 
     @app.route('/getGroup', methods=["POST"])
     def getGroup():
-        return jsonify(["success", instance_pool.groups])
+        return jsonify(["success", corpus.ip.groups])
 
     @app.route('/changeGroupName', methods=["POST"])
     def changeGroupName():
         groupIndexList = eval("[" + request.form.get("groupPath") + "]")
         groupName = request.form.get("groupName")
-        curGroup = instance_pool.groups
+        curGroup = corpus.ip.groups
         for i in groupIndexList:
             curGroup = curGroup[2][i]
         curGroup[1] = groupName
@@ -160,7 +167,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     @app.route('/prependGroup', methods=["POST"])
     def prependGroup():
         indexTuple = eval("[" + request.form.get("parentPath") + "]")
-        curParent = instance_pool.groups
+        curParent = corpus.ip.groups
         for i in indexTuple:
             curParent = curParent[2][i]
         curParent[2].insert(0, ["group", "GName", []])
@@ -169,7 +176,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     @app.route('/prependInstances', methods=["POST"])
     def prependInstances():
         indexTuple = eval("[" + request.form.get("parentPath") + "]")
-        curParent = instance_pool.groups
+        curParent = corpus.ip.groups
         for i in indexTuple:
             curParent = curParent[2][i]
         curParent[2].insert(0, ["instances", "EName", []])
@@ -178,7 +185,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     @app.route('/copyInstance', methods=["POST"])
     def copyInstance():
         index_tuple = eval("[" + request.form.get("parentPath") + "]")
-        parent = instance_pool.groups
+        parent = corpus.ip.groups
         for i in index_tuple[:-1]:
             parent = parent[2][i]
         child_index = index_tuple[-1]
@@ -191,14 +198,14 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         from_path = eval("[" + request.form.get("fromPath") + "]")
         to_path = eval("[" + request.form.get("toPath") + "]")
         #
-        from_parent = instance_pool.groups
+        from_parent = corpus.ip.groups
         for i in from_path[:-1]:
             from_parent = from_parent[2][i]
         child_index = from_path[-1]
         child = from_parent[2][child_index]
         del from_parent[2][child_index]
         #
-        to_parent = instance_pool.groups
+        to_parent = corpus.ip.groups
         for i in to_path[:-1]:
             to_parent = to_parent[2][i]
         child_index = to_path[-1]
@@ -209,7 +216,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     @app.route('/delLi', methods=["POST"])
     def delLi():
         index_tuple = eval("[" + request.form.get("parentPath") + "]")
-        parent = instance_pool.groups
+        parent = corpus.ip.groups
         for i in index_tuple[:-1]:
             parent = parent[2][i]
         child_index = index_tuple[-1]
@@ -238,7 +245,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         try:
             children_node_position_list = [i.split("-") for i in children_node_position_list]
             children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
-            children_node_list = [node_pool[i] for i in children_node_position_list]
+            children_node_list = [corpus.np[i] for i in children_node_position_list]
         except:
             raise RuntimeError(
                 "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
@@ -249,7 +256,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
         # create new node
         try:
-            new_node: NodeTree = node_pool.add_parent({}, children_node_list)
+            new_node: NodeTree = corpus.np.add_parent({}, children_node_list)
         except RuntimeError:
             logging.debug("addNode<-Error：" + "can not create the new node.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
@@ -268,18 +275,18 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     @app.route('/getNode', methods=["POST"])
     def getNode():
         # get params(for js function "getNodeByPosition")
-        position = node_pool.str_to_position(request.form.get("position"))
+        position = corpus.np.str_to_position(request.form.get("position"))
         # get params(for js function "getNodeByChild")
-        start_position = node_pool.str_to_position(request.form.get("start"))
-        end_position = node_pool.str_to_position(request.form.get("end"))
+        start_position = corpus.np.str_to_position(request.form.get("start"))
+        end_position = corpus.np.str_to_position(request.form.get("end"))
         # get node(for js function "getNodeByPositon")
         if position:
             logging.debug("getNode->：position=" + str(position))
-            node = node_pool[position]
+            node = corpus.np[position]
         # get node(for js function "getNodeByChild")
         elif start_position and end_position:
             logging.debug("getNode->：position=" + str(start_position) + '-' + str(end_position))
-            node = node_pool.is_annotated(node_pool, start_position, end_position)
+            node = corpus.np.is_annotated(corpus.np, start_position, end_position)
         # return(success)
         if node is not None:
             logging.debug("getNode--：get the input node:" + node.text())
@@ -295,9 +302,9 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
-        position = node_pool.str_to_position(request.form.get("position"))
+        position = corpus.np.str_to_position(request.form.get("position"))
         logging.debug("setNode->：position=" + str(position))
-        node = node_pool[position]
+        node = corpus.np[position]
         if node is None:
             logging.debug("setNode--：no such node")
             logging.debug("getNode<-：\"\"")
@@ -314,7 +321,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
                         from nlp_platform.center.labeltypes import labeltypes
                         cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
                     cur_label = cur_labels[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_parm, node_pool, instance_pool)
+                    cur_label.ajax_process(cur_label_ajax_parm, corpus.np, corpus.ip)
             logging.debug("setNode<-：" + str(["success", node.readable()]))
             return jsonify(["success", node.readable()])
 
@@ -324,12 +331,12 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        position = node_pool.str_to_position(request.form.get("position"))
+        position = corpus.np.str_to_position(request.form.get("position"))
         if position:  # 使用快捷键，基于一个node创建instance
             # 因为→键的实现改成了模拟多次点击，所以这一段逻辑暂时用不到了。
-            node = node_pool[position]
+            node = corpus.np[position]
             logging.debug("addInstance_node->：position=" + str(position))
-            instance = instance_pool.add_instance({"desc": node.text()})
+            instance = corpus.ip.add_instance({"desc": node.text()})
             if "mention_list" not in instance.labels:
                 from nlp_platform.center.labeltypes import labeltypes
                 instance.labels["mention_list"] = labeltypes["nodelist"](owner=instance.labels, key="mention_list")
@@ -338,9 +345,9 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         else:  # 单纯创建一个instance
             logging.debug("addInstance_empty->：")
             # 创建instance
-            instance = instance_pool.add_instance()
+            instance = corpus.ip.add_instance()
             # 创建instancelink
-            instance_pool.groups[2][0][2].insert(0, instance)
+            corpus.ip.groups[2][0][2].insert(0, instance)
         logging.debug("addInstance->：" + str(["success", instance.readable()]))
         return jsonify(["success", instance.readable()])
 
@@ -348,7 +355,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     def getInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("getInstance->：id=" + instance_id)
-        target_instance = instance_pool.get_instance(info_dict={"id":instance_id})[0]
+        target_instance = corpus.ip.get_instance(info_dict={"id":instance_id})[0]
         instance_info = target_instance.readable()
         logging.debug("getInstance<-：" + str(["success", instance_info]))
         return jsonify(["success", instance_info])
@@ -359,7 +366,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         logging.debug("setInstance->：id=" + id)
 
         id = int(id)
-        instance = instance_pool.get_instance(info_dict={"id": id})[0]
+        instance = corpus.ip.get_instance(info_dict={"id": id})[0]
         if instance is None:
             logging.debug("setInstance--：no such instance")
             logging.debug("setInstance<-：", str(["failed", "no such instance."]))
@@ -381,7 +388,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
                         cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
                     # 根据前台信息，修改当前标签
                     cur_label = cur_labels[cur_label_key]
-                    r = cur_label.ajax_process(cur_label_ajax_param, node_pool, instance_pool)
+                    r = cur_label.ajax_process(cur_label_ajax_param, corpus.np, corpus.ip)
                     if r is not None:
                         logging.debug("setInstance<-：" + str(["failed", r]))
                         return jsonify(["failed", r])
@@ -395,7 +402,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
         # kg = request.form.get("kg")
         # mention_list_action = request.form.get("mention_list[action]")
         # #
-        # instance = instance_pool.get_instance(id=id)[0]
+        # instance = corpus.ip.get_instance(id=id)[0]
         # logging.debug("setInstance->：id=" + str(id) + "：" + instance["desc"])
         # #
         # if desc:
@@ -452,19 +459,19 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
     def delInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("delInstance->：id=" + instance_id)
-        instance = instance_pool.get_instance({"id": instance_id})[0]
+        instance = corpus.ip.get_instance({"id": instance_id})[0]
         instance.labels.clear()
-        del instance_pool[int(instance_id)]
+        del corpus.ip[int(instance_id)]
         # del instancelink
-        instance_pool.del_instancelink(instance)
+        corpus.ip.del_instancelink(instance)
         return jsonify(["success"])
 
     @app.route('/save', methods=["POST"])
     def save():
         from nlp_platform.plug_in.output.instances_to_pickle import output_instances_to_pickle
         from nlp_platform.plug_in.output.ntree_to_pickle import output_ntree_to_pickle
-        output_ntree_to_pickle(node_pool)
-        output_instances_to_pickle(instance_pool)
+        output_ntree_to_pickle(corpus.np)
+        output_instances_to_pickle(corpus.ip)
         return jsonify({"success": True})
 
     app.run(debug=True)

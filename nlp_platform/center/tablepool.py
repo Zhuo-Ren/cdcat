@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple, Union  # for type hinting
 from nlp_platform.center.table import DirectedRelationTable as Drt
 from nlp_platform.center.table import UndirectedRelationTable as Urt
 import os
-
+import platform
 
 def SearchFile(filename, pathname):
     for root, dirs, files in os.walk(pathname, False):
@@ -26,7 +26,10 @@ class TablePool(dict):
         import sys
         import os
         cur_file_path = os.path.abspath(__file__)
-        rootPath = cur_file_path[:cur_file_path.find("cdcat\\") + len("cdcat\\")]
+        if platform.platform()[0: 6] == "Darwin":  # 增加了操作系统的区分
+            rootPath = cur_file_path[:cur_file_path.find("cdcat/") + len("cdcat/")]
+        elif platform.platform()[0: 7] == "Windows":
+            rootPath = cur_file_path[:cur_file_path.find("cdcat\\") + len("cdcat\\")]
         json_folder = os.path.join(rootPath, "test_unit")
         target_file_path = SearchFile('config_label.json', json_folder)
         with open(target_file_path, 'r', encoding='utf8') as f:
