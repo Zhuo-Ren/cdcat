@@ -76,7 +76,7 @@ n1["type"]["value"] = "entity"
 n1["refer"]["value"] = "i:000"
 n2 = Node()
 c.np.add(n2)
-n2["id"]["value"] = "n:folder1/text1.raw.txt:4-5"
+n2["id"]["value"] = "n:folder1/text1.raw.txt:4-6"
 n2["type"]["value"] = "entity"
 n2["refer"]["value"] = "i:001"
 n3 = Node()
@@ -144,5 +144,5 @@ n14["refer"]["value"] = "i:008"
 # 测试
 print(n1["refer"]["value"])
 print(i1["mentions"]["value"])
-# print(n2.text)
 print(n1.text)
+print(n2.text)
