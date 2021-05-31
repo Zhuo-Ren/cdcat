@@ -5,10 +5,6 @@
 var SelectedElementIndexList  = undefined;
 var k = 0;
 
-
-
-
-
 // 设置ajax不要异步执行
 $.ajaxSetup({
     async : false
@@ -80,7 +76,8 @@ function PythonStyleToJsStyle(data){
                 }
                 if (isLeaf) {
                     // 当前是叶子节点（文件）
-                    curSpan.html(index + ": " + contentArray[1]);
+                    //curSpan.html(index + ": " + contentArray[1]);
+                    curSpan.html(contentArray[1]);
                     curSpan.addClass("file");
                     // 为目录添加单击事件
                     curSpan.click(function () {

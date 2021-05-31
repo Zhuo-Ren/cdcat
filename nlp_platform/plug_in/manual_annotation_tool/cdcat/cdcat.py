@@ -6,8 +6,8 @@ from nlp_platform.center.nodepool import NodePool
 from nlp_platform.center.instance import Instance
 from nlp_platform.center.instancepool import InstancePool
 
-
-def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> None:
+# 这个是老版本
+def cdcat(corpus, node_pool=None, instance_pool=None, relation_pool=None) -> None:
     """
     This is a manual annotation tool for cross-document coreference.
 
@@ -117,8 +117,7 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
         :return: jsonify(content)
         """
-
-        # 迭代函数
+        """        # 迭代函数
         def walk_to_file(node: node_pool):
             content = [node_pool.position_to_str(node.position())]
             for cur_node in node_pool:
@@ -140,7 +139,21 @@ def cdcat(node_pool: NodePool, instance_pool: InstancePool, relation_pool) -> No
 
         # 获取目录结构
         content = walk_to_file(node_pool)
-        # 返回目录结构
+        # 返回目录结构"""
+        # 元组需要，但是不读元组内的第一个元素
+        content = [
+              "folder1",
+              [
+               "folder11",
+               ("0-0-0", "text11.raw.txt")
+              ],
+              ("0-0-0", "text2.raw.txt"),
+              [
+               "folder12",
+                ("0-0-1", "text13.raw.txt"),
+               ("0-0-0", "text12.raw.txt")
+              ]
+             ]
         return jsonify(content)
 
     @app.route('/getGroup', methods=["POST"])
