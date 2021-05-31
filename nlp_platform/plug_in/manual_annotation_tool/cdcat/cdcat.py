@@ -54,15 +54,15 @@ def cdcat(corpus: Corpus) -> None:
         :return: jsonify( [{"char": char of the 0th leaf node, "position": position of the 1th leaf node}, {...}, ...] )
         """
         # receive ajax param, type hint, and normalization
-        text_node_position = request.form.get("textNodeId")
-        logging.debug("getText->：position=" + str(text_node_position))
-        if not isinstance(text_node_position, str):
+        text_node_path = request.form.get("textNodeId")
+        logging.debug("getText->：position=" + str(text_node_path))
+        if not isinstance(text_node_path, str):
             raise TypeError("ajax param 'textNodeId' should be in str form.")
             logging.debug(
                 "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
-            text_raw = corpus.raw[text_node_position]
+            text_raw = corpus.raw[text_node_path]
         except:
             raise RuntimeError(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
@@ -75,8 +75,8 @@ def cdcat(corpus: Corpus) -> None:
         text_unit_list = []
         for cur_word in text_raw:
             text_unit_list.append({
-                "char": cur_word,
-                "position": "?"
+                "char": cur_word
+                # "position": "?"
             })
         #
         logging.debug("getText<-：" + "(success)" + "：" + str(text_unit_list))

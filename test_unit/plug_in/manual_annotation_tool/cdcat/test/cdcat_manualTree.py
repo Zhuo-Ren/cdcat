@@ -1,19 +1,17 @@
-from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
-from nlp_platform.center.corpus import Corpus
-from nlp_platform.center.raw import Raw
-from nlp_platform.center.node import Node
-from nlp_platform.center.instance import Instance
 from nlp_platform.center.config import Config
 import os
-
 # center config
 center_config_dir = "config_label.json"
-
 # load center config
 cur_file_path = os.path.abspath(__file__)
 cur_folder_path = os.path.dirname(cur_file_path)
 center_config_dir = os.path.join(cur_folder_path, center_config_dir)
 Config.load_config(config_name="center_config", config_dir=center_config_dir)
+from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
+from nlp_platform.center.corpus import Corpus
+from nlp_platform.center.raw import Raw
+from nlp_platform.center.node import Node
+from nlp_platform.center.instance import Instance
 
 # create corpus
 c = Corpus()

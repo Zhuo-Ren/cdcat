@@ -286,10 +286,12 @@ function PythonStyleToJsStyle(data){
             let majorTextWindow = $("#textTab1");
             majorTextWindow.empty();
             // add html element for each char.
+            // 注意，重构版的text只有node和instance区分，所以去掉了position
             for (i = 0; i < data.length; i++) {
                 let elementText = "";
                 elementText += "<div " +
-                    "id=" + data[i]["position"] +
+//                    "id=" + data[i]["position"] +
+                    "id=" + data[i]["char"] +
                     " " +
                     "class='char'" +
                     ">";
