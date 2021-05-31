@@ -23,7 +23,14 @@ raw = {
         "text1.raw.txt": "10日，埃航一架飞机坠毁，事故导致机上150人全部死亡。"
     },
     "text2.raw.txt": "当日，埃航展开事故遇难者的赔偿工作",
-    "text3.raw.txt": "测试用"
+    "text3.raw.txt": "测试用3",
+    "folder2": {
+        "text4.raw.txt": "测试用4",
+        "folder21": {
+            "text5.raw.txt": "测试用5",
+            "text6.raw.txt": "测试用6"
+        }
+    }
 }
 c.raw = Raw(raw)
 

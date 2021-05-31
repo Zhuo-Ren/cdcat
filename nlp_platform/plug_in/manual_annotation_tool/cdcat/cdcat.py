@@ -62,7 +62,7 @@ def cdcat(corpus: Corpus) -> None:
                 "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
-            text_node_position = corpus.np.str_to_position(text_node_position)
+            text_raw = corpus.raw[text_node_position]
         except:
             raise RuntimeError(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
@@ -70,21 +70,20 @@ def cdcat(corpus: Corpus) -> None:
                 "getText<-：" + "(false)" + "：" + "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
             return jsonify(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
-        logging.debug("getText--：the node text is:" + corpus.np[text_node_position].text())
-        #
+        logging.debug("getText--：the raw's text is:" + text_raw)
+
         text_unit_list = []
-        for cur_nleaf in corpus.np[text_node_position].all_nleaves():
-            p = [str(i) for i in cur_nleaf.position()]
+        for cur_word in text_raw:
             text_unit_list.append({
-                "char": cur_nleaf[0],
-                "position": "-".join(p)
+                "char": cur_word,
+                "position": "?"
             })
         #
         logging.debug("getText<-：" + "(success)" + "：" + str(text_unit_list))
         return jsonify(text_unit_list)
 
     @app.route('/getCatalogue', methods=["POST"])
-    def getCatalogue():
+    def getCatalogue(): # 把注释写到这里
         """
         return the catalogue of the corpus.
 
@@ -97,57 +96,51 @@ def cdcat(corpus: Corpus) -> None:
         nodes. This catalogue will display in CDCAT UI, and user should select one file node to load it and label it.
 
         A example of content::
-            content = ["",
-                ["0",
-                    ["0-0",
-                        ("0-0-0", "哈哈哈哈"),
-                    ],
-                    ("0-1", "嘿嘿嘿")
-                ],
-                ("1", "嘻嘻嘻"),
-                ["2",
-                    ["2-0",
-                        ("2-0-0", "吼吼吼"),
-                        ("2-0-1", "桀桀桀")
-                    ],
-                    ["2-1",
-                        ("2-1-0", "呱呱呱"),
-                        ("2-1-1", "汪汪汪")
-                    ]
+            content = [
+                  "folder1",
+                  [
+                   "folder11",
+                   ("folder1/folder11/text1.raw.txt", "text11.raw.txt")
+                  ],
+                  ("folder1/text2.raw.txt", "text2.raw.txt"),
+                  [
+                   "folder12",
+                   ("folder1/folder12/text12.raw.txt", "text12.raw.txt")
+                  ]
                 ]
-            ]
 
         :return: jsonify(content)
         """
         # 迭代函数
         import re
-        def walk_to_file(raw, content=None):
+        def walk_to_file(raw, content=None, path_list=[]):
             if content == None:
                 content = []
                 content.append("raw")
+            path = str()
             for key, value in raw.items():
                 if re.search("raw.txt", key, flags=0):
-                    content.append(("0", key))
+                    path = ""
+                    for p in path_list:
+                        path += "%s/" % p
+                    if path is "":
+                        content.append((key, key))
+                    else:
+                        content.append(("%s" % path+key, key))
                 else:
+                    path_list.append(key)
                     l = []
                     l.append(key)
-                    walk_to_file(raw[key], content=l)
+                    path += "%s" % key
+                    walk_to_file(raw[key], content=l, path_list=path_list)
                     content.append(l)
+                    path_list.pop()
             return content
 
         # 获取目录结构
         content = walk_to_file(corpus.raw)
         # 返回目录结构
- #        content=["folder1",
- #  [
- #   "folder11", ("0-0-0", "text11.raw.txt") # 不读这个"0-0-0"
- #  ],
- #  ("0-0-0", "text2.raw.txt"),
- #  [
- #   "folder12",
- #   ("0-0-0", "text12.raw.txt")
- #  ]
- # ]
+
         return jsonify(content)
 
     @app.route('/getGroup', methods=["POST"])
