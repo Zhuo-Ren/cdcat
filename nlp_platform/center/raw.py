@@ -35,5 +35,11 @@ class Raw(dict):
             for i in l:
                 a = a[i]
             return a
+        elif '\\' in key:
+            l = key.split('\\')
+            a = self
+            for i in l:
+                a = a[i]
+            return a
         else:
             return super().__getitem__(key)

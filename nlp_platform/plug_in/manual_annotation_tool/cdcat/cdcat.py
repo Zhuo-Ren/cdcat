@@ -73,11 +73,13 @@ def cdcat(corpus: Corpus) -> None:
         logging.debug("getText--：the raw's text is:" + text_raw)
 
         text_unit_list = []
+        i = 0
         for cur_word in text_raw:
             text_unit_list.append({
                 "char": cur_word,
-                "position": "?"
+                "id": "%s-%s" % (str(i), str(i+1))
             })
+            i += 1
         #
         logging.debug("getText<-：" + "(success)" + "：" + str(text_unit_list))
         return jsonify(text_unit_list)

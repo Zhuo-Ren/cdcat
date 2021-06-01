@@ -37,9 +37,10 @@ class InstancePool(dict):
         #
         self[instance["id"]["value"]] = instance
         instance.pool = self
+        self.add_instancelink([instance["id"]["value"], instance["desc"]["value"]])
 
     def add_instancelink(self, i_id):
-        self.groups[0][2][0][2].append(i_id)
+        self.groups[2][0][2].append(i_id)
 
     def del_instancelink(self, i_id):
 
