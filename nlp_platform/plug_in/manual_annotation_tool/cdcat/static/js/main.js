@@ -286,12 +286,12 @@ function PythonStyleToJsStyle(data){
             let majorTextWindow = $("#textTab1");
             majorTextWindow.empty();
             // add html element for each char.
-            // 注意，重构版的text只有node和instance区分，所以去掉了position
             for (i = 0; i < data.length; i++) {
                 let elementText = "";
                 elementText += "<div " +
-//                    "id=" + data[i]["position"] +
-                    "id=" + data[i]["char"] +
+                    "id=" + data[i]["id"] +
+                    " " +
+                    "desc=" + data[i]["char"]+
                     " " +
                     "class='char'" +
                     ">";
@@ -450,9 +450,19 @@ function PythonStyleToJsStyle(data){
             }
             // 生成新dom元素
             let groupTupleOfInstancePool = r[1];
+            let instance_list = r[1][2][0][2]
+            let id_list = []
+//            console.log(instance_list)
+            for(let i =0; i<instance_list.length; i++){
+                id_list.push(instance_list[i][0])
+            }
+            console.log(id_list)
+            for(let i=0; i<id_list.length; i++){
+                get_instance_desc(id_list[i])
+            }
             let instancePoolObj = generateGroup(groupTupleOfInstancePool);
             // 添加新dom元素
-            $("#allInstanceDiv").append(instancePoolObj);
+            //$("#allInstanceDiv").append(instancePoolObj);
             // 向jquery UI sortable 注册新dom元素
             $(".group").sortable({
                 connectWith: ".group",
@@ -1005,6 +1015,24 @@ function PythonStyleToJsStyle(data){
                 callback(data, status, requireData);
             }
         );
+    }
+
+    function get_instance_desc(id){
+//        requireData = {
+//            id_list_trans : id
+//        };
+        let id_data = undefined
+        $.post(
+            "/getInstanceDesc",
+            id,
+            function (data, status) {
+//                $("body").css("pointer-events", "auto");
+//                callback(data, status, requireData);
+                  id_data = data
+            }
+        );
+        return id_data
+
     }
 
     /**

@@ -149,6 +149,10 @@ def cdcat(corpus: Corpus) -> None:
     def getGroup():
         return jsonify(["success", corpus.ip.groups])
 
+    @app.route("/getInstanceDesc", methods=["POST"])
+    def getInstanceDesc():
+        return "111"
+
     @app.route('/changeGroupName', methods=["POST"])
     def changeGroupName():
         groupIndexList = eval("[" + request.form.get("groupPath") + "]")
