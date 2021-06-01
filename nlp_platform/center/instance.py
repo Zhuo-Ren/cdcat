@@ -63,10 +63,7 @@ class Instance(dict):
         # self.pool赋值
         from nlp_platform.center.instancepool import InstancePool
         if isinstance(pool, InstancePool):
-            if "id" not in info:
-                raise RuntimeError("如果要指定pool，必须先指定id")
-            else:
-                pool.add(self)
+            pool.add(self)
 
         # labels的赋值(非id)
         for key, value in info.items():

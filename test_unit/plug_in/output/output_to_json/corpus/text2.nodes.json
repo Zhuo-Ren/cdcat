@@ -3,35 +3,35 @@
         "id": "n:text2.raw.txt:0-2",
         "type": "entity",
         "refer": [
-            "i:000"
+            "i:2021060117214701701"
         ]
     },
     "n:text2.raw.txt:3-5": {
         "id": "n:text2.raw.txt:3-5",
         "type": "entity",
         "refer": [
-            "i:001"
+            "i:2021060117214701877"
         ]
     },
     "n:text2.raw.txt:7-9": {
         "id": "n:text2.raw.txt:7-9",
         "type": "entity",
         "refer": [
-            "i:003"
+            "i:2021060117214701080"
         ]
     },
     "n:text2.raw.txt:9-12": {
         "id": "n:text2.raw.txt:9-12",
         "type": "entity",
         "refer": [
-            "i:006"
+            "i:2021060117214701431"
         ]
     },
     "n:text2.raw.txt:13-17": {
         "id": "n:text2.raw.txt:13-17",
         "type": "event",
         "refer": [
-            "i:008"
+            "i:2021060117214701449"
         ]
     }
 }
