@@ -1,9 +1,3 @@
-from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
-from nlp_platform.center.corpus import Corpus
-from nlp_platform.center.raw import Raw
-from nlp_platform.center.node import Node
-from nlp_platform.center.instance import Instance
-from nlp_platform.center.config import Config
 import os
 
 # center config
@@ -13,9 +7,11 @@ center_config_dir = "config_label.json"
 cur_file_path = os.path.abspath(__file__)
 cur_folder_path = os.path.dirname(cur_file_path)
 center_config_dir = os.path.join(cur_folder_path, center_config_dir)
+from nlp_platform.center.config import Config
 Config.load_config(config_name="center_config", config_dir=center_config_dir)
 
 # create corpus
+from nlp_platform.center.corpus import Corpus
 c = Corpus()
 
 raw = {
@@ -32,8 +28,10 @@ raw = {
         }
     }
 }
+from nlp_platform.center.raw import Raw
 c.raw = Raw(raw)
 
+from nlp_platform.center.instance import Instance
 i1 = Instance()
 c.ip.add(i1)
 i1["id"]["value"] = "i:000"
@@ -75,6 +73,7 @@ i8["id"]["value"] = "i:008"
 i8["desc"]["value"] = "赔偿工作"
 i8["type"]["value"] = "event"
 
+from nlp_platform.center.node import Node
 n1 = Node()
 c.np.add(n1)
 n1["id"]["value"] = "n:folder1/text1.raw.txt:0-3"
@@ -148,5 +147,6 @@ n14["refer"]["value"] = "i:008"
 
 
 # annotation
+from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 cdcat(c)
 
