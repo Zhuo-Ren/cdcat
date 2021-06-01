@@ -49,22 +49,29 @@ class Instance(dict):
         # public: pool
         self._pool = None
 
-        # labels
+        # labels初始化
         from nlp_platform.center.labeltypes import label_types
         for label_key, label_config in self.config["LABELS"].items():
             label_config["key"] = label_key
             label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
             self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
+        # self["id"]赋值
+        if "id" in info:
+            self["id"]["value"] = info["id"]
+
+        # self.pool赋值
         from nlp_platform.center.instancepool import InstancePool
         if isinstance(pool, InstancePool):
-            pool.add(self)
+            if "id" not in info:
+                raise RuntimeError("如果要指定pool，必须先指定id")
+            else:
+                pool.add(self)
 
+        # labels的赋值(非id)
         for key, value in info.items():
-            # if key == "mentions":
-            #     pass
-            # else:
-            self[key]["value"] = value
+            if key != "id":
+                self[key]["value"] = value
 
     @property
     def pool(self):

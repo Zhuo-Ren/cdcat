@@ -202,7 +202,6 @@ class RelationLabel(Label):
         self["table_name"]: this label refer to which table
         self["index_self"]: 这个label的owner是表中的第0列还是第1列. 如果对应的table是无向的，则不写这项。
         self["index_value"]: 这个label的value是表中的第0列还是第1列. 如果对应的table是无向的，则不写这项。
-        self["value_init"]: init value of this label
     """
     def __init__(self, config, owner=None):
         """

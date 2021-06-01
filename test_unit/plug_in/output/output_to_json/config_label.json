@@ -1,0 +1,61 @@
+{
+    "Instance": {
+        "PRELIMINARY_CODE": "import datetime \nimport random",
+        "LABELS": {
+            "id": {
+                "required": "True",
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'i:%s%03d'%(datetime.datetime.now().strftime('%Y%m%d%H%M%S%d'),random.randint(0,999))"
+            },
+            "desc": {
+                "required": "True",
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "self['owner']['id']['value']"
+            },
+            "type": {
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'none'",
+                "value_optional": ["none", "entity", "event"]
+            },
+            "mentions": {
+                "type": "RelationLabel",
+                "table_name": "mention_to_instance",
+                "index_self": "1",
+                "index_value": "0"
+            }
+        }
+    },
+    "Node": {
+        "PRELIMINARY_CODE": "import test_unit.center.demo.config_label_preliminary",
+        "LABELS": {
+            "id": {
+                "required": "True",
+                "type": "SimpleLabel",
+                "value_type_hint": "node_id_check(value)",
+                "value_init": "'n:InitId:0-0'"
+            },
+            "type": {
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'none'",
+                "value_optional": ["none", "entity", "event"]
+            },
+            "refer": {
+                "type": "RelationLabel",
+                "table_name": "mention_to_instance",
+                "index_self": "0",
+                "index_value": "1"
+            }
+        }
+    },
+    "Relation": {
+        "mention_to_instance": {
+            "type": "DRT",
+            "max_o_degree": "1",
+            "max_i_degree": "None"
+        }
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "i:000": {
+        "id": "i:000",
+        "desc": "10日",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:0-3",
+            "n:text2.raw.txt:0-2"
+        ]
+    },
+    "i:001": {
+        "id": "i:001",
+        "desc": "埃航",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:4-6",
+            "n:text2.raw.txt:3-5"
+        ]
+    },
+    "i:002": {
+        "id": "i:002",
+        "desc": "一架飞机",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:6-10",
+            "n:folder1/text1.raw.txt:17-18"
+        ]
+    },
+    "i:003": {
+        "id": "i:003",
+        "desc": "坠毁",
+        "type": "event",
+        "mentions": [
+            "n:folder1/text1.raw.txt:10-12",
+            "n:folder1/text1.raw.txt:13-15",
+            "n:text2.raw.txt:7-9"
+        ]
+    },
+    "i:005": {
+        "id": "i:005",
+        "desc": "导致",
+        "type": "event",
+        "mentions": [
+            "n:folder1/text1.raw.txt:15-17"
+        ]
+    },
+    "i:006": {
+        "id": "i:006",
+        "desc": "遇难者",
+        "type": "entity",
+        "mentions": [
+            "n:folder1/text1.raw.txt:19-23",
+            "n:text2.raw.txt:9-12"
+        ]
+    },
+    "i:007": {
+        "id": "i:007",
+        "desc": "死亡",
+        "type": "event",
+        "mentions": [
+            "n:folder1/text1.raw.txt:25-27"
+        ]
+    },
+    "i:008": {
+        "id": "i:008",
+        "desc": "赔偿工作",
+        "type": "event",
+        "mentions": [
+            "n:text2.raw.txt:13-17"
+        ]
+    }
+}
