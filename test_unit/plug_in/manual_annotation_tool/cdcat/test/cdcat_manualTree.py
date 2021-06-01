@@ -2,7 +2,6 @@ import os
 
 # center config
 center_config_dir = "config_label.json"
-
 # load center config
 cur_file_path = os.path.abspath(__file__)
 cur_folder_path = os.path.dirname(cur_file_path)
