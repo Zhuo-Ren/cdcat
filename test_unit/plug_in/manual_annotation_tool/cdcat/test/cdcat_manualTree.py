@@ -32,45 +32,46 @@ c.raw = Raw(raw)
 
 from nlp_platform.center.instance import Instance
 i1 = Instance()
-c.ip.add(i1)
 i1["id"]["value"] = "i:000"
 i1["desc"]["value"] = "10日"
 i1["type"]["value"] = "entity"
+c.ip.add(i1)
 i2 = Instance()
-c.ip.add(i2)
 i2["id"]["value"] = "i:001"
 i2["desc"]["value"] = "埃航"
 i2["type"]["value"] = "entity"
+c.ip.add(i2)
 i3 = Instance()
-c.ip.add(i3)
 i3["id"]["value"] = "i:002"
 i3["desc"]["value"] = "一架飞机"
 i3["type"]["value"] = "entity"
+c.ip.add(i3)
 i4 = Instance()
-c.ip.add(i4)
 i4["id"]["value"] = "i:003"
 i4["desc"]["value"] = "坠毁"
 i4["type"]["value"] = "event"
+c.ip.add(i4)
 i5 = Instance()
-c.ip.add(i5)
 i5["id"]["value"] = "i:005"
 i5["desc"]["value"] = "导致"
 i5["type"]["value"] = "event"
+c.ip.add(i5)
 i6 = Instance()
-c.ip.add(i6)
 i6["id"]["value"] = "i:006"
 i6["desc"]["value"] = "遇难者"
 i6["type"]["value"] = "entity"
+c.ip.add(i6)
 i7 = Instance()
-c.ip.add(i7)
 i7["id"]["value"] = "i:007"
 i7["desc"]["value"] = "死亡"
 i7["type"]["value"] = "event"
+c.ip.add(i7)
 i8 = Instance()
-c.ip.add(i8)
 i8["id"]["value"] = "i:008"
 i8["desc"]["value"] = "赔偿工作"
 i8["type"]["value"] = "event"
+c.ip.add(i8)
+
 
 from nlp_platform.center.node import Node
 n1 = Node()
