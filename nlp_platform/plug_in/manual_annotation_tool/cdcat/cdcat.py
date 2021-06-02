@@ -147,11 +147,30 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route('/getGroup', methods=["POST"])
     def getGroup():
-        return jsonify(["success", corpus.ip.groups])
-
-    @app.route("/getInstanceDesc", methods=["POST"])
-    def getInstanceDesc():
-        return jsonify(corpus.ip[request.form.get("id")]["desc"]["value"])
+        groups = corpus.ip.groups
+        def f(x):
+            if isinstance(x, list):
+                # instances的情况
+                if len(x) == 3:
+                    if x[0] == "instances":
+                        r = []
+                        r.append(x[0])
+                        r.append(x[1])
+                        r.append([])
+                        r[2] = []
+                        for i in x[2]:
+                            cur_instance = corpus.ip[i]
+                            r[2].append(cur_instance.to_info())
+                        return r
+                # 其他情况
+                r = []
+                for i in x:
+                    r.append(f(i))
+                return r
+            else:
+                return x
+        groups = f(groups)
+        return jsonify(["success", groups])
 
     @app.route('/changeGroupName', methods=["POST"])
     def changeGroupName():

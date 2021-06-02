@@ -450,16 +450,6 @@ function PythonStyleToJsStyle(data){
             }
             // 生成新dom元素
             let groupTupleOfInstancePool = r[1];
-            let instance_list = r[1][2][0][2]
-            let id_list = []
-//            console.log(instance_list)
-            for(let i =0; i<instance_list.length; i++){
-                id_list.push(instance_list[i])
-            }
-            console.log(id_list)
-            for(let i=0; i<id_list.length; i++){
-                get_instance_desc(id_list[i])
-            }
             let instancePoolObj = generateGroup(groupTupleOfInstancePool);
             // 添加新dom元素
             $("#allInstanceDiv").append(instancePoolObj);
@@ -557,20 +547,17 @@ function PythonStyleToJsStyle(data){
             // build DOC element
             let liObj = $("<li class='instances_li'></li>");
             // add attr
-            liObj.attr('name', curInstancelink);
+            liObj.attr('name', curInstancelink['id']);
             liObj.addClass('instance');
-
-            liObj.text(get_instance_desc(curInstancelink))
-
-            // if (curInstancelink['desc'] !== undefined) {
-            //     if (curInstancelink['desc'] !== "") {
-            //         liObj.text(curInstancelink['desc']);
-            //     } else {
-            //         liObj.text('　');
-            //     }
-            // } else {
-            //     liObj.text('　');
-            // }
+            if (curInstancelink['desc'] !== undefined) {
+                if (curInstancelink['desc'] !== "") {
+                    liObj.text(curInstancelink['desc']);
+                } else {
+                    liObj.text('　');
+                }
+            } else {
+                liObj.text('　');
+            }
 
 
             // shift拖拉：复制元素
@@ -1018,23 +1005,6 @@ function PythonStyleToJsStyle(data){
                 callback(data, status, requireData);
             }
         );
-    }
-
-    function get_instance_desc(id){
-        let instance_desc = undefined
-        $.post(
-            "/getInstanceDesc",
-            {
-                "id": id
-            },
-            function (data, status) {
-//                $("body").css("pointer-events", "auto");
-//                callback(data, status, requireData);
-                  instance_desc = data
-            }
-        );
-        return instance_desc
-
     }
 
     /**
