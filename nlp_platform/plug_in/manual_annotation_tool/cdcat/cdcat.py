@@ -373,8 +373,8 @@ def cdcat(corpus: Corpus) -> None:
     def getInstance():
         instance_id = request.form.get("instance_id")
         logging.debug("getInstance->：id=" + instance_id)
-        target_instance = corpus.ip.get_instance(info_dict={"id":instance_id})[0]
-        instance_info = target_instance.readable()
+        target_instance = corpus.ip.get_instance(id=instance_id)[0]
+        instance_info = target_instance.to_info()
         logging.debug("getInstance<-：" + str(["success", instance_info]))
         return jsonify(["success", instance_info])
 

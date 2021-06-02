@@ -568,11 +568,16 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                 }
             }else if($("#instanceInfoWindow")[0].contains(this)){
                 // prepare ajax data
-                var id = $("#pidValue").text();
+                var id = $("#idValue").text();
+                console.log(id)
                 var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
+                if (id == "XXXXX"){
+                    return;
+                }
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
                 // GUI update
+                console.log(r)
                 if (r[0] != "success"){
                     alert(langDict[r[1]]);
                     return;
@@ -616,20 +621,20 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
         labelObj.append(keyObj);
         // valueObj <span>
-        let valueObj = $("<span id='" + labelDict["key"] + "Value'>"+labelDict["value_default"] + "</span>");
+        let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
             let innerText = undefined;
             // if given a value, display the value
             if (labelValue != undefined) {
                 innerText =  labelValue;
             }
-            // // if no value given, display the default value
-            // else if (labelDict["value_default"] != undefined){
-            //     innerText = labelDict["value_default"];
-            // }
-            // // if no given value and no default value
-            // else{
-            //     innerText = "";
-            // }
+            // if no value given, display the default value
+            else if (labelDict["value_default"] != undefined){
+                innerText = labelDict["value_default"];
+            }
+            // if no given value and no default value
+            else{
+                innerText = "";
+            }
             valueObj.text(innerText);
         labelObj.append(valueObj);
     // return
