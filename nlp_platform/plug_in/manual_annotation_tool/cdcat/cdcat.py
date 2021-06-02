@@ -151,7 +151,7 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route("/getInstanceDesc", methods=["POST"])
     def getInstanceDesc():
-        return "111"
+        return jsonify(corpus.ip[request.form.get("id")]["desc"]["value"])
 
     @app.route('/changeGroupName', methods=["POST"])
     def changeGroupName():

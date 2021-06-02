@@ -454,7 +454,7 @@ function PythonStyleToJsStyle(data){
             let id_list = []
 //            console.log(instance_list)
             for(let i =0; i<instance_list.length; i++){
-                id_list.push(instance_list[i][0])
+                id_list.push(instance_list[i])
             }
             console.log(id_list)
             for(let i=0; i<id_list.length; i++){
@@ -462,7 +462,7 @@ function PythonStyleToJsStyle(data){
             }
             let instancePoolObj = generateGroup(groupTupleOfInstancePool);
             // 添加新dom元素
-            //$("#allInstanceDiv").append(instancePoolObj);
+            $("#allInstanceDiv").append(instancePoolObj);
             // 向jquery UI sortable 注册新dom元素
             $(".group").sortable({
                 connectWith: ".group",
@@ -557,17 +557,20 @@ function PythonStyleToJsStyle(data){
             // build DOC element
             let liObj = $("<li class='instances_li'></li>");
             // add attr
-            liObj.attr('name', curInstancelink['id']);
+            liObj.attr('name', curInstancelink);
             liObj.addClass('instance');
-            if (curInstancelink['desc'] !== undefined) {
-                if (curInstancelink['desc'] !== "") {
-                    liObj.text(curInstancelink['desc']);
-                } else {
-                    liObj.text('　');
-                }
-            } else {
-                liObj.text('　');
-            }
+
+            liObj.text(get_instance_desc(curInstancelink))
+
+            // if (curInstancelink['desc'] !== undefined) {
+            //     if (curInstancelink['desc'] !== "") {
+            //         liObj.text(curInstancelink['desc']);
+            //     } else {
+            //         liObj.text('　');
+            //     }
+            // } else {
+            //     liObj.text('　');
+            // }
 
 
             // shift拖拉：复制元素
@@ -1018,20 +1021,19 @@ function PythonStyleToJsStyle(data){
     }
 
     function get_instance_desc(id){
-//        requireData = {
-//            id_list_trans : id
-//        };
-        let id_data = undefined
+        let instance_desc = undefined
         $.post(
             "/getInstanceDesc",
-            id,
+            {
+                "id": id
+            },
             function (data, status) {
 //                $("body").css("pointer-events", "auto");
 //                callback(data, status, requireData);
-                  id_data = data
+                  instance_desc = data
             }
         );
-        return id_data
+        return instance_desc
 
     }
 
