@@ -27,7 +27,7 @@ def cdcat(corpus: Corpus) -> None:
     import json
     import sys
     import os
-    cur_file_path = os.path.abspath(sys.argv[0])
+    cur_file_path = os.path.abspath(__file__)
     cur_folder_path = os.path.dirname(cur_file_path)
     config_label_file_path = os.path.join(cur_folder_path, "config_label.json")
     with open(config_label_file_path, 'r', encoding='utf8') as f:

@@ -616,7 +616,7 @@ function generateTextReadonlyLabelObj(labelDict, labelValue){
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
         labelObj.append(keyObj);
         // valueObj <span>
-        let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
+        let valueObj = $("<span id='" + labelDict["key"] + "Value'>"+labelDict["value_default"] + "</span>");
             let innerText = undefined;
             // if given a value, display the value
             if (labelValue != undefined) {

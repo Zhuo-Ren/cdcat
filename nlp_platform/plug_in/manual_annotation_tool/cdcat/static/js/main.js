@@ -805,16 +805,17 @@ function PythonStyleToJsStyle(data){
 
         function instanceInfoWindow_addLabels() {
             // add idObj <div>
-            let idObj = instanceInfoWindow_generateIdObj();
-            $("#instanceInfo-selectedInstance").append(idObj);
-            // add descObj <div>
-            let descObj = instanceInfoWindow_generateDescObj();
-            $("#instanceInfo-selectedInstance").append(descObj);
+//            let idObj = instanceInfoWindow_generateIdObj();
+//            $("#instanceInfo-selectedInstance").append(idObj);
+//            // add descObj <div>
+//            let descObj = instanceInfoWindow_generateDescObj();
+//            $("#instanceInfo-selectedInstance").append(descObj);
             // add labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["instance"].length; curLabelIndex++) {
+                // 注意：这里的获取字典的内容是无序的
                 let curLabelDict = labelSysDict["instance"][curLabelIndex];
                 //generate label obj
-                curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
+                let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
                 $("#instanceInfo-selectedInstance").append(curLabelObj);
                 //add event to label obj
                 // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);

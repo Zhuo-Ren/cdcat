@@ -19,12 +19,6 @@
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "'none'",
                 "value_optional": ["none", "entity", "event"]
-            },
-            "mentions": {
-                "type": "RelationLabel",
-                "table_name": "mention_to_instance",
-                "index_self": "1",
-                "index_value": "0"
             }
         }
     },
@@ -42,12 +36,6 @@
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "'none'",
                 "value_optional": ["none", "entity", "event"]
-            },
-            "refer": {
-                "type": "RelationLabel",
-                "table_name": "mention_to_instance",
-                "index_self": "0",
-                "index_value": "1"
             }
         }
     },
