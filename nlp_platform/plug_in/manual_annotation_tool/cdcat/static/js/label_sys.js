@@ -441,7 +441,7 @@ labelTemplate = {
  */
 function generateRadioLabelObj(labelDict, labelValue) {
     // labelObj <div>
-    let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'><div>");
+    let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'><div>");
     labelObj.css("padding-left","10px");
         // keyObj <span>
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
@@ -524,7 +524,7 @@ function generateRadioLabelObj(labelDict, labelValue) {
  */
 function generateMenuOneLabelObj(labelDict, labelValue){
     // labelObj <div>
-    let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+    let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
     labelObj.css("padding-left","10px");
         // keyObj <span>
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
@@ -571,6 +571,7 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                 var id = $("#idValue").text();
                 console.log(id)
                 var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
+                console.log(value)
                 if (id == "XXXXX"){
                     return;
                 }
@@ -615,7 +616,7 @@ function generateMenuOneLabelObj(labelDict, labelValue){
  */
 function generateTextReadonlyLabelObj(labelDict, labelValue){
     // labelObj <div>
-    let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+    let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
     labelObj.css("padding-left","10px");
         // keyObj <span>
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
@@ -664,7 +665,7 @@ function generateTextInputLabelObj(labelDict, labelValue){
     let labelObj = undefined;
     // labelObj <div>
     {
-        labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+        labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
         labelObj.css("padding-left","10px");
         // keyObj <span>
         {
@@ -755,7 +756,7 @@ function generateTextInputLabelObj(labelDict, labelValue){
  */
 function generateInstanceLabelObj(labelDict, labelValue){
     // labelObj <div>
-        let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+        let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
         labelObj.css("padding-left","10px");
         // keyObj <span>
             let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
@@ -936,7 +937,7 @@ function generateInstanceLabelObj(labelDict, labelValue){
  * @return {Jquery.HtmlElement}
  */
 function generateNodeListLabelObj(labelDict, labelValue){
-    let labelObj = $(" <div id='nodeInfo-" + labelDict["key"] + "'></div>");
+    let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
     labelObj.css("padding-left","10px");
     // <keyObj>
         let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");

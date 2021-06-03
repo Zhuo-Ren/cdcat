@@ -402,11 +402,11 @@ function PythonStyleToJsStyle(data){
         function nodeInfoWindow_updateNodeInfo(nodeInfo) {
             // update position
             // get the position data ready
-            let position = nodeInfo["position"];
+            //let position = nodeInfo["position"];
             // generate new positionObj
-            let positionObj = nodeInfoWindow_generatePositionObj(position);
+            //let positionObj = nodeInfoWindow_generatePositionObj(position);
             // replace the old label obj
-            $("#nodeInfo-position").replaceWith(positionObj);
+            //$("#nodeInfo-position").replaceWith(positionObj);
             // update labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["node"].length; curLabelIndex++) {
                 // get the label data ready
@@ -419,7 +419,8 @@ function PythonStyleToJsStyle(data){
                 let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
                 // replace the old label obj
-                $("#nodeInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
+                let cur_window = $("#instanceInfoWindow")
+                //$("labelInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
             }
         }
 
@@ -853,11 +854,11 @@ function PythonStyleToJsStyle(data){
             // }
             // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
             // update id
-            let idObj = instanceInfoWindow_generateIdObj(instanceInfo["id"]);
-            $("#instanceInfo-id").replaceWith(idObj);
+//            let idObj = instanceInfoWindow_generateIdObj(instanceInfo["id"]);
+//            $("#instanceInfo-id").replaceWith(idObj);
             // update desc
-            let descObj = instanceInfoWindow_generateDescObj(instanceInfo["desc"]);
-            $("#instanceInfo-desc").replaceWith(descObj);
+//            let descObj = instanceInfoWindow_generateDescObj(instanceInfo["desc"]);
+//            $("#instanceInfo-desc").replaceWith(descObj);
             // update labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["instance"].length; curLabelIndex++) {
                 // get the label data ready
@@ -872,7 +873,17 @@ function PythonStyleToJsStyle(data){
                 // generate a new label obj based on new value
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelDict, newValue);
                 // replace the old label obj
-                $("#nodeInfo-" + curLabelDict["key"]).replaceWith(labelObj);
+                if(curLabelDict["key"] == "id"){
+                    $($($("#instanceInfo-selectedInstance").children())[1]).replaceWith(labelObj);
+                    //$("div[name='labelInfo-id']").replaceWith(labelObj);
+                }
+                if(curLabelDict["key"] == "desc"){
+                    $($($("#instanceInfo-selectedInstance").children())[2]).replaceWith(labelObj);
+                }
+                if(curLabelDict["key"] == "type"){
+                    $($($("#instanceInfo-selectedInstance").children())[3]).replaceWith(labelObj);
+
+                }
             }
         }
 
