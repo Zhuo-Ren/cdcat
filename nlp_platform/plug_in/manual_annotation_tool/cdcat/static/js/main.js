@@ -976,7 +976,7 @@ function PythonStyleToJsStyle(data){
         function instanceInfoWindow_refresh() {
             if ($("#instanceInfo-selectedInstance").css("display") == "block") {
                 // prepare ajax data
-                let instanceId = $("#idValue").text();
+                let instanceId = $($($($("#instanceInfo-selectedInstance").children())[1]).children()[1]).text();
                 // ajax to background
                 let r = getInstanceById(instanceId);
                 // display the new instance info in GUI
