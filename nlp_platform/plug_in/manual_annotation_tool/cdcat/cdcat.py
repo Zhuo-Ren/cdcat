@@ -382,37 +382,38 @@ def cdcat(corpus: Corpus) -> None:
     def setInstance():
         id = request.form.get("id")
         logging.debug("setInstance->：id=" + id)
-
-        id = int(id)
-        instance = corpus.ip.get_instance(info_dict={"id": id})[0]
+        instance = corpus.ip.get_instance(id=id)[0]
         if instance is None:
             logging.debug("setInstance--：no such instance")
             logging.debug("setInstance<-：", str(["failed", "no such instance."]))
             return jsonify(["failed", "no such instance."])
         elif isinstance(instance, Instance):
-            # 对固定标签desc
-            if "desc" in request.form:
-                instance["desc"] = request.form.get("desc")
+            # # 对固定标签desc
+            # if "desc" in request.form:
+            #     instance["desc"] = request.form.get("desc")
             # 对每一个定制标签
-            cur_labels = instance.labels
-            for cur_label_key in cur_labels.config.keys():
+            cur_labels = instance.keys()
+            for cur_label_key in instance.config["LABELS"].keys():
                 # 如果前台修改了当前标签
                 if cur_label_key in request.form:
                     cur_label_ajax_param = request.form.get(cur_label_key)
                     # 如果前台修改的这个标签还没有创建，要先创建空标签
                     if cur_label_key not in cur_labels:
-                        from nlp_platform.center.labeltypes import labeltypes
-                        cur_label_class = labeltypes[cur_labels.config[cur_label_key]["value_type"]]
-                        cur_labels[cur_label_key] = cur_label_class(owner=cur_labels, key=cur_label_key, value=None)
+                        from nlp_platform.center.labeltypes import label_types
+                        for label_key, label_config in instance.config["LABELS"].items():
+                            if label_key == cur_label_key:
+                                label_config["key"] = label_key
+                                label_config["PRELIMINARY_CODE"] = instance.config["PRELIMINARY_CODE"]
+                                instance[label_key] = label_types[label_config["type"]](config=label_config, owner=instance)
                     # 根据前台信息，修改当前标签
-                    cur_label = cur_labels[cur_label_key]
-                    r = cur_label.ajax_process(cur_label_ajax_param, corpus.np, corpus.ip)
+                    cur_label = instance[cur_label_key]
+                    r = cur_label.ajax_process(cur_label_ajax_param)
                     if r is not None:
                         logging.debug("setInstance<-：" + str(["failed", r]))
                         return jsonify(["failed", r])
 
-            logging.debug("setInstance<-：" + str(["success", instance.readable()]))
-            return jsonify(["success", instance.readable()])
+            logging.debug("setInstance<-：" + str(["success", instance.to_info()]))
+            return jsonify(["success", instance.to_info()])
 
         # # 获取参数
         # id = int(request.form.get("id"))

@@ -584,7 +584,7 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                     return;
                 }else{
                     // refresh nodeInfoWindow
-                    nodeInfoWindow_refresh();
+                    // nodeInfoWindow_refresh();
                     // refresh instanceInfoWindow
                     instanceInfoWindow_refresh();
                 }
@@ -722,7 +722,7 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         return;
                     }else{
                         // refresh nodeInfoWindow
-                        nodeInfoWindow_refresh();
+                        // nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
                     }
