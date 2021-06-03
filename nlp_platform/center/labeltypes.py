@@ -1,7 +1,6 @@
 from typing import Dict, List, Tuple, Union, Optional  # for type hinting
 import copy
 
-
 class Label(dict):
     """
     A base class of label type.
@@ -56,6 +55,28 @@ class Label(dict):
     #     else:
     #         pass
     #         # return {"test": "test"}
+
+    from nlp_platform.center.instancepool import InstancePool
+    from nlp_platform.center.nodepool import NodePool
+
+    def ajax_process(self,
+                     ajax_param: str,
+                     node_pool: NodePool = None,
+                     instance_pool: InstancePool = None):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :param node_pool: root node of all the node.
+        :param instance_pool: instance pool that manages all the instance.
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if str == "":
+            self["value"] = ""
+        else:
+            self["value"] = ajax_param
 
 class SimpleLabel(Label):
     """
