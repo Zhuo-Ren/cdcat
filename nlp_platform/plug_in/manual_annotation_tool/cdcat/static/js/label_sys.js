@@ -731,6 +731,8 @@ function generateTextInputLabelObj(labelDict, labelValue){
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
+                        // update instance
+                        instanceSelectWindow_updateOneInstance(r[1])
                     }
                 }
             });
