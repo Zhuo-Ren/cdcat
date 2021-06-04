@@ -15,5 +15,5 @@ def raw_to_text(dir, raw):
             if os.path.exists(os.path.join(dir, key)): # 已存在该文件夹，直接进入
                 raw_to_text(dir=os.path.join(dir, key), raw=raw[key])
             else:
-                os.mkdir(os.path.join(dir, key))
+                os.makedirs(os.path.join(dir, key))
                 raw_to_text(dir=os.path.join(dir, key), raw=raw[key])
