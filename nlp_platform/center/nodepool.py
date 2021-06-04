@@ -49,3 +49,13 @@ class NodePool(dict):
         for key in self:
             info_dict.update({key: self[key].to_info()})
         return info_dict
+
+    def str_to_position(self, positionStr: str):
+        if positionStr is None:
+            return None
+        elif positionStr == "":
+            return ()
+        elif isinstance(positionStr, str):
+            return tuple(int(i) for i in positionStr.split("-"))
+        else:
+            raise TypeError("1th arg should be None or string")

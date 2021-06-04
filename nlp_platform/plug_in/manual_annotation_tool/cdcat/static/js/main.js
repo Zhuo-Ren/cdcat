@@ -1326,6 +1326,8 @@ function PythonStyleToJsStyle(data){
     // textWindow: 选中一段文本
     function textMouseup() {
         let slotNum = $(".slot").length
+        console.log(slotNum)
+        console.log(SelectedElementIndexList)
         // just select a mention
         if (slotNum == 0) {
             // 清除上次的选区效果
@@ -1355,6 +1357,8 @@ function PythonStyleToJsStyle(data){
                 // 选中效果
                 majorTextWindow_hightlightElement(selectedElementsNow);
                 // 请求注释信息，并显示
+//                console.log(selectedElementsNow[0].attr("id"))
+//                console.log(selectedElementsNow[1].attr("id"))
                 let r = getNodeByChildren(
                     selectedElementsNow[0].attr("id"),
                     selectedElementsNow[selectedElementsNow.length - 1].attr("id"),
