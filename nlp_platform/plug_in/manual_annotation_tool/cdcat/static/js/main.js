@@ -402,9 +402,9 @@ function PythonStyleToJsStyle(data){
         function nodeInfoWindow_refresh() {
             if ($("#nodeInfo-selectedNode").css("display") == "block") {
                 // prepare ajax data
-                let nodePosition = $("#idValue").text();
+                let nodeId = $("#idValue").text();
                 // ajax to background
-                let r = getNodeByPosition(nodePosition);
+                let r = getNodeById(nodeId);
                 // display the new node info in GUI
                 if (r[0] != "success") {
                     nodeInfoWindow_showNoNode();
@@ -1114,17 +1114,17 @@ function PythonStyleToJsStyle(data){
         /**
          * flask interface. Given the position of a node, request the info of the node.
          *
-         * @param nodePosition {string} Position string of the node.
+         * @param nodeId {string} Id string of the node.
          * @param callback {function} The call back function.
          *   The return value *data* of the POST request is given as the first param of the call back function.
          */
-        function getNodeByPosition(nodePosition) {
+        function getNodeById(nodeId) {
             let nodeInfo = undefined;
             $("body").css("pointer-events", "none");
             $.post(
                 "/getNode",
                 {
-                    position: nodePosition,
+                    node_id: nodeId,
                 },
                 function (data, status) {
                     $("body").css("pointer-events", "auto");
@@ -1159,9 +1159,9 @@ function PythonStyleToJsStyle(data){
             return r
         }
 
-        function setNode(position, newValueDict) {
+        function setNode(id, newValueDict) {
             let nodeInfo = undefined;
-            newValueDict["position"] = position;
+            newValueDict["nodeId"] = id;
             $("body").css("pointer-events", "none");
             $.post(
                 "/setNode",
@@ -1561,7 +1561,7 @@ function PythonStyleToJsStyle(data){
             // 再把curNode指向curInstance
             $("#mention_listValue").children("div").children(":last").prev().prev().click();
             // 初始化curInstance的desc
-            let r = getNodeByPosition($("#idValue").text());
+            let r = getNodeById($("#idValue").text());
             let nodeText = r[1]["text"];
             $("#descValue").attr("value", nodeText);
             $("#descValue").change();

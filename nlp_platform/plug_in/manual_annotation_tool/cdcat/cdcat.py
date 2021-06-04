@@ -7,7 +7,7 @@ from nlp_platform.center.instance import Instance
 from nlp_platform.center.instancepool import InstancePool
 from nlp_platform.center.corpus import Corpus
 from nlp_platform.center.raw import Raw
-
+from nlp_platform.center.node import Node
 
 def cdcat(corpus: Corpus) -> None:
     """
@@ -293,15 +293,15 @@ def cdcat(corpus: Corpus) -> None:
     @app.route('/getNode', methods=["POST"])
     def getNode():
         # get params(for js function "getNodeByPosition")
-        position = request.form.get("position")
+        node_id = request.form.get("node_id")
         # get params(for js function "getNodeByChild")
         start_position = request.form.get("start")
         end_position = request.form.get("end")
         file_path = request.form.get("file_path")
         # get node(for js function "getNodeByPositon")
-        if position:
-            logging.debug("getNode->：position=" + str(position))
-            node = corpus.np[position]
+        if node_id:
+            logging.debug("getNode->：position=" + str(node_id))
+            node = corpus.np[node_id]
         # get node(for js function "getNodeByChild")
         elif start_position and end_position:
             start_position_list = start_position.split('-')
@@ -325,28 +325,33 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route('/setNode', methods=["POST"])
     def setNode():
-        position = corpus.np.str_to_position(request.form.get("position"))
-        logging.debug("setNode->：position=" + str(position))
-        node = corpus.np[position]
+        node_id = request.form.get("nodeId")
+        logging.debug("setNode->：position=" + str(node_id))
+        node = corpus.np[node_id]
         if node is None:
             logging.debug("setNode--：no such node")
             logging.debug("getNode<-：\"\"")
             return jsonify("can not find node based on given position.")
-        elif isinstance(node, NodeTree):
-            cur_labels = node.labels
+        elif isinstance(node, Node):
+            cur_labels = node.keys()
             # 对每一个定制标签
-            for cur_label_key in cur_labels.config.keys():
+            for cur_label_key in node.config["LABELS"].keys():
                 # 如果前台修改了当前标签
                 if cur_label_key in request.form:
                     cur_label_ajax_parm = request.form.get(cur_label_key)
                     #
                     if cur_label_key not in cur_labels:
-                        from nlp_platform.center.labeltypes import labeltypes
-                        cur_labels[cur_label_key] = labeltypes[cur_labels.config[cur_label_key]["value_type"]](owner=cur_labels, key=cur_label_key, value=None)
-                    cur_label = cur_labels[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_parm, corpus.np, corpus.ip)
-            logging.debug("setNode<-：" + str(["success", node.readable()]))
-            return jsonify(["success", node.readable()])
+                        from nlp_platform.center.labeltypes import label_types
+                        for label_key, label_config in node.config["LABELS"].items():
+                            if label_key == cur_label_key:
+                                label_config["key"] = label_key
+                                label_config["PRELIMINARY_CODE"] = node.config["PRELIMINARY_CODE"]
+                                node[label_key] = label_types[label_config["type"]](config=label_config, owner=node)
+
+                    cur_label = node[cur_label_key]
+                    cur_label.ajax_process(cur_label_ajax_parm)
+            logging.debug("setNode<-：" + str(["success", node.to_info()]))
+            return jsonify(["success", node.to_info()])
 
     @app.route('/delNode', methods=["POST"])
     def delNode():

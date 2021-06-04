@@ -554,9 +554,9 @@ function generateMenuOneLabelObj(labelDict, labelValue){
             valueObj.append(selectObj);
         valueObj.change(function() {
             if ($("#nodeInfoWindow")[0].contains(this)){
-                var position = $("#positionValue").text();
+                var nodeId = $("#idValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                let r = setNode(position, {[labelDict["key"]]: value});
+                let r = setNode(nodeId, {[labelDict["key"]]: value});
                 if (r[0] != "success"){
                     alert(langDict[r[1]]);
                     return;
