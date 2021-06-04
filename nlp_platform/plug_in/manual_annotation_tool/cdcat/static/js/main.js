@@ -351,8 +351,8 @@ function PythonStyleToJsStyle(data){
 
         function nodeInfoWindow_addLabels() {
             // add positionObj <div>
-            let positionObj = nodeInfoWindow_generatePositionObj()
-            $("#nodeInfo-selectedNode").append(positionObj);
+            // let positionObj = nodeInfoWindow_generatePositionObj()
+            // $("#nodeInfo-selectedNode").append(positionObj);
             // add labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["node"].length; curLabelIndex++) {
                 let curLabelDict = labelSysDict["node"][curLabelIndex];
@@ -419,8 +419,15 @@ function PythonStyleToJsStyle(data){
                 let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
                 // replace the old label obj
-                let cur_window = $("#instanceInfoWindow")
-                //$("labelInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
+                // let cur_window = $("#instanceInfoWindow")
+                // $("labelInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
+                if(curLabelConfig["key"] == "id"){
+                    $($($("#nodeInfo-selectedNode").children())[1]).replaceWith(labelObj);
+                }
+                if(curLabelConfig["key"] == "type"){
+                    $($($("#nodeInfo-selectedNode").children())[2]).replaceWith(labelObj);
+
+                }
             }
         }
 
@@ -1178,14 +1185,15 @@ function PythonStyleToJsStyle(data){
          * @param endNodePosition {string} Position string of the last node.
          *   The return value *data* of the POST request is given as the first param of the call back function.
          */
-        function getNodeByChildren(startNodePosition, endNodePosition) {
+        function getNodeByChildren(startNodePosition, endNodePosition, file_path) {
             let r = undefined;
             $("body").css("pointer-events", "none");
             $.post(
                 "/getNode",
                 {
                     start: startNodePosition,
-                    end: endNodePosition
+                    end: endNodePosition,
+                    file_path: file_path
                 },
                 function (data, status) {
                     $("body").css("pointer-events", "auto");
@@ -1362,6 +1370,7 @@ function PythonStyleToJsStyle(data){
                 let r = getNodeByChildren(
                     selectedElementsNow[0].attr("id"),
                     selectedElementsNow[selectedElementsNow.length - 1].attr("id"),
+                    $("#textTab1").attr("name")
                 );
                 let w =$(".instances_li")
                 let index_list = []
@@ -1378,7 +1387,7 @@ function PythonStyleToJsStyle(data){
                 {
                     find_element_list[i] = getInstanceById(index_list[i])
                     //注意find_element_list[i][1]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
-                    desc_complex_list[i] = find_element_list[i][1]["mention_list"]
+                    desc_complex_list[i] = find_element_list[i][1]["mentions"]
                     desc_simple_list[i] = find_element_list[i][1]["desc"]
                 }
                 //console.log(desc_complex_list)
@@ -1388,13 +1397,13 @@ function PythonStyleToJsStyle(data){
                         text_pool[i] = new Array();
                         for( k=0; k<desc_complex_list[i].length; k++)
                         {
-                            text_pool[i][k] = desc_complex_list[i][k]["text"].toString();
+                            text_pool[i][k] = desc_complex_list[i][k].toString();
                             text_pool[i] = text_pool[i].concat(desc_simple_list[i]);
                             str_text_pool[i] = text_pool[i].join("");
                         }
                     }
                     if(desc_complex_list[i].length == 1){
-                        text_pool[i] = desc_complex_list[i][0]["text"].toString();
+                        text_pool[i] = desc_complex_list[i][0].toString();
                         str_text_pool[i] = text_pool[i];
                     }
 //                        console.log(str_text_pool[i])

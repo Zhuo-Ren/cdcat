@@ -50,12 +50,20 @@ class NodePool(dict):
             info_dict.update({key: self[key].to_info()})
         return info_dict
 
-    def str_to_position(self, positionStr: str):
-        if positionStr is None:
-            return None
-        elif positionStr == "":
-            return ()
-        elif isinstance(positionStr, str):
-            return tuple(int(i) for i in positionStr.split("-"))
+    # def str_to_position(self, positionStr: str):
+    #     if positionStr is None:
+    #         return None
+    #     elif positionStr == "":
+    #         return ()
+    #     elif isinstance(positionStr, str):
+    #         return tuple(int(i) for i in positionStr.split("-"))
+    #     else:
+    #         raise TypeError("1th arg should be None or string")
+
+    def is_annotated(self, position: str):
+        # 类型检测
+        pass
+        if position in self.keys():
+            return self[position]
         else:
-            raise TypeError("1th arg should be None or string")
+            return None

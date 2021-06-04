@@ -293,23 +293,28 @@ def cdcat(corpus: Corpus) -> None:
     @app.route('/getNode', methods=["POST"])
     def getNode():
         # get params(for js function "getNodeByPosition")
-        position = corpus.np.str_to_position(request.form.get("position"))
+        position = request.form.get("position")
         # get params(for js function "getNodeByChild")
-        start_position = corpus.np.str_to_position(request.form.get("start"))
-        end_position = corpus.np.str_to_position(request.form.get("end"))
+        start_position = request.form.get("start")
+        end_position = request.form.get("end")
+        file_path = request.form.get("file_path")
         # get node(for js function "getNodeByPositon")
         if position:
             logging.debug("getNode->：position=" + str(position))
             node = corpus.np[position]
         # get node(for js function "getNodeByChild")
         elif start_position and end_position:
-            logging.debug("getNode->：position=" + str(start_position) + '-' + str(end_position))
-            node = corpus.np.is_annotated(corpus.np, start_position, end_position)
+            start_position_list = start_position.split('-')
+            end_position_list = end_position.split('-')
+            position = start_position_list[0] + "-" + end_position_list[1]
+            node_id = "n:" + file_path + ":" + position
+            logging.debug("getNode->：position=" + str(start_position_list[0]) + '-' + str(end_position_list[1]))
+            node = corpus.np.is_annotated(node_id)
         # return(success)
         if node is not None:
-            logging.debug("getNode--：get the input node:" + node.text())
-            anno_info = node.readable()
-            anno_info["position"] = node.position(output_type="string")
+            # logging.debug("getNode--：get the input node:" + node.text())
+            anno_info = node.to_info()
+            # anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(["success", anno_info]))
             return jsonify(["success", anno_info])
         # return(failed)
