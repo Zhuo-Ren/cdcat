@@ -493,7 +493,7 @@ def cdcat(corpus: Corpus) -> None:
     @app.route('/save', methods=["POST"])
     def save():
         from nlp_platform.plug_in.output.to_files import save
-        save(dir="../../../output/test", corpus=corpus)
+        save(dir="./corpus", corpus=corpus)
         return jsonify({"success": True})
 
     app.run(debug=True)

@@ -350,9 +350,6 @@ function PythonStyleToJsStyle(data){
         }
 
         function nodeInfoWindow_addLabels() {
-            // add positionObj <div>
-            // let positionObj = nodeInfoWindow_generatePositionObj()
-            // $("#nodeInfo-selectedNode").append(positionObj);
             // add labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["node"].length; curLabelIndex++) {
                 let curLabelDict = labelSysDict["node"][curLabelIndex];
@@ -371,27 +368,6 @@ function PythonStyleToJsStyle(data){
             alert(langDict["can not add node based on current mention."])
         }
 
-        function nodeInfoWindow_generatePositionObj(position) {
-            let positionObj = $(" <div id='nodeInfo-position'></div>");
-            positionObj.css("padding-left", "10px");
-            // keyObj <span>
-            let keyObj = $("<span id='positionKey'>position: </span>");
-            positionObj.append(keyObj);
-            // valueObj <span>
-            let valueObj = $("<span id='positionValue'></span>");
-            let innerText = undefined;
-            // if given a value, display the value
-            if (position != undefined) {
-                innerText = position;
-            } else {
-                innerText = "XXXX";
-            }
-            valueObj.text(innerText);
-            positionObj.append(valueObj);
-            //
-            return positionObj
-        }
-
         /**
          * This function update the info in nodeInfoWindow.
          *
@@ -400,14 +376,6 @@ function PythonStyleToJsStyle(data){
          *   Also,{"label_key": undefined} means annotators never label the label.
          */
         function nodeInfoWindow_updateNodeInfo(nodeInfo) {
-            // update position
-            // get the position data ready
-            //let position = nodeInfo["position"];
-            // generate new positionObj
-            //let positionObj = nodeInfoWindow_generatePositionObj(position);
-            // replace the old label obj
-            //$("#nodeInfo-position").replaceWith(positionObj);
-            // update labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["node"].length; curLabelIndex++) {
                 // get the label data ready
                 let curLabelConfig = labelSysDict["node"][curLabelIndex];
@@ -434,7 +402,7 @@ function PythonStyleToJsStyle(data){
         function nodeInfoWindow_refresh() {
             if ($("#nodeInfo-selectedNode").css("display") == "block") {
                 // prepare ajax data
-                let nodePosition = $("#positionValue").text();
+                let nodePosition = $("#idValue").text();
                 // ajax to background
                 let r = getNodeByPosition(nodePosition);
                 // display the new node info in GUI
@@ -812,13 +780,6 @@ function PythonStyleToJsStyle(data){
         }
 
         function instanceInfoWindow_addLabels() {
-           //  // add idObj <div>
-           // let idObj = instanceInfoWindow_generateIdObj();
-           // $("#instanceInfo-selectedInstance").append(idObj);
-           // // add descObj <div>
-           // let descObj = instanceInfoWindow_generateDescObj();
-           // $("#instanceInfo-selectedInstance").append(descObj);
-            // add labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["instance"].length; curLabelIndex++) {
                 // 注意：这里的获取字典的内容是无序的
                 let curLabelDict = labelSysDict["instance"][curLabelIndex];
@@ -860,12 +821,7 @@ function PythonStyleToJsStyle(data){
             //     mentionListsValue.append(curMentionLine)
             // }
             // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
-            // update id
-//            let idObj = instanceInfoWindow_generateIdObj(instanceInfo["id"]);
-//            $("#instanceInfo-id").replaceWith(idObj);
-            // update desc
-//            let descObj = instanceInfoWindow_generateDescObj(instanceInfo["desc"]);
-//            $("#instanceInfo-desc").replaceWith(descObj);
+
             // update labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["instance"].length; curLabelIndex++) {
                 // get the label data ready
@@ -1290,7 +1246,7 @@ function PythonStyleToJsStyle(data){
             $.post(
                 "/addInstance",
                 {
-                    "position": $("#positionValue").text()
+                    "position": $("#idValue").text()
                 },
                 function (data, status) {
                     $("body").css("pointer-events", "auto");
@@ -1532,7 +1488,7 @@ function PythonStyleToJsStyle(data){
 
     // nodeInfoWindow: 标注信息变动（token）
     function nodeTokenChange() {
-        var position = $("#positionValue").text();
+        var position = $("#idValue").text();
         var tokenValue = $("#tokenValue :checked").attr("value");
         if (tokenValue === "false") {
             tokenValue = false;
@@ -1554,7 +1510,7 @@ function PythonStyleToJsStyle(data){
 
     // nodeInfoWindow: 标注信息变动（semanticType）
     function nodeSemanticTypeChange() {
-        var position = $("#positionValue").text();
+        var position = $("#idValue").text();
         var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
         let r = setNode(position, {"semanticType": semanticTypeValue});
         if (r != "success") {
@@ -1605,7 +1561,7 @@ function PythonStyleToJsStyle(data){
             // 再把curNode指向curInstance
             $("#mention_listValue").children("div").children(":last").prev().prev().click();
             // 初始化curInstance的desc
-            let r = getNodeByPosition($("#positionValue").text());
+            let r = getNodeByPosition($("#idValue").text());
             let nodeText = r[1]["text"];
             $("#descValue").attr("value", nodeText);
             $("#descValue").change();
@@ -1627,7 +1583,7 @@ function PythonStyleToJsStyle(data){
             let instanceSlot = $(".curInstanceSlot");
             if (slot.parentElement.parentElement.getAttribute("id") === "nodeInfoWindow") {
                 var slotType = "node";
-                var position = $("#positionValue").text();
+                var position = $("#idValue").text();
             }
             newInstanceId = curSelectedInstance.name;
             // 向后台传数据
