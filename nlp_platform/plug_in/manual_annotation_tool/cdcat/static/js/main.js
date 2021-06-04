@@ -1486,43 +1486,6 @@ function PythonStyleToJsStyle(data){
         }
     }
 
-    // nodeInfoWindow: 标注信息变动（token）
-    function nodeTokenChange() {
-        var position = $("#idValue").text();
-        var tokenValue = $("#tokenValue :checked").attr("value");
-        if (tokenValue === "false") {
-            tokenValue = false;
-        } else if (tokenValue === "true") {
-            tokenValue = true;
-        } else {
-            alert("搞笑")
-        }
-        let r = setNode(position, {"token": tokenValue});
-        if (r != "success") {
-            alert(langDict[r]);
-            return;
-        }
-        // refresh nodeInfoWindow
-        nodeInfoWindow_refresh();
-        // refresh instanceInfoWindow
-        instanceInfoWindow_refresh();
-    }
-
-    // nodeInfoWindow: 标注信息变动（semanticType）
-    function nodeSemanticTypeChange() {
-        var position = $("#idValue").text();
-        var semanticTypeValue = $("#semanticTypeValue :checked").attr("value");
-        let r = setNode(position, {"semanticType": semanticTypeValue});
-        if (r != "success") {
-            alert(langDict[r]);
-            return;
-        }
-        // refresh nodeInfoWindow
-        nodeInfoWindow_refresh();
-        // refresh instanceInfoWindow
-        instanceInfoWindow_refresh();
-    }
-
     // instanceSelectWindow: 单击“+”按钮
     function addInstancePlusButtonClick() {
         // ajax to background
