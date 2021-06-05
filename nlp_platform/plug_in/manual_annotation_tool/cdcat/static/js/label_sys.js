@@ -640,44 +640,66 @@ function generateObjListLabelObj(labelDict, labelValue){
                 });
             }
             // addInstanceBySelect按钮
-            /*
             {
-                let setInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton'>☞</button>");
-                valueObj.append(setInstanceBySelectButtonObj);
+                let addInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton' style='background-color: #c5c5c5;'>☞</button>");
+                valueObj.append(addInstanceBySelectButtonObj);
                 // add click event
-                setInstanceBySelectButtonObj.click(function(){
+                addInstanceBySelectButtonObj.click(function(){
+                    //
                     if ($(".slot").length == 0){
-                        setInstanceBySelectButtonObj.addClass("slot");
+                        addInstanceBySelectButtonObj.addClass("slot");
                         // 上特效
                         document.body.style.cursor = "help";
-                        setInstanceBySelectButtonObj.css("background", "red");
+                        addInstanceBySelectButtonObj.css("background", "red");
                     }
                 });
                 // add fill slot function
-                setInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){  // html dom对象能存方法，jquery dom对象不行
+                addInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){  // html dom对象能存方法，jquery dom对象不行
+                    // 获取这个标签的owner是node还是instance
+                    let ownerType = undefined;
+                    if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                        ownerType = "node"
+                    }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                        ownerType = "instance"
+                    }else{
+                        // 报错
+                    }
                     // prepare ajax data
-                    let curNodePosition = $("#positionValue").text();
-                    let newValue = {[labelDict["key"]]: selectedInstanceId};
+                    let curId = undefined;
+                    if (ownerType == "node"){
+                        curId = $("#nodeInfo-selectedNode #idValue").text()
+                    } else if (ownerType == "instance"){
+                        curId = $("#instanceInfo-selectedInstance #idValue").text()
+                    }
+                    let newValueDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "add",
+                            "targetObjId": selectedInstanceId,
+                        })
+                    };
                     // ajax
-                    let r = setNode(curNodePosition,newValue);
+                    let r = undefined;
+                    if (ownerType == "node"){
+                        r = setNode(curId,newValueDict);
+                    }else if (ownerType == "instance"){
+                        r = setInstance(curId,newValueDict);
+                    }
                     // GUI update
                     if (r[0] != "success"){
                         alert(langDict[r[1]]);
                         return;
                     }else{
-                        setInstanceBySelectButtonObj.removeClass("slot");
+                        addInstanceBySelectButtonObj.removeClass("slot");
                         // 去特效
                         document.body.style.cursor = "";
-                        setInstanceBySelectButtonObj.css("background", "white");
+                        addInstanceBySelectButtonObj.css("background", "white");
                         // refresh nodeInfoWindow
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow
                         instanceInfoWindow_refresh();
                     }
                 };
-
             }
-             */
         }
     return labelObj
 
