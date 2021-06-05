@@ -795,20 +795,29 @@ function generateObjListLabelObj(labelDict, labelValue)
                         }
                         // 如果是instance
                         else if(curItemId.slice(0, 2) == "i:"){
+                            // 获取instance信息
+                            let curItem = undefined;
+                            {
+                                let r = getInstanceById(curItemId);
+                                if (r[0] == "success"){
+                                    curItem = r[1];
+                                }
+                            }
                             // instanceButtonObj <button>
-                                let curItemObj = $("<button class='instance' name=''></button>");
-                                valueObj.append(curItemObj);
+                            {
+                                let curItemObj = $("<button class='instance' name='' style='background-color: gray;'></button>");
+                                insideObj.append(curItemObj);
                                 // display the label value
                                     let inputText = undefined;
                                     let instanceId = undefined;
                                     // if given a value, display the value
-                                    if (labelValue != undefined) {
-                                        if (labelValue["desc"]==""){
+                                    if (curItem != undefined) {
+                                        if (curItem["desc"]==""){
                                             inputText = '　';
                                         }else{
-                                            inputText =  labelValue["desc"];
+                                            inputText =  curItem["desc"];
                                         }
-                                        instanceId = labelValue["id"];
+                                        instanceId = curItem["id"];
                                     }
                                     // if no value given
                                     else{
@@ -843,9 +852,11 @@ function generateObjListLabelObj(labelDict, labelValue)
                                             instanceSelectWindow_updateOneInstance(instanceInfo);
                                         }
                                     });
+                            }
                             // delInstanceButtonObj <button>
+                            {
                                 let delInstanceButtonObj = $("<button class='circleButton'>x</button>");
-                                valueObj.append(delInstanceButtonObj);
+                                insideObj.append(delInstanceButtonObj);
                                 // add click event
                                     delInstanceButtonObj.click(function(){
                                         // prepare ajax data
@@ -873,7 +884,7 @@ function generateObjListLabelObj(labelDict, labelValue)
                                             instanceInfoWindow_refresh();
                                         }
                                     });
-                            insideObj.append(curItemObj);
+                            }
                         }
                     }
                     // delItemButton
