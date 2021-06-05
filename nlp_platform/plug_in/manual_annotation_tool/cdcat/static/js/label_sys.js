@@ -852,20 +852,38 @@ function generateObjListLabelObj(labelDict, curItem)
                                 insideObj.append(delInstanceButtonObj);
                                 // add click event
                                     delInstanceButtonObj.click(function(){
+                                        // 获取这个标签的owner是node还是instance
+                                        let ownerType = undefined;
+                                        if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                                            ownerType = "node"
+                                        }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                                            ownerType = "instance"
+                                        }else{
+                                            // 报错
+                                        }
                                         // prepare ajax data
-                                        let curNodePosition = undefined;
+                                        let curId = undefined;
                                         let newValueDict = undefined;
                                         if (delInstanceButtonObj.prev().attr("name") == ""){
                                             alert(langDict["Can not delete this value, because this value is already empty."]);
                                         }else {
                                             // 准备数据
-                                            curNodePosition = $("#positionValue").text();
+                                            if (ownerType == "node"){
+                                                curId = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text()
+                                            } else if (ownerType == "instance"){
+                                                curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
+                                            }
                                             newValueDict = {
                                                 [labelDict["key"]]: ""
                                             }
                                         }
                                         // ajax
-                                        let r = setNode(curNodePosition,newValueDict);
+                                        let r = undefined;
+                                        if (ownerType == "node"){
+                                            r = setNode(curId,newValueDict);
+                                        }else if (ownerType == "instance"){
+                                            r = setInstance(curId,newValueDict);
+                                        }
                                         // GUI update
                                         if (r[0] != "success"){
                                             alert(langDict[r[1]]);
@@ -880,8 +898,6 @@ function generateObjListLabelObj(labelDict, curItem)
                             }
                         }
                     }
-                    // delItemButton
-                    console.log("为完成");
                 }
                 //
                 valueObj.append(insideObj);
