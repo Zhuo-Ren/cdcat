@@ -568,10 +568,11 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                 }
             }else if($("#instanceInfoWindow")[0].contains(this)){
                 // prepare ajax data
-                var id = $($($($("#instanceInfo-selectedInstance").children())[1]).children()[1]).text();
+                var id = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text();
                 console.log(id)
                 //var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                let select = $($($($($("#instanceInfo-selectedInstance").children())[3])).children()[1]).children()[0];
+//                let select = $($($($($("#instanceInfo-selectedInstance").children())[3])).children()[1]).children()[0];
+                let select = $("#instanceInfo-selectedInstance div[name='labelInfo-type'] #typeValue select")
                 let options = select.options;
                 let index = select.selectedIndex;
                 let value = $(options[index]).attr("value");
@@ -717,7 +718,10 @@ function generateTextInputLabelObj(labelDict, labelValue){
                 // if the changed label belongs to a instance
                 else if($("#instanceInfoWindow")[0].contains(this)){
                     // prepare ajax data
-                    let id = $($($($("#instanceInfo-selectedInstance").children())[1]).children()[1]).text();
+//                    let td = $('instanceInfo-selectedInstance td')
+//                    console.log(td)
+//                    console.log($("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text())
+                    let id = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text();
                     let value = $("#" + labelDict["key"] + "Value")[0].value;
                     console.log(id)
                     console.log(value)
