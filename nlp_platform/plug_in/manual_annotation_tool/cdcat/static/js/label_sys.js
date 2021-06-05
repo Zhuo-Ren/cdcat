@@ -24,7 +24,7 @@ labelTemplate = {
     },
     "objlist": {
         "generateLabelObj_func": generateObjListLabelObj,
-    },
+    }
 }
 
 /**
@@ -394,12 +394,9 @@ function generateObjListLabelObj(labelDict, labelValue)
                                     curItem = r[1];
                                 }
                             }
-
                             // nodeButton
                             let curItemObj = $("<button>" + curItem["text"] + "</button>");
-                            // curItemObj.attr("index", String(itemIndex)); // 这属性有用吗，没用就不加
                             insideObj.append(curItemObj);
-
                         }
                         // 如果是instance
                         else if(curItemId.slice(0, 2) == "i:"){
@@ -413,39 +410,27 @@ function generateObjListLabelObj(labelDict, labelValue)
                             }
                             // instanceButtonObj <button>
                             {
-                                let curItemObj = $("<button class='instance' name='' style='background-color: gray;'></button>");
+                                let curItemObj = $("<button class='instance' name='' style='background-color: #c5c5c5;'></button>");
                                 insideObj.append(curItemObj);
                                 // display the label value
                                     let inputText = undefined;
                                     let instanceId = undefined;
-                                    // if given a value, display the value
-                                    if (curItem != undefined) {
-                                        if (curItem["desc"]==""){
-                                            inputText = '　';
-                                        }else{
-                                            inputText =  curItem["desc"];
+                                    {
+                                        // if given a value, display the value
+                                        if (curItem != undefined) {
+                                            if (curItem["desc"]==""){
+                                                inputText = '　';
+                                            }else{
+                                                inputText =  curItem["desc"];
+                                            }
+                                            instanceId = curItem["id"];
                                         }
-                                        instanceId = curItem["id"];
+                                        // if no value given
+                                        else{
+                                            inputText = '　';
+                                            instanceId = ""
+                                        }
                                     }
-                                    // if no value given
-                                    else{
-                                        inputText = '　';
-                                        instanceId = ""
-                                    }
-                                    // // if no value given, display the default value
-                                    // else if (labelDict["value_default"] != undefined){
-                                    //     if (labelDict["value_default"]["desc"]==""){
-                                    //         inputText = '　';
-                                    //     }else{
-                                    //         inputText = labelDict["value_default"]["desc"];
-                                    //     }
-                                    //     instanceId = labelDict["value_default"]["id"];
-                                    // }
-                                    // // if no given value and no default value
-                                    // else{
-                                    //     inputText = '　';
-                                    //     instanceId = "";
-                                    // }
                                     curItemObj.text(inputText);
                                     curItemObj.attr("name", instanceId);
                                 // add click event
@@ -522,7 +507,99 @@ function generateObjListLabelObj(labelDict, labelValue)
             }
             // 右中括号
             valueObj.append($("<span>]</span>"));
-            // [+]按钮
+            // addInstanceByCurInstance按钮
+            {
+                let addInstanceByCurInstanceButtonObj = $("<button id='" + labelDict["key"] + "CI\' class='circleButton' style='background-color: #c5c5c5;'>c</button>");
+                valueObj.append(addInstanceByCurInstanceButtonObj);
+                // add click event
+                addInstanceByCurInstanceButtonObj.click(function(){
+                    // 获取这个标签的owner是node还是instance
+                    let ownerType = undefined;
+                    if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                        ownerType = "node"
+                    }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                        ownerType = "instance"
+                    }else{
+                        // 报错
+                    }
+                    // prepare ajax data
+                    let curId = undefined;
+                    if (ownerType == "node"){
+                        curId = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text()
+                    } else if (ownerType == "instance"){
+                        curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
+                    }
+                    let curInstanceId = undefined;
+                    if ($("#instanceInfo-selectedInstance").css("display") == "block") {
+                        curInstanceId = $("#instanceInfo-selectedInstance #idValue").text();
+                    }else{
+                        alert(langDict["can not build a reference relation between cur node and cur instance, because no instance are selected."]);
+                        return;
+                    }
+                    let newValueDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "add",
+                            "targetObjId": curInstanceId,
+                        })
+                    };
+                    // ajax
+                    let r = undefined;
+                    if (ownerType == "node"){
+                        r = setNode(curId,newValueDict);
+                    }else if (ownerType == "instance"){
+                        r = setInstance(curId,newValueDict);
+                    }
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                });
+            }
+            // addInstanceBySelect按钮
+            /*
+            {
+                let setInstanceBySelectButtonObj = $("<button id='" + labelDict["key"] + "Finger\' class='circleButton'>☞</button>");
+                valueObj.append(setInstanceBySelectButtonObj);
+                // add click event
+                setInstanceBySelectButtonObj.click(function(){
+                    if ($(".slot").length == 0){
+                        setInstanceBySelectButtonObj.addClass("slot");
+                        // 上特效
+                        document.body.style.cursor = "help";
+                        setInstanceBySelectButtonObj.css("background", "red");
+                    }
+                });
+                // add fill slot function
+                setInstanceBySelectButtonObj[0].fillSlot = function(selectedInstanceId){  // html dom对象能存方法，jquery dom对象不行
+                    // prepare ajax data
+                    let curNodePosition = $("#positionValue").text();
+                    let newValue = {[labelDict["key"]]: selectedInstanceId};
+                    // ajax
+                    let r = setNode(curNodePosition,newValue);
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        setInstanceBySelectButtonObj.removeClass("slot");
+                        // 去特效
+                        document.body.style.cursor = "";
+                        setInstanceBySelectButtonObj.css("background", "white");
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                };
+
+            }
+             */
         }
     return labelObj
 
