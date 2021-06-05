@@ -59,24 +59,16 @@ class Label(dict):
     from nlp_platform.center.instancepool import InstancePool
     from nlp_platform.center.nodepool import NodePool
 
-    def ajax_process(self,
-                     ajax_param: str,
-                     node_pool: NodePool = None,
-                     instance_pool: InstancePool = None):
+    def ajax_process(self, ajax_param: str):
         """
         This function process ajax require which try to change the label value.
 
         :param ajax_param: The relative params in ajax require.
             String "" will be converted into None which means this label is to be
             delete( because null and undefined in js convert into "" in python).
-        :param node_pool: root node of all the node.
-        :param instance_pool: instance pool that manages all the instance.
         :return: True if process is success, a string describe the error if process is failed
         """
-        if str == "":
-            self["value"] = ""
-        else:
-            self["value"] = ajax_param
+        self["value"] = ajax_param
 
 class SimpleLabel(Label):
     """
@@ -372,6 +364,17 @@ class RelationLabel(Label):
     def to_info(self):
         return {self["key"]: self["value"]}
 
+    def ajax_process(self, ajax_param: str):
+        """
+        This function process ajax require which try to change the label value.
+
+        :param ajax_param: The relative params in ajax require.
+            String "" will be converted into None which means this label is to be
+            delete( because null and undefined in js convert into "" in python).
+        :return: True if process is success, a string describe the error if process is failed
+        """
+        if ajax_param["action"] == "del":
+            print(ajax_param["targetObjId"])
 
 label_types = {
     "SimpleLabel": SimpleLabel,
