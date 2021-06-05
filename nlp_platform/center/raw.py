@@ -21,7 +21,7 @@ class Raw(dict):
             obj_dict = self
             # print(search_path)
             ret = dict_get(obj_dict, search_file, None)
-            if int(index_list[0]) < len(ret) and int(index_list[1]) < len(ret):
+            if int(index_list[0]) < len(ret) and int(index_list[1]) < len(ret) + 1:
                 for i in range(int(index_list[0]), int(index_list[1])):
                     search_content.append(ret[i])
                 search_content = ''.join(search_content)

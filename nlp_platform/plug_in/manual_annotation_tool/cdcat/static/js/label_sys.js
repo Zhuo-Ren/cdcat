@@ -25,17 +25,17 @@ labelTemplate = {
     "objlist": {
         "generateLabelObj_func": generateObjListLabelObj,
     },
-    "instance":{
-        "generateLabelObj_func": generateInstanceLabelObj
-    },
-    "instancelist":{
-        "generateLabelObj_func": function(labelDict){
-            return  $("<span>没实现</span>");
-        }
-    },
-    "nodelist": {
-        "generateLabelObj_func": generateNodeListLabelObj
-    }
+    // "instance":{
+    //     "generateLabelObj_func": generateInstanceLabelObj
+    // },
+    // "instancelist":{
+    //     "generateLabelObj_func": function(labelDict){
+    //         return  $("<span>没实现</span>");
+    //     }
+    // },
+    // "nodelist": {
+    //     "generateLabelObj_func": generateNodeListLabelObj
+    // }
 }
 
 /**
@@ -398,11 +398,14 @@ function generateObjListLabelObj(labelDict, labelValue)
                     {
                         // 如果是node
                         if(curItemId.slice(0, 2) == "n:"){
-                            let r = getNodeById(curItemId)
-                            let curItem = undefined
-                            if (r[0] == "success") {
-                                curItem = r[1];
+                            let curItem = undefined;
+                            {
+                                let r = getNodeById(curItemId);
+                                if (r[0] == "success") {
+                                    curItem = r[1];
+                                }
                             }
+
                             // nodeButton
                             let curItemObj = $("<button>" + curItem["text"] + "</button>");
                             // curItemObj.attr("index", String(itemIndex)); // 这属性有用吗，没用就不加
