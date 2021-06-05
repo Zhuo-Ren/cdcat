@@ -355,7 +355,7 @@ function PythonStyleToJsStyle(data){
                 let curLabelDict = labelSysDict["node"][curLabelIndex];
                 //generate label obj
                 let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
-                $(curLabelObj).attr("window", "node")
+//                $(curLabelObj).attr("window", "node")
                 $("#nodeInfo-selectedNode").append(curLabelObj);
                 //add event to label obj
                 // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
@@ -387,20 +387,11 @@ function PythonStyleToJsStyle(data){
                 // generate a new label obj based on new value
                 let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
-                labelObj.attr("window", "node");
+                //labelObj.attr("window", "node");
                 // replace the old label obj
-                // let cur_window = $("#instanceInfoWindow")
                 //$("labelInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
                 //$("div[name='labelInfo-" + curLabelConfig["key"] + "']").replaceWith(labelObj);
-                $("div[name='labelInfo-" + curLabelConfig["key"] + "'][window='node']").replaceWith(labelObj);
-
-//                if(curLabelConfig["key"] == "id"){
-//                    $($($("#nodeInfo-selectedNode").children())[1]).replaceWith(labelObj);
-//                }
-//                if(curLabelConfig["key"] == "type"){
-//                    $($($("#nodeInfo-selectedNode").children())[2]).replaceWith(labelObj);
-//
-//                }
+                $("#nodeInfo-selectedNode div[name='labelInfo-" + curLabelConfig["key"] + "']").replaceWith(labelObj);
             }
         }
 
@@ -790,7 +781,7 @@ function PythonStyleToJsStyle(data){
                 let curLabelDict = labelSysDict["instance"][curLabelIndex];
                 //generate label obj
                 let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
-                $(curLabelObj).attr("window", "instance");
+//                $(curLabelObj).attr("window", "instance");
                 $("#instanceInfo-selectedInstance").append(curLabelObj);
                 //add event to label obj
                 // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
@@ -841,21 +832,8 @@ function PythonStyleToJsStyle(data){
                 let curLabelTypeDict = labelTemplate[curLabelDict["value_type"]];
                 // generate a new label obj based on new value
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelDict, newValue);
-                $(labelObj).attr("window", "instance");
-
                 // replace the old label obj
-                $("div[name='labelInfo-" + curLabelDict["key"] + "'][window='instance']").replaceWith(labelObj);
-//                if(curLabelDict["key"] == "id"){
-//                    $($($("#instanceInfo-selectedInstance").children())[1]).replaceWith(labelObj);
-//                    //$("div[name='labelInfo-id']").replaceWith(labelObj);
-//                }
-//                if(curLabelDict["key"] == "desc"){
-//                    $($($("#instanceInfo-selectedInstance").children())[2]).replaceWith(labelObj);
-//                }
-//                if(curLabelDict["key"] == "type"){
-//                    $($($("#instanceInfo-selectedInstance").children())[3]).replaceWith(labelObj);
-//
-//                }
+                $("#instanceInfo-selectedInstance div[name='labelInfo-" + curLabelDict["key"] + "']").replaceWith(labelObj);
             }
         }
 
