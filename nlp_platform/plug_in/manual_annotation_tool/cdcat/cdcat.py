@@ -85,7 +85,7 @@ def cdcat(corpus: Corpus) -> None:
         return jsonify(text_unit_list)
 
     @app.route('/getCatalogue', methods=["POST"])
-    def getCatalogue(): # 把注释写到这里
+    def getCatalogue():
         """
         return the catalogue of the corpus.
 
@@ -142,7 +142,6 @@ def cdcat(corpus: Corpus) -> None:
         # 获取目录结构
         content = walk_to_file(corpus.raw)
         # 返回目录结构
-
         return jsonify(content)
 
     @app.route('/getGroup', methods=["POST"])
@@ -274,7 +273,7 @@ def cdcat(corpus: Corpus) -> None:
         logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
         # create new node
         try:
-            new_node: NodeTree = corpus.np.add_parent({}, children_node_list)
+            new_node = corpus.np.add_parent({}, children_node_list)
         except RuntimeError:
             logging.debug("addNode<-Error：" + "can not create the new node.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
@@ -312,9 +311,7 @@ def cdcat(corpus: Corpus) -> None:
             node = corpus.np.is_annotated(node_id)
         # return(success)
         if node is not None:
-            # logging.debug("getNode--：get the input node:" + node.text())
             anno_info = node.to_info()
-            # anno_info["position"] = node.position(output_type="string")
             logging.debug("getNode<-：" + str(["success", anno_info]))
             return jsonify(["success", anno_info])
         # return(failed)
@@ -347,7 +344,6 @@ def cdcat(corpus: Corpus) -> None:
                                 label_config["key"] = label_key
                                 label_config["PRELIMINARY_CODE"] = node.config["PRELIMINARY_CODE"]
                                 node[label_key] = label_types[label_config["type"]](config=label_config, owner=node)
-
                     cur_label = node[cur_label_key]
                     cur_label.ajax_process(cur_label_ajax_parm)
             logging.debug("setNode<-：" + str(["success", node.to_info()]))
@@ -398,9 +394,6 @@ def cdcat(corpus: Corpus) -> None:
             logging.debug("setInstance<-：", str(["failed", "no such instance."]))
             return jsonify(["failed", "no such instance."])
         elif isinstance(instance, Instance):
-            # # 对固定标签desc
-            # if "desc" in request.form:
-            #     instance["desc"] = request.form.get("desc")
             # 对每一个定制标签
             cur_labels = instance.keys()
             for cur_label_key in instance.config["LABELS"].keys():
@@ -424,65 +417,6 @@ def cdcat(corpus: Corpus) -> None:
 
             logging.debug("setInstance<-：" + str(["success", instance.to_info()]))
             return jsonify(["success", instance.to_info()])
-
-        # # 获取参数
-        # id = int(request.form.get("id"))
-        # desc = request.form.get("desc")
-        # kg = request.form.get("kg")
-        # mention_list_action = request.form.get("mention_list[action]")
-        # #
-        # instance = corpus.ip.get_instance(id=id)[0]
-        # logging.debug("setInstance->：id=" + str(id) + "：" + instance["desc"])
-        # #
-        # if desc:
-        #     logging.debug("getInstance->：desc=" + desc)
-        #     instance["desc"] = desc
-        # if kg:
-        #     logging.debug("getInstance->：kg=" + kg)
-        #     instance["kg"] = kg
-        # if mention_list_action:
-        #     if mention_list_action == 'del mention':
-        #         # edit instance
-        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-        #         mention_index = int(request.form.get('mention_list[mention_index]'))
-        #         deletedNode = instance["mention_list"][mention_list_index][mention_index]
-        #         del instance["mention_list"][mention_list_index][mention_index]
-        #         # if instance["mention_list"][mention_list_index] == []:  # 删除空mentionList
-        #         #     if len(instance["mention_list"]) > 1:  # 如果空mentionList是最后一个mentionList，就不删
-        #         #         del instance["mention_list"][mention_list_index]
-        #         # edit node
-        #         deletedNode.del_label("instance")
-        #     elif mention_list_action == 'append mention':
-        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-        #         cur_node_position = request.form.get('mention_list[new_node_position]')
-        #         cur_node_position = root_node.str_to_position(cur_node_position)
-        #         cur_node = root_node[cur_node_position]
-        #         new_instance = instance
-        #         # 操作合理性检测（node原来的instance是否和新instance一致）
-        #         if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-        #             old_instance = cur_node.get_label()["instance"]
-        #             if old_instance == new_instance:
-        #                 return jsonify(
-        #                     "can not build a reference relation between cur node and cur instance, because is already existing.")
-        #         # edit new instance
-        #         instance["mention_list"][mention_list_index].append(cur_node)
-        #         # edit old instance
-        #         if "instance" in cur_node.get_label():  # 如果node的instance标签原先有值，那么还要修改这个instance的mentionList
-        #             old_instance = cur_node.get_label()["instance"]
-        #             mentionLists = old_instance["mention_list"]
-        #             for mentionList in mentionLists:
-        #                 if cur_node in mentionList:
-        #                     mentionList.remove(cur_node)
-        #             old_instance["mention_list"] = mentionLists
-        #         # edit node
-        #         cur_node.add_label({'instance': instance})
-        #     elif mention_list_action == 'del mentionList':
-        #         mention_list_index = int(request.form.get('mention_list[mention_list_index]'))
-        #         del instance["mention_list"][mention_list_index]
-        #     elif mention_list_action == 'append mentionList':
-        #         instance["mention_list"].append([])
-        # logging.debug("setInstance<-：(success)")
-        # return jsonify("success")
 
     @app.route('/delInstance', methods=["POST"])
     def delInstance():

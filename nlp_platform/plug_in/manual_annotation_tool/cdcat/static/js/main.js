@@ -76,7 +76,6 @@ function PythonStyleToJsStyle(data){
                 }
                 if (isLeaf) {
                     // 当前是叶子节点（文件）
-                    //curSpan.html(index + ": " + contentArray[1]);
                     curSpan.html(contentArray[1]);
                     curSpan.addClass("file");
                     // 为目录添加单击事件
@@ -355,13 +354,7 @@ function PythonStyleToJsStyle(data){
                 let curLabelDict = labelSysDict["node"][curLabelIndex];
                 //generate label obj
                 let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
-//                $(curLabelObj).attr("window", "node")
                 $("#nodeInfo-selectedNode").append(curLabelObj);
-                //add event to label obj
-                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
-                //add updateValueFunc to label (in labelSysDict)
-                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
-                // labelSysDict["node"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
             }
         }
 
@@ -387,10 +380,7 @@ function PythonStyleToJsStyle(data){
                 // generate a new label obj based on new value
                 let curLabelTypeDict = labelTemplate[curLabelConfig["value_type"]];
                 let labelObj = curLabelTypeDict["generateLabelObj_func"](curLabelConfig, newValue);
-                //labelObj.attr("window", "node");
                 // replace the old label obj
-                //$("labelInfo-" + curLabelConfig["key"]).replaceWith(labelObj);
-                //$("div[name='labelInfo-" + curLabelConfig["key"] + "']").replaceWith(labelObj);
                 $("#nodeInfo-selectedNode div[name='labelInfo-" + curLabelConfig["key"] + "']").replaceWith(labelObj);
             }
         }
@@ -781,44 +771,11 @@ function PythonStyleToJsStyle(data){
                 let curLabelDict = labelSysDict["instance"][curLabelIndex];
                 //generate label obj
                 let curLabelObj = labelTemplate[curLabelDict["value_type"]]["generateLabelObj_func"](curLabelDict);
-//                $(curLabelObj).attr("window", "instance");
                 $("#instanceInfo-selectedInstance").append(curLabelObj);
-                //add event to label obj
-                // labelTemplate[curLabelDict["value_type"]]["addEvent_func"](curLabelDict);
-                //add updateValueFunc to label (in labelSysDict)
-                // curLabelUpdateValueFunc = labelTemplate[curLabelDict["value_type"]]["addUpdateValueFunc_func"](curLabelDict);
-                // labelSysDict["instance"][curLabelIndex]["updateValueFunc"] = curLabelUpdateValueFunc;
             }
         }
 
         function instanceInfoWindow_updateInstanceInfo(instanceInfo) {
-            // $("#idValue").text(data["id"]);
-            // $("#descValue").val(data["desc"]);
-            // if(data["kg"] !== undefined){
-            //     $("#kgValue").val(data["kg"])
-            // }
-            // var mentionListsValue = $("#mentionListsValue");
-            // mentionListsValue.empty();
-            // for(var i=0; i<data["mention_list"].length; i++){
-            //     var curMention = data["mention_list"][i];
-            //     var curMentionLine = $("<div class='instanceMentionDiv'></div>");
-            //     curMentionLine.append($("<span>[</span>"));
-            //     for (var j=0; j<curMention.length; j++){
-            //         var curPart = curMention[j];
-            //         curMentionLine.append($(
-            //             "<button" +
-            //                 " name=\"" + curPart["position"]+ "\"" +
-            //             ">" +
-            //                 curPart["text"] +
-            //             "</button>"
-            //         ));
-            //     }
-            //     curMentionLine.append($("<button class='instance_extentMentionList_button' name=" + (i).toString() +">→</button>"));
-            //     curMentionLine.append($("<span>]</span>"));
-            //     mentionListsValue.append(curMentionLine)
-            // }
-            // mentionListsValue.append($("<button id='instance_addMentionList_button'>+</button>"));
-
             // update labels
             for (let curLabelIndex = 0; curLabelIndex < labelSysDict["instance"].length; curLabelIndex++) {
                 // get the label data ready
@@ -1102,7 +1059,6 @@ function PythonStyleToJsStyle(data){
          * flask interface. Given the position of a node, request the info of the node.
          *
          * @param nodeId {string} Id string of the node.
-         * @param callback {function} The call back function.
          *   The return value *data* of the POST request is given as the first param of the call back function.
          */
         function getNodeById(nodeId) {
@@ -1277,23 +1233,18 @@ function PythonStyleToJsStyle(data){
     // textWindow: 选中一段文本
     function textMouseup() {
         let slotNum = $(".slot").length
-//        console.log(slotNum)
-//        console.log(SelectedElementIndexList)
         // just select a mention
         if (slotNum == 0) {
-            // 清除上次的选区效果
+            // 清除上次的东西
             if (SelectedElementIndexList !== undefined) {
+                // 清除上次的选区效果
                 let selectedElementsBefore = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
                 for (let i = 0; i < selectedElementsBefore.length; i++) {
                     selectedElementsBefore[i][0].style = "color: black";
                 }
-                //清除上次的推荐内容
-                //这个地方需要优化，清除后就不可再次加入了
-//                $("#rcmWindowOutput").html("")
+                // 清除上次推荐的instances
                 $("#rcmWindowOutput").empty();
                 $("#best_rcmWindowOutput").empty();
-//                $("#rcmWindowOutput").stopPropagation();
-
             }
             // 获取这次的选区，并更新全局变量
             SelectedElementIndexList = majorTextWindow_getSelectedIndexFromGui();
@@ -1308,13 +1259,12 @@ function PythonStyleToJsStyle(data){
                 // 选中效果
                 majorTextWindow_hightlightElement(selectedElementsNow);
                 // 请求注释信息，并显示
-//                console.log(selectedElementsNow[0].attr("id"))
-//                console.log(selectedElementsNow[1].attr("id"))
                 let r = getNodeByChildren(
                     selectedElementsNow[0].attr("id"),
                     selectedElementsNow[selectedElementsNow.length - 1].attr("id"),
                     $("#textTab1").attr("name")
                 );
+                // 基于选中内容推荐instances
                 let w =$(".instances_li")
                 let index_list = []
                 let find_element_list = []
@@ -1333,7 +1283,6 @@ function PythonStyleToJsStyle(data){
                     desc_complex_list[i] = find_element_list[i][1]["mentions"]
                     desc_simple_list[i] = find_element_list[i][1]["desc"]
                 }
-                //console.log(desc_complex_list)
                 for(i=0; i<desc_complex_list.length; i++)
                 {
                     if(desc_complex_list[i].length != 1){
@@ -1349,7 +1298,6 @@ function PythonStyleToJsStyle(data){
                         text_pool[i] = desc_complex_list[i][0].toString();
                         str_text_pool[i] = text_pool[i];
                     }
-//                        console.log(str_text_pool[i])
                 }
                 // 区分是否为标注对象
                 if (r[0] != "success") {
@@ -1365,12 +1313,10 @@ function PythonStyleToJsStyle(data){
                     for(i=0; i<str_text_pool.length; i++)
                     {
                         if((str_text_pool[i].match(mark_merge_list))&&(desc_simple_list[i] != mark_merge_list)){
-                            //$("#rcmWindowOutput").append(w[i]);
                             let q = $(w[i]).clone(true);
                             $("#rcmWindowOutput").append(q);
                          }
                          else if(desc_simple_list[i] == mark_merge_list){
-                            //$("#best_rcmWindowOutput").append(w[i]);
                             let q = $(w[i]).clone(true);
                             $("#best_rcmWindowOutput").append(q);
                          }
@@ -1378,11 +1324,8 @@ function PythonStyleToJsStyle(data){
                 }
                 else {
                     //节点存在的情况下，以下功能已实现
-//                    console.log(r[1])
                     nodeInfoWindow_updateNodeInfo(r[1]);
-
                     nodeInfoWindow_showNodeInfo();
-                    //console.log(r[1]["text"]);
                     for(i=0; i<str_text_pool.length; i++)
                     {
                         if((str_text_pool[i].match(r[1]["text"]))&&(desc_simple_list[i] != r[1]["text"])){
