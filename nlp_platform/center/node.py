@@ -79,8 +79,11 @@ class Node(dict):
                 raise TypeError
         self._pool = value
 
-    def to_info(self):
+    def to_info(self, text=False):
         r = {}
         for label_key in self:
-            r.update(self[label_key].to_info())
+            if label_key is not "text":
+                r.update(self[label_key].to_info())
+        if text:
+            r.update({"text": self.text})
         return r

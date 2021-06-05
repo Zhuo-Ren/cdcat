@@ -311,7 +311,7 @@ def cdcat(corpus: Corpus) -> None:
             node = corpus.np.is_annotated(node_id)
         # return(success)
         if node is not None:
-            anno_info = node.to_info()
+            anno_info = node.to_info(text=True)
             logging.debug("getNode<-：" + str(["success", anno_info]))
             return jsonify(["success", anno_info])
         # return(failed)

@@ -126,6 +126,9 @@ labelTemplate = {
             // });
         }
     },
+    "objlist": {
+        "generateLabelObj_func": generateObjListLabelObj,
+    },
     "instance":{
         "generateLabelObj_func": generateInstanceLabelObj,
         // function(labelDict){
@@ -740,6 +743,151 @@ function generateTextInputLabelObj(labelDict, labelValue){
     }
     // return
     return labelObj
+}
+
+function generateObjListLabelObj(labelDict, labelValue)
+{
+    /* 输入类似于：
+    labelDict =  { GUI_name: "refer: ", key: "refer", value_type: "objlist" }
+    labelValue = [ "i:2021060515413405139" ]
+    或
+    labelDict =  { GUI_name: "mention_list: ", key: "mentions", value_type: "objlist" }
+    labelValue = [ "i:2021060515413405139" ]
+     */
+    let labelObj = $(" <div name='labelInfo-" + labelDict["key"] + "'></div>");
+    labelObj.css("padding-left","10px");
+    // <keyObj>
+        let keyObj = $("<span id='" + labelDict["key"] + "Key'>" + labelDict["GUI_name"] + "</span>");
+        labelObj.append(keyObj);
+    // <valueObj>
+        let valueObj = $("<span id='" + labelDict["key"] + "Value'></span>");
+        labelObj.append(valueObj);
+        // 如果nodeList标签的值是空，那么改成[]。这样才能显示操作按钮。
+        // 不用担心这里改了以后和后台数据不一致，因为nodeListLabel的value_empty就是[]。
+        if ((labelValue == undefined)||(labelValue == null)){
+            labelValue = [];
+        }
+        //
+        if (labelValue){
+            // 左中括号
+            valueObj.append($("<span>[</span>"));
+            // 中间的东西
+            {
+                let insideObj = $("<div></div>");
+                insideObj.css("padding-left","10px");
+                for (let itemIndex = 0; itemIndex<labelValue.length; itemIndex++){
+                    //
+                    let curItemId = labelValue[itemIndex];
+                    // curItemObj
+                    {
+                        // 如果是node
+                        if(curItemId.slice(0, 2) == "n:"){
+                            let r = getNodeById(curItemId)
+                            let curItem = undefined
+                            if (r[0] == "success") {
+                                curItem = r[1];
+                            }
+                            // nodeButton
+                            let curItemObj = $("<button>" + curItem["text"] + "</button>");
+                            // curItemObj.attr("index", String(itemIndex)); // 这属性有用吗，没用就不加
+                            insideObj.append(curItemObj);
+
+                        }
+                        // 如果是instance
+                        else if(curItemId.slice(0, 2) == "i:"){
+                            // instanceButtonObj <button>
+                                let curItemObj = $("<button class='instance' name=''></button>");
+                                valueObj.append(curItemObj);
+                                // display the label value
+                                    let inputText = undefined;
+                                    let instanceId = undefined;
+                                    // if given a value, display the value
+                                    if (labelValue != undefined) {
+                                        if (labelValue["desc"]==""){
+                                            inputText = '　';
+                                        }else{
+                                            inputText =  labelValue["desc"];
+                                        }
+                                        instanceId = labelValue["id"];
+                                    }
+                                    // if no value given
+                                    else{
+                                        inputText = '　';
+                                        instanceId = ""
+                                    }
+                                    // // if no value given, display the default value
+                                    // else if (labelDict["value_default"] != undefined){
+                                    //     if (labelDict["value_default"]["desc"]==""){
+                                    //         inputText = '　';
+                                    //     }else{
+                                    //         inputText = labelDict["value_default"]["desc"];
+                                    //     }
+                                    //     instanceId = labelDict["value_default"]["id"];
+                                    // }
+                                    // // if no given value and no default value
+                                    // else{
+                                    //     inputText = '　';
+                                    //     instanceId = "";
+                                    // }
+                                    curItemObj.text(inputText);
+                                    curItemObj.attr("name", instanceId);
+                                // add click event
+                                    curItemObj.click(function(e){
+                                        let instanceIdStr = this.name;
+                                        if (instanceIdStr == ""){
+                                            alert(langDict["Can not view the info of this instance, because it is a empty instance."]);
+                                        }else{
+                                            let instanceInfo = getInstanceById(instanceIdStr);
+                                            instanceInfoWindow_showInstanceInfo();
+                                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                                            instanceSelectWindow_updateOneInstance(instanceInfo);
+                                        }
+                                    });
+                            // delInstanceButtonObj <button>
+                                let delInstanceButtonObj = $("<button class='circleButton'>x</button>");
+                                valueObj.append(delInstanceButtonObj);
+                                // add click event
+                                    delInstanceButtonObj.click(function(){
+                                        // prepare ajax data
+                                        let curNodePosition = undefined;
+                                        let newValueDict = undefined;
+                                        if (delInstanceButtonObj.prev().attr("name") == ""){
+                                            alert(langDict["Can not delete this value, because this value is already empty."]);
+                                        }else {
+                                            // 准备数据
+                                            curNodePosition = $("#positionValue").text();
+                                            newValueDict = {
+                                                [labelDict["key"]]: ""
+                                            }
+                                        }
+                                        // ajax
+                                        let r = setNode(curNodePosition,newValueDict);
+                                        // GUI update
+                                        if (r[0] != "success"){
+                                            alert(langDict[r[1]]);
+                                            return;
+                                        }else{
+                                            // refresh nodeInfoWindow
+                                            nodeInfoWindow_refresh();
+                                            // refresh instanceInfoWindow
+                                            instanceInfoWindow_refresh();
+                                        }
+                                    });
+                            insideObj.append(curItemObj);
+                        }
+                    }
+                    // delItemButton
+                    console.log("为完成");
+                }
+                //
+                valueObj.append(insideObj);
+            }
+            // 右中括号
+            valueObj.append($("<span>]</span>"));
+            // [+]按钮
+        }
+    return labelObj
+
 }
 
 /**
