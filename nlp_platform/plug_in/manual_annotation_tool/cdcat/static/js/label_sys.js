@@ -611,7 +611,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                     if ($("#instanceInfo-selectedInstance").css("display") == "block") {
                         curInstanceId = $("#instanceInfo-selectedInstance #idValue").text();
                     }else{
-                        alert(langDict["can not build a reference relation between cur node and cur instance, because no instance are selected."]);
+                        alert(langDict["Can not add current instance, because no instance is selected."]);
                         return;
                     }
                     let newValueDict = {
@@ -693,6 +693,125 @@ function generateObjListLabelObj(labelDict, labelValue){
                         // 去特效
                         document.body.style.cursor = "";
                         addInstanceBySelectButtonObj.css("background", "white");
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                };
+            }
+            // addNodeByCurNode按钮
+            {
+                let addNodeByCurNodeButtonObj = $("<button id='" + labelDict["key"] + "CI\' class='circleButton' style='background-color: lightcyan;'>c</button>");
+                valueObj.append(addNodeByCurNodeButtonObj);
+                // add click event
+                addNodeByCurNodeButtonObj.click(function(){
+                    // 获取这个标签的owner是node还是instance
+                    let ownerType = undefined;
+                    if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                        ownerType = "node"
+                    }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                        ownerType = "instance"
+                    }else{
+                        // 报错
+                    }
+                    // prepare ajax data
+                    let curId = undefined;
+                    if (ownerType == "node"){
+                        curId = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text()
+                    } else if (ownerType == "instance"){
+                        curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
+                    }
+                    let curNodeId = undefined;
+                    if ($("#nodeInfo-selectedNode").css("display") == "block") {
+                        curNodeId = $("#nodeInfo-selectedNode #idValue").text();
+                    }else{
+                        alert(langDict["Can not add current node, because no node is selected."]);
+                        return;
+                    }
+                    let newValueDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "add",
+                            "targetObjId": curNodeId,
+                        })
+                    };
+                    // ajax
+                    let r = undefined;
+                    if (ownerType == "node"){
+                        r = setNode(curId,newValueDict);
+                    }else if (ownerType == "instance"){
+                        r = setInstance(curId,newValueDict);
+                    }
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        // refresh nodeInfoWindow
+                        nodeInfoWindow_refresh();
+                        // refresh instanceInfoWindow
+                        instanceInfoWindow_refresh();
+                    }
+                });
+            }
+            // addNodeBySelect按钮
+            {
+                let addNodeBySelectButtonObj = $("<button class='circleButton' style='background-color: lightcyan;'>☞</button>");
+                valueObj.append(addNodeBySelectButtonObj);
+                addNodeBySelectButtonObj.click(function(){
+                    if ($(".slot").length == 0){
+                        addNodeBySelectButtonObj.addClass("slot");
+                        // 上特效
+                        document.body.style.cursor = "help";
+                        addNodeBySelectButtonObj.css("background", "red");
+                    }
+                });
+                // add fill slot function
+                addNodeBySelectButtonObj[0].fillSlot = function(selectedNodePosition){
+                    // 获取这个标签的owner是node还是instance
+                    let ownerType = undefined;
+                    if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                        ownerType = "node"
+                    }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                        ownerType = "instance"
+                    }else{
+                        // 报错
+                    }
+                    // prepare ajax data
+                    let curId = undefined;
+                    if (ownerType == "node"){
+                        curId = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text()
+                    } else if (ownerType == "instance"){
+                        curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
+                    }
+                    let targetObjIndex = [];
+                    let cur_obj = $(this);
+                    while (cur_obj.parent().parent().attr("index") != undefined){
+                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
+                        cur_obj = cur_obj.parent().parent();
+                    }
+                    let newValueDict = {
+                        [labelDict["key"]]: JSON.stringify({
+                            "action": "add",
+                            "targetObjId": targetObjIndex,
+                        })
+                    };
+                    // ajax
+                    let r = undefined;
+                    if (ownerType == "node"){
+                        r = setNode(curId,newValueDict);
+                    }else if (ownerType == "instance"){
+                        r = setInstance(curId,newValueDict);
+                    }
+                    // GUI update
+                    if (r[0] != "success"){
+                        alert(langDict[r[1]]);
+                        return;
+                    }else{
+                        addNodeBySelectButtonObj.removeClass("slot");
+                        // 去特效
+                        document.body.style.cursor = "";
+                        addNodeBySelectButtonObj.css("background", "white");
                         // refresh nodeInfoWindow
                         nodeInfoWindow_refresh();
                         // refresh instanceInfoWindow

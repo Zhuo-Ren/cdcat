@@ -21,5 +21,7 @@
     "can not find node based on given position.": "在所示路径下未找到节点。",
     "can not append a obj which already in label value.": "不能添加对象，因为此对象已经存在于此标签中了。",
     "no such node.": "无此节点。",
-    "Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance.": "不能删除这个实例按钮，因为这是此实例的最后一个按钮。如果要删除实例，则应该使用实例信息窗口中的删除按钮。"
+    "Can not delete this instance button, because this is the last button of this instance. You must use the delKey in instanceInfoWindow to delete a instance.": "不能删除这个实例按钮，因为这是此实例的最后一个按钮。如果要删除实例，则应该使用实例信息窗口中的删除按钮。",
+    "Can not add current node, because no node is selected.": "不能添加当前节点，因为当前没有选中节点。",
+    "Can not add current instance, because no instance is selected.": "不能添加当前实例，因为当前没有选中实例。"
 }
