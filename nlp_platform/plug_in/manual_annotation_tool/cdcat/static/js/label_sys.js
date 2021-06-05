@@ -396,15 +396,35 @@ function generateObjListLabelObj(labelDict, labelValue){
                             }
                             // nodeButtonObj <button>
                             {
-                                let curItemObj = $("<button class='node' name='' style='background-color: lightcyan;'>" + curItem["text"] + "</button>");
+                                let curItemObj = $("<button class='node' name='' style='background-color: lightcyan;'></button>");
                                 insideObj.append(curItemObj);
                                 // display the label value
-
+                                    let inputText = undefined;
+                                    let nodeId = undefined;
+                                    {
+                                        // if given a value, display the value
+                                        if (curItem != undefined) {
+                                            if (curItem["text"]==""){
+                                                inputText = '　';
+                                            }else{
+                                                inputText =  curItem["text"];
+                                            }
+                                            nodeId = curItem["id"];
+                                        }
+                                        // if no value given
+                                        else{
+                                            inputText = '　';
+                                            nodeId = ""
+                                        }
+                                    }
+                                    curItemObj.text(inputText);
+                                    curItemObj.attr("name", nodeId);
                                 // add click event
+                                /* 没有 */
                             }
                             // delNodeButtonObj <button>
                             {
-                                let delNodeButtonObj = $("<button class='circleButton' style='background-color: lightcyan;'>x</button>");
+                                let delNodeButtonObj = $("<button class='circleButton'>x</button>");
                                 insideObj.append(delNodeButtonObj);
                                 // add click event
                                     delNodeButtonObj.click(function(){
@@ -432,7 +452,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             newValueDict = {
                                                 [labelDict["key"]]: JSON.stringify({
                                                     "action": "del",
-                                                    "targetObjId": delInstanceButtonObj.prev().attr("name"),
+                                                    "targetObjId": delNodeButtonObj.prev().attr("name"),
                                                 })
                                             }
                                         }

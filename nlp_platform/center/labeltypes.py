@@ -376,10 +376,12 @@ class RelationLabel(Label):
         ajax_param = eval(ajax_param)
         if ajax_param["action"] == "del":
             print(ajax_param["targetObjId"])
-            return ["success"]
+            return None
         elif ajax_param["action"] == "add":
             print(ajax_param["targetObjId"])
-            return ["success"]
+            return None
+        else:
+            return "错误原因"
 
 
 label_types = {
