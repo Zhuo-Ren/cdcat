@@ -350,8 +350,7 @@ function generateTextInputLabelObj(labelDict, labelValue){
     return labelObj
 }
 
-function generateObjListLabelObj(labelDict, labelValue)
-{
+function generateObjListLabelObj(labelDict, labelValue){
     /* 输入类似于：
     labelDict =  { GUI_name: "refer: ", key: "refer", value_type: "objlist" }
     labelValue = [ "i:2021060515413405139" ]
@@ -385,8 +384,9 @@ function generateObjListLabelObj(labelDict, labelValue)
                     let curItemId = labelValue[itemIndex];
                     // curItemObj
                     {
-                        // 如果是node
+                        // 如果要添加的item是node
                         if(curItemId.slice(0, 2) == "n:"){
+                            // 获取Item信息
                             let curItem = undefined;
                             {
                                 let r = getNodeById(curItemId);
@@ -394,13 +394,71 @@ function generateObjListLabelObj(labelDict, labelValue)
                                     curItem = r[1];
                                 }
                             }
-                            // nodeButton
-                            let curItemObj = $("<button>" + curItem["text"] + "</button>");
-                            insideObj.append(curItemObj);
+                            // nodeButtonObj <button>
+                            {
+                                let curItemObj = $("<button class='node' name='' style='background-color: lightcyan;'>" + curItem["text"] + "</button>");
+                                insideObj.append(curItemObj);
+                                // display the label value
+
+                                // add click event
+                            }
+                            // delNodeButtonObj <button>
+                            {
+                                let delNodeButtonObj = $("<button class='circleButton' style='background-color: lightcyan;'>x</button>");
+                                insideObj.append(delNodeButtonObj);
+                                // add click event
+                                    delNodeButtonObj.click(function(){
+                                        // 获取这个标签的owner是node还是instance
+                                        let ownerType = undefined;
+                                        if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
+                                            ownerType = "node"
+                                        }else if($.contains( $("#instanceInfo-selectedInstance")[0], $(this)[0])){
+                                            ownerType = "instance"
+                                        }else{
+                                            // 报错
+                                        }
+                                        // prepare ajax data
+                                        let curId = undefined;
+                                        let newValueDict = undefined;
+                                        if (delNodeButtonObj.prev().attr("name") == ""){
+                                            alert(langDict["Can not delete this value, because this value is already empty."]);
+                                        }else {
+                                            // 准备数据
+                                            if (ownerType == "node"){
+                                                curId = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text()
+                                            } else if (ownerType == "instance"){
+                                                curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
+                                            }
+                                            newValueDict = {
+                                                [labelDict["key"]]: JSON.stringify({
+                                                    "action": "del",
+                                                    "targetObjId": delInstanceButtonObj.prev().attr("name"),
+                                                })
+                                            }
+                                        }
+                                        // ajax
+                                        let r = undefined;
+                                        if (ownerType == "node"){
+                                            r = setNode(curId,newValueDict);
+                                        }else if (ownerType == "instance"){
+                                            r = setInstance(curId,newValueDict);
+                                        }
+                                        // GUI update
+                                        if (r[0] != "success"){
+                                            alert(langDict[r[1]]);
+                                            return;
+                                        }else{
+                                            // refresh nodeInfoWindow
+                                            nodeInfoWindow_refresh();
+                                            // refresh instanceInfoWindow
+                                            instanceInfoWindow_refresh();
+                                        }
+                                    });
+                            }
                         }
-                        // 如果是instance
+                        // 如果要添加的item是instance
                         else if(curItemId.slice(0, 2) == "i:"){
-                            // 获取instance信息
+                            // 获取Item信息
                             let curItem = undefined;
                             {
                                 let r = getInstanceById(curItemId);
