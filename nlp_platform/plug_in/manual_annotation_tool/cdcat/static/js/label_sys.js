@@ -25,17 +25,6 @@ labelTemplate = {
     "objlist": {
         "generateLabelObj_func": generateObjListLabelObj,
     },
-    // "instance":{
-    //     "generateLabelObj_func": generateInstanceLabelObj
-    // },
-    // "instancelist":{
-    //     "generateLabelObj_func": function(labelDict){
-    //         return  $("<span>没实现</span>");
-    //     }
-    // },
-    // "nodelist": {
-    //     "generateLabelObj_func": generateNodeListLabelObj
-    // }
 }
 
 /**

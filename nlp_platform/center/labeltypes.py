@@ -373,8 +373,14 @@ class RelationLabel(Label):
             delete( because null and undefined in js convert into "" in python).
         :return: True if process is success, a string describe the error if process is failed
         """
+        ajax_param = eval(ajax_param)
         if ajax_param["action"] == "del":
             print(ajax_param["targetObjId"])
+            return ["success"]
+        elif ajax_param["action"] == "add":
+            print(ajax_param["targetObjId"])
+            return ["success"]
+
 
 label_types = {
     "SimpleLabel": SimpleLabel,
