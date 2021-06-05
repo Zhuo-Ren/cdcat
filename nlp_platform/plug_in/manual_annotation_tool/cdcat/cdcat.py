@@ -16,23 +16,23 @@ def cdcat(corpus: Corpus) -> None:
     :param node_pool: nodes info in the form of *center.ntree*.
     :param instance_pool: instances info in the form of *center.instances*.
     """
-    # 1. app init
+    # app init
     app = Flask(__name__)
     from datetime import timedelta
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
 
-    # 2. load config files
-    # 2.1 load config.py
-    # 2.2 load config_label.json
+    # load config_cdcat_label.json
     import json
     import sys
     import os
-    cur_file_path = os.path.abspath(__file__)
+    cur_file_path = os.path.abspath(sys.argv[0])
     cur_folder_path = os.path.dirname(cur_file_path)
-    config_label_file_path = os.path.join(cur_folder_path, "config_label.json")
+    config_label_file_path = os.path.join(cur_folder_path, "config_cdcat_label.json")
     with open(config_label_file_path, 'r', encoding='utf8') as f:
         config_label = json.load(f)
-    # 2.3 load config_lang.json
+    # load config_lang.json
+    cur_file_path = os.path.abspath(__file__)
+    cur_folder_path = os.path.dirname(cur_file_path)
     config_lang_file_path = os.path.join(cur_folder_path, "config_lang.json")
     with open(config_lang_file_path, 'r', encoding='utf8') as f:
         config_lang = json.load(f)
