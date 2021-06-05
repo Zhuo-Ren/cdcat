@@ -570,12 +570,7 @@ function generateMenuOneLabelObj(labelDict, labelValue){
                 // prepare ajax data
                 var id = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text();
                 console.log(id)
-                //var value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-//                let select = $($($($($("#instanceInfo-selectedInstance").children())[3])).children()[1]).children()[0];
-                let select = $("#instanceInfo-selectedInstance div[name='labelInfo-type'] #typeValue select")
-                let options = select.options;
-                let index = select.selectedIndex;
-                let value = $(options[index]).attr("value");
+                let value = $("#instanceInfo-selectedInstance div[name='labelInfo-type'] #typeValue option:selected").attr("value")
                 console.log(value)
                 if (id == "XXXXX"){
                     return;
