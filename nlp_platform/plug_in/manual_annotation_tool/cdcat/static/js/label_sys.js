@@ -785,17 +785,10 @@ function generateObjListLabelObj(labelDict, labelValue){
                     } else if (ownerType == "instance"){
                         curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
                     }
-                    let targetObjIndex = [];
-                    if ($("#mentionsValue .node")){
-                        for (i = 0; $("#mentionsValue .node")[i] != undefined; i++) {
-                            targetObjIndex.push($("#mentionsValue .node")[i]["name"])
-                        }
-                    }
-                    targetObjIndex.push(selectedNodeId)
                     let newValueDict = {
                         [labelDict["key"]]: JSON.stringify({
                             "action": "add",
-                            "targetObjId": targetObjIndex,
+                            "targetObjId": selectedNodeId,
                         })
                     };
                     // ajax

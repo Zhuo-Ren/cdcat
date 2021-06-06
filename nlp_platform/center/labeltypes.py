@@ -272,13 +272,13 @@ class RelationLabel(Label):
                         elif self["index_self"] == "1":
                             r = t[None, self_id["value"]]
                     except KeyError:
-                        return None
+                        return []
                 # 无向图
                 else:
                     try:
                         r = t[self_id["value"]]
                     except KeyError:
-                        return None
+                        return []
             r_relations = r.to_dict()
 
             # 把relation转成对应的node或instance
@@ -309,55 +309,67 @@ class RelationLabel(Label):
                     #     other_obj = c.np[other_id]
                     #
                     r_obj_list.append(other_id)
-
+            #
             return r_obj_list
         else:
             return super().__getitem__(key)
 
     def __setitem__(self, key, value):
-        # value需要一个区分规则（因为n1["refer"]["value"] = "100"的时候，仅传了一个参数（出结点/入结点），但有时需要同时传入出结点/入结点+边值）。
-        # 关系图（出结点，入结点） = 边值 此时仅考虑了赋予出/入结点的情况
         if key == "value":
+            c = self["owner"].pool.corpus
+            t = c.tp[self["table_name"]]
+            self_id = self["owner"]["id"]["value"]
+
             if isinstance(value, str):
-                # 如果当前已经存在值，就把现有值对应的关系删了
-                pass
-                # print("这个功能没实现")
-                # 把关系加到表里
-                if "value_type_hint" in self:
-                    if not eval(self["value_type_hint"]):
-                        raise TypeError("Value of this label do not match the type hint.")
-                if "value_optional" in self:
-                    if value not in self["value_optional"]:
-                        raise TypeError("Value of this label do not match the options.")
-
-                c = self["owner"].pool.corpus
-                t = c.tp[self["table_name"]]
-                self_id = self["owner"]["id"]
-
-                # 获取对应的relations
-                if 1:
+                # 有向图
+                if "index_self" in self:
+                    try:
+                        if self["index_self"] == "0":
+                            if t.have((self_id, value)):
+                                pass
+                            else:
+                                t[self_id, value] = None
+                        elif self["index_self"] == "1":
+                            if t.have((value,self_id)):
+                                pass
+                            else:
+                                t[value, self_id] = None
+                    except KeyError:
+                        return None
+                # 无向图
+                else:
+                    try:
+                        t[self_id, value] = None
+                    except KeyError:
+                        return None
+            elif isinstance(value, list):
+                # 删除旧的
+                old_value = []
+                try:
+                    old_value = self["value"]
+                    if old_value == None:
+                        old_value = []
+                except:
+                    pass
+                for i in old_value:
                     # 有向图
                     if "index_self" in self:
                         try:
                             if self["index_self"] == "0":
-                                t[self_id["value"], value] = None
+                                del t[self_id, i]
                             elif self["index_self"] == "1":
-                                t[value, self_id["value"]] = None
+                                del t[i, self_id]
                         except KeyError:
                             return None
-
                     # 无向图
                     else:
                         try:
-                            # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
-                            t[self_id["value"], value] = None
+                            del t[self_id, i]
                         except KeyError:
                             return None
-
-            elif isinstance(value, list):
+                # 添加新的
                 for i in value:
                     self.__setitem__(key=key, value=i)
-
         else:
             super().__setitem__(key, value)
 
@@ -375,39 +387,54 @@ class RelationLabel(Label):
         """
         ajax_param = eval(ajax_param)
         if ajax_param["action"] == "del":
-            print(">>>删除", ajax_param["targetObjId"])
-            if ajax_param["targetObjId"] in self["value"]:
-                c = self["owner"].pool.corpus
-                t = c.tp[self["table_name"]]
-                self_id = self["owner"]["id"]
-
-                # 获取对应的relations
-                if 1:
-                    # 有向图
-                    if "index_self" in self:
-                        try:
-                            if self["index_self"] == "0":
-                                t.del_item((self_id["value"], ajax_param["targetObjId"]))
-                            elif self["index_self"] == "1":
-                                t.del_item((ajax_param["targetObjId"], self_id["value"]))
-                        except KeyError:
-                            return None
-
-                    # 无向图
-                    else:
-                        try:
-                            # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
-                            t.remove([self_id["value"], [ajax_param["targetObjId"]]])
-                        except KeyError:
-                            return None
-            return None
-
+            c = self["owner"].pool.corpus
+            t = c.tp[self["table_name"]]
+            self_id = self["owner"]["id"]
+            # 有向图
+            if "index_self" in self:
+                try:
+                    if self["index_self"] == "0":
+                        del t[(self_id["value"], ajax_param["targetObjId"])]
+                    elif self["index_self"] == "1":
+                        del t[(ajax_param["targetObjId"], self_id["value"])]
+                    return None
+                except KeyError:
+                    return "错误原因"
+            # 无向图
+            else:
+                try:
+                    del t[(self_id["value"], ajax_param["targetObjId"])]
+                    return None
+                except KeyError:
+                    return "错误原因"
         elif ajax_param["action"] == "add":
-            print(">>>添加", ajax_param["targetObjId"])
-            self["value"] = ajax_param["targetObjId"]
-            return None
+            #
+            c = self["owner"].pool.corpus
+            t = c.tp[self["table_name"]]
+            self_id = self["owner"]["id"]["value"]
+            # 有向图
+            if "index_self" in self:
+                try:
+                    if self["index_self"] == "0":
+                        if t.have((self_id, ajax_param["targetObjId"])):
+                            pass
+                        else:
+                            t[self_id, ajax_param["targetObjId"]] = None
+                    elif self["index_self"] == "1":
+                        if t.have((ajax_param["targetObjId"], self_id)):
+                            pass
+                        else:
+                            t[ajax_param["targetObjId"], self_id] = None
+                except Exception as e:
+                    return str(e)
+            # 无向图
+            else:
+                try:
+                    t[self_id, ajax_param["targetObjId"]] = None
+                except Exception as e:
+                    return str(e)
         else:
-            return "错误原因"
+            return "未知的action。"
 
 
 label_types = {

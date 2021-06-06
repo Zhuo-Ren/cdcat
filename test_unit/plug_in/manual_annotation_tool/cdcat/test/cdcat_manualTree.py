@@ -141,6 +141,8 @@ c.np.add(n15)
 n15["id"]["value"] = "n:text3.raw.txt:0-3"
 n15["type"]["value"] = "event"
 
+a = i3["mentions"]["value"]
+
 # annotation
 from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 cdcat(c)

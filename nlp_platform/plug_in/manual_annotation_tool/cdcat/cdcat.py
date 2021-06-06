@@ -345,7 +345,9 @@ def cdcat(corpus: Corpus) -> None:
                                 label_config["PRELIMINARY_CODE"] = node.config["PRELIMINARY_CODE"]
                                 node[label_key] = label_types[label_config["type"]](config=label_config, owner=node)
                     cur_label = node[cur_label_key]
-                    cur_label.ajax_process(cur_label_ajax_parm)
+                    r = cur_label.ajax_process(cur_label_ajax_parm)
+                    if r is not None:
+                        return jsonify(["failed", r])
             logging.debug("setNode<-：" + str(["success", node.to_info()]))
             return jsonify(["success", node.to_info()])
 

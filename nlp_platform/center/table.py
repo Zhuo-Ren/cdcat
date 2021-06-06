@@ -54,69 +54,7 @@ class DirectedRelationTable(object):  # 有向图
             raise TypeError
         #
         for key, value in content.items():
-            self.add_item(key, value)
-
-    def add_item(self, key, value):
-        # check: key
-        if not isinstance(key, tuple):
-            raise TypeError
-        if len(key) != 2:
-            raise TypeError
-        # check: relation repetition
-        """ This function is useless, because there can not be repetition in dict.
-        if self.have(key) > 0:
-            raise RuntimeError("This relation already exits.")
-        """
-        # check: in and out degree
-        if self.max_o_degree is not None:
-            if self.have((key[0], None)) >= self.max_o_degree:
-                raise RuntimeError("exceed the out degree limit.")
-        if self.max_i_degree is not None:
-            if self.have((None, key[1])) >= self.max_i_degree:
-                raise RuntimeError("exceed the in degree limit.")
-        # add cur item
-        self.center[key] = value
-        # update idx
-        try:
-            self.idx_o[key[0]][key[1]] = None
-        except KeyError:
-            self.idx_o[key[0]] = {}
-            self.idx_o[key[0]][key[1]] = None
-        try:
-            self.idx_i[key[1]][key[0]] = None
-        except KeyError:
-            self.idx_i[key[1]] = {}
-            self.idx_i[key[1]][key[0]] = None
-
-    def del_item(self, key):
-        # check: key
-        if not isinstance(key, tuple):
-            raise TypeError
-        if len(key) != 2:
-            raise TypeError
-
-        # del cur item
-        if key in self.center:
-            # 如果当前key已有 直接改
-            self.center.pop(key)
-        else:
-            pass
-
-        # update idx
-        try:
-            self.idx_o[key[0]].pop(key[1])
-            if len(self.idx_o[key[0]].keys()) == 0:
-                self.idx_o.pop(key[0])
-        except KeyError:
-            pass
-
-        try:
-            self.idx_i[key[1]].pop(key[0])
-            if len(self.idx_i[key[1]].keys()) == 0:
-                self.idx_i.pop(key[1])
-        except KeyError:
-            pass
-
+            self[key] = value
 
     def __getitem__(self, key):
         """
@@ -181,13 +119,53 @@ class DirectedRelationTable(object):  # 有向图
             raise TypeError
         if len(key) != 2:
             raise RuntimeError
-        #
-        if key in self.center:
-            # 如果当前key已有 直接改
+
+        # 如果key已存在，则仅仅修改value
+        if self.have(key=key):
             self.center[key] = value
+        # 如果key不存在，则添加key，还要更新索引
         else:
-            # 如果没有 创建
-            self.add_item(key, value)
+            # check: relation repetition
+            """ This function is useless, because there can not be repetition in dict.
+            if self.have(key) > 0:
+                raise RuntimeError("This relation already exits.")
+            """
+            # check: in and out degree
+            if self.max_o_degree is not None:
+                if self.have((key[0], None)) >= self.max_o_degree:
+                    raise RuntimeError("exceed the out degree limit.")
+            if self.max_i_degree is not None:
+                if self.have((None, key[1])) >= self.max_i_degree:
+                    raise RuntimeError("exceed the in degree limit.")
+            # add cur item
+            self.center[key] = value
+            # update idx
+            try:
+                self.idx_o[key[0]][key[1]] = None
+            except KeyError:
+                self.idx_o[key[0]] = {}
+                self.idx_o[key[0]][key[1]] = None
+            try:
+                self.idx_i[key[1]][key[0]] = None
+            except KeyError:
+                self.idx_i[key[1]] = {}
+                self.idx_i[key[1]][key[0]] = None
+
+    def __delitem__(self, key):
+        # key check
+        if not isinstance(key, tuple):
+            raise TypeError
+        if len(key) != 2:
+            raise RuntimeError
+        # 更新center
+        dict.__delitem__(self.center, key)
+        # 更新索引
+        del self.idx_o[key[0]][key[1]]
+        if len(self.idx_o[key[0]]) == 0:
+            del self.idx_o[key[0]]
+        del self.idx_i[key[1]][key[0]]
+        if len(self.idx_i[key[1]]) == 0:
+            del self.idx_i[key[1]]
 
     def have(self, key):
         """
@@ -314,37 +292,7 @@ class UndirectedRelationTable(object):  # 无向图
             raise TypeError
         #
         for key, value in content.items():
-            self.add_item(key, value)
-
-    def add_item(self, key, value):
-        # check: key
-        if not isinstance(key, tuple):
-            raise TypeError
-        if len(key) != 2:
-            raise TypeError
-        # check: relation repetition
-        if self.have(key) > 0:
-            raise RuntimeError("This relation already exits.")
-        # check: degree
-        if self.max_degree is not None:
-            if self.have((key[0])) >= self.max_degree:
-                raise RuntimeError("exceed the degree limit.")
-            if self.have((key[1])) >= self.max_degree:
-                raise RuntimeError("exceed the degree limit.")
-        # add cur item
-        self.center[key] = value
-        # update idx
-        try:
-            self.idx_a[key[0]][key[1]] = None
-        except KeyError:
-            self.idx_a[key[0]] = {}
-            self.idx_a[key[0]][key[1]] = None
-        try:
-            self.idx_b[key[1]][key[0]] = None
-        except KeyError:
-            self.idx_b[key[1]] = {}
-            self.idx_b[key[1]][key[0]] = None
-
+            self[key] = value
 
     def __getitem__(self, key):
         """
@@ -381,19 +329,26 @@ class UndirectedRelationTable(object):  # 无向图
                 raise RuntimeError('key with bad format.')
             elif a_node is not None and b_node is None:
                 r = {}
-                for b_node in self.idx_a[a_node]:
-                    r[(a_node, b_node)] = self.center[(a_node, b_node)]
+                #
+                if a_node in self.idx_a:
+                    for b_node in self.idx_a[a_node]:
+                        r[(a_node, b_node)] = self.center[(a_node, b_node)]
+                #
                 b_node = a_node
-                for a_node in self.idx_b[b_node]:
-                    r[(a_node, b_node)] = self.center[(a_node, b_node)]
+                if b_node in self.idx_b:
+                    for a_node in self.idx_b[b_node]:
+                        r[(a_node, b_node)] = self.center[(a_node, b_node)]
+                #
                 if len(r) == 0:
                     raise RuntimeError('key with bad format.')
                 r = UndirectedRelationTable(content=r, max_degree=self.max_degree)
                 r.center = self.center  # 这样可以使__getitem__实现浅拷贝
                 return r
             elif a_node is not None and b_node is not None:
-                r = self.center[key]
-                return r
+                if (a_node, b_node) in self.center:
+                    return self.center[(a_node, b_node)]
+                elif (b_node, a_node) in self.center:
+                    return self.center[(b_node, a_node)]
         except KeyError:
             raise KeyError(key)
 
@@ -403,14 +358,61 @@ class UndirectedRelationTable(object):  # 无向图
             raise TypeError
         if len(key) != 2:
             raise RuntimeError
-        #
-        if key in self.center:
-            # 如果当前key已有 直接改
-            self.center[key] = value
-        else:
-            # 如果没有 创建
-            self.add_item(key, value)
 
+        # 如果key已存在，则仅仅修改value
+        if self.have(key=key):
+            self.center[key] = value
+        # 如果key不存在，则添加key，还要更新索引
+        else:
+            # check: relation repetition
+            if self.have(key) > 0:
+                raise RuntimeError("This relation already exits.")
+            # check: degree
+            if self.max_degree is not None:
+                if self.have((key[0])) >= self.max_degree:
+                    raise RuntimeError("exceed the degree limit.")
+                if self.have((key[1])) >= self.max_degree:
+                    raise RuntimeError("exceed the degree limit.")
+            # add cur item
+            self.center[key] = value
+            # update idx
+            try:
+                self.idx_a[key[0]][key[1]] = None
+            except KeyError:
+                self.idx_a[key[0]] = {}
+                self.idx_a[key[0]][key[1]] = None
+            try:
+                self.idx_b[key[1]][key[0]] = None
+            except KeyError:
+                self.idx_b[key[1]] = {}
+                self.idx_b[key[1]][key[0]] = None
+
+    def __delitem__(self, key):
+        # key check
+        if not isinstance(key, tuple):
+            raise TypeError
+        if len(key) != 2:
+            raise RuntimeError
+        # 更新center
+        if (key[0], key[1]) in self.center:
+            dict.__delitem__(self.center, (key[0], key[1]))
+        elif (key[1], key[0]) in self.center:
+            dict.__delitem__(self.center, (key[1], key[0]))
+        # 更新索引
+        if key[0] in self.idx_a:
+            del self.idx_a[key[0]][key[1]]
+            if len(self.idx_a[key[0]]) == 0:
+                del self.idx_a[key[0]]
+            del self.idx_b[key[1]][key[0]]
+            if len(self.idx_b[key[1]]) == 0:
+                del self.idx_b[key[1]]
+        elif key[0] in self.idx_b:
+            del self.idx_a[key[1]][key[0]]
+            if len(self.idx_a[key[1]]) == 0:
+                del self.idx_a[key[1]]
+            del self.idx_b[key[0]][key[1]]
+            if len(self.idx_b[key[0]]) == 0:
+                del self.idx_b[key[0]]
 
     def have(self, key):
         """
@@ -447,11 +449,11 @@ class UndirectedRelationTable(object):  # 无向图
             raise RuntimeError('key with bad format.')
         elif a_node is not None and b_node is None:
             count = 0
-            if a_node in idx_a:
+            if a_node in self.idx_a:
                 for b_node in self.idx_a[a_node]:
                     count += 1
             b_node = a_node
-            if b_node in idx_b:
+            if b_node in self.idx_b:
                 for a_node in self.idx_b[b_node]:
                     count += 1
             return count
