@@ -376,9 +376,35 @@ class RelationLabel(Label):
         ajax_param = eval(ajax_param)
         if ajax_param["action"] == "del":
             print(">>>删除", ajax_param["targetObjId"])
+            if ajax_param["targetObjId"] in self["value"]:
+                c = self["owner"].pool.corpus
+                t = c.tp[self["table_name"]]
+                self_id = self["owner"]["id"]
+
+                # 获取对应的relations
+                if 1:
+                    # 有向图
+                    if "index_self" in self:
+                        try:
+                            if self["index_self"] == "0":
+                                t.del_item((self_id["value"], ajax_param["targetObjId"]))
+                            elif self["index_self"] == "1":
+                                t.del_item((ajax_param["targetObjId"], self_id["value"]))
+                        except KeyError:
+                            return None
+
+                    # 无向图
+                    else:
+                        try:
+                            # 在查无向图关系时，__getitem__方法仅提供了（结点a，None）和（结点a，结点b）这样的查询方式。
+                            t.remove([self_id["value"], [ajax_param["targetObjId"]]])
+                        except KeyError:
+                            return None
             return None
+
         elif ajax_param["action"] == "add":
             print(">>>添加", ajax_param["targetObjId"])
+            self["value"] = ajax_param["targetObjId"]
             return None
         else:
             return "错误原因"

@@ -1280,16 +1280,28 @@ function PythonStyleToJsStyle(data){
                 {
                     find_element_list[i] = getInstanceById(index_list[i])
                     //注意find_element_list[i][1]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
-                    desc_complex_list[i] = find_element_list[i][1]["mentions"]
+                    if (find_element_list[i][1]["mentions"] != null) {
+                        desc_complex_list[i] = find_element_list[i][1]["mentions"]
+                    }
+                    else {
+                        desc_complex_list[i] = ""
+                    }
                     desc_simple_list[i] = find_element_list[i][1]["desc"]
                 }
+
+
                 for(i=0; i<desc_complex_list.length; i++)
                 {
                     if(desc_complex_list[i].length != 1){
                         text_pool[i] = new Array();
                         for( k=0; k<desc_complex_list[i].length; k++)
                         {
-                            text_pool[i][k] = desc_complex_list[i][k].toString();
+                            if (desc_complex_list[i][k] == null) {
+                                text_pool[i][k] = ""
+                            }
+                            else {
+                                text_pool[i][k] = desc_complex_list[i][k].toString();
+                            }
                             text_pool[i] = text_pool[i].concat(desc_simple_list[i]);
                             str_text_pool[i] = text_pool[i].join("");
                         }
@@ -1358,10 +1370,11 @@ function PythonStyleToJsStyle(data){
                 let r = getNodeByChildren(
                     selectedElements[0].attr("id"),
                     selectedElements[selectedElements.length - 1].attr("id"),
+                    $("#textTab1").attr("name")
                 );
                 // 如果获取到了node，就调用slot元素的处理函数
                 if (r[0] == "success") {
-                    $(".slot")[0].fillSlot(r[1]["position"]);
+                    $(".slot")[0].fillSlot(r[1]["id"]);
                 } else {
                     alert(langDict[r[1]]);
                 }

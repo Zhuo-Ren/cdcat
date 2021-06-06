@@ -397,6 +397,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                             // nodeButtonObj <button>
                             {
                                 let curItemObj = $("<button class='node' name='' style='background-color: lightcyan;'></button>");
+                                curItemObj.attr("index", String(itemIndex));
                                 insideObj.append(curItemObj);
                                 // display the label value
                                     let inputText = undefined;
@@ -767,7 +768,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                     }
                 });
                 // add fill slot function
-                addNodeBySelectButtonObj[0].fillSlot = function(selectedNodePosition){
+                addNodeBySelectButtonObj[0].fillSlot = function(selectedNodeId){
                     // 获取这个标签的owner是node还是instance
                     let ownerType = undefined;
                     if ($.contains( $("#nodeInfo-selectedNode")[0], $(this)[0])){
@@ -785,11 +786,12 @@ function generateObjListLabelObj(labelDict, labelValue){
                         curId = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text()
                     }
                     let targetObjIndex = [];
-                    let cur_obj = $(this);
-                    while (cur_obj.parent().parent().attr("index") != undefined){
-                        targetObjIndex = [parseInt(cur_obj.parent().parent().attr("index")), ...targetObjIndex];
-                        cur_obj = cur_obj.parent().parent();
+                    if ($("#mentionsValue .node")){
+                        for (i = 0; $("#mentionsValue .node")[i] != undefined; i++) {
+                            targetObjIndex.push($("#mentionsValue .node")[i]["name"])
+                        }
                     }
+                    targetObjIndex.push(selectedNodeId)
                     let newValueDict = {
                         [labelDict["key"]]: JSON.stringify({
                             "action": "add",

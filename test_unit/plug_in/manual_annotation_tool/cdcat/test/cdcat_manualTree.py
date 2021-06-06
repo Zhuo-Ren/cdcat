@@ -136,6 +136,10 @@ c.np.add(n14)
 n14["id"]["value"] = "n:text2.raw.txt:13-17"
 n14["type"]["value"] = "event"
 
+n15 = Node()
+c.np.add(n15)
+n15["id"]["value"] = "n:text3.raw.txt:0-3"
+n15["type"]["value"] = "event"
 
 # annotation
 from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat

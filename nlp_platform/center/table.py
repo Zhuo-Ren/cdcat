@@ -88,6 +88,36 @@ class DirectedRelationTable(object):  # 有向图
             self.idx_i[key[1]] = {}
             self.idx_i[key[1]][key[0]] = None
 
+    def del_item(self, key):
+        # check: key
+        if not isinstance(key, tuple):
+            raise TypeError
+        if len(key) != 2:
+            raise TypeError
+
+        # del cur item
+        if key in self.center:
+            # 如果当前key已有 直接改
+            self.center.pop(key)
+        else:
+            pass
+
+        # update idx
+        try:
+            self.idx_o[key[0]].pop(key[1])
+            if len(self.idx_o[key[0]].keys()) == 0:
+                self.idx_o.pop(key[0])
+        except KeyError:
+            pass
+
+        try:
+            self.idx_i[key[1]].pop(key[0])
+            if len(self.idx_i[key[1]].keys()) == 0:
+                self.idx_i.pop(key[1])
+        except KeyError:
+            pass
+
+
     def __getitem__(self, key):
         """
         a[[1,2]]或a[1,2]或a[(1,2)]             → key=(1,2)
