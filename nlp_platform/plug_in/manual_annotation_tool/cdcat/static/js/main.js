@@ -1117,13 +1117,15 @@ function PythonStyleToJsStyle(data){
             return nodeInfo;
         }
 
-        function addNodeByChildren(childrenNodePositionList) {
+        function addNodeByChildren(childrenNodePositionList, file_path) {
+            console.log(childrenNodePositionList)
             let r = undefined
             $("body").css("pointer-events", "none");
             $.post(
                 "/addNode",
                 {
-                    childrenNodePositionList: childrenNodePositionList
+                    childrenNodePositionList: childrenNodePositionList,
+                    file_path: file_path
                 },
                 function (data, status) {
                     $("body").css("pointer-events", "auto");
@@ -1397,7 +1399,7 @@ function PythonStyleToJsStyle(data){
                 selectedElementPositionList[i] = selectedElement[i].attr("id");
             }
             // 向后台发送操作请求
-            let r = addNodeByChildren(selectedElementPositionList);
+            let r = addNodeByChildren(selectedElementPositionList, $("#textTab1").attr("name"));
             // 区分是否为标注对象
             if (r[0] != "success") {
                 nodeInfoWindow_showCannotAddNode();

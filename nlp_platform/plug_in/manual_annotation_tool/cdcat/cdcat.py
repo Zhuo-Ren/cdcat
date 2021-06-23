@@ -260,10 +260,33 @@ def cdcat(corpus: Corpus) -> None:
             return ""
         # param normalization
         try:
-            children_node_position_list = [i.split("-") for i in children_node_position_list]
-            children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
-            children_node_list = [corpus.np[i] for i in children_node_position_list]
+            from nlp_platform.center.node import Node
+            # 获得选中mention的首末position以及file_path
+            children_node_position_first = children_node_position_list[0][0]
+            children_node_position_last = children_node_position_list[-1][-1]
+            file_path = request.form.get("file_path")
+            # children_node_position_list = [i.split("-") for i in children_node_position_list]
+            # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
+            # children_node_list = [corpus.np(i) for i in children_node_position_list]
+            position = children_node_position_first + "-" + children_node_position_last
+            # 将position整理成node_id的形式
+            node_id = "n:" + file_path + ":" + position
+            info = {"id": node_id}
+            # 将mention制作成Node并放入corpus.np里
+            new_node = Node(info=info)
+            corpus.np.add(new_node)
+            new_node_info = corpus.np.to_info()
+            new_node_info.update({"test": None})
+            logging.debug("addNode<-：" + str(["success", new_node_info]))
+            return jsonify(["success", new_node_info])
         except:
+            raise RuntimeError(
+                "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            logging.debug(
+                "addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+            logging.debug("addNode<-：" + "(failed):" + " ''")
+
+        """except:
             raise RuntimeError(
                 "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
             logging.debug(
@@ -287,7 +310,7 @@ def cdcat(corpus: Corpus) -> None:
             new_node_info = new_node.readable()
             new_node_info.update({"test": None})
             logging.debug("addNode<-：" + str(["success", new_node_info]))
-            return jsonify(["success", new_node_info])
+            return jsonify(["success", new_node_info])"""
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
