@@ -1,0 +1,10 @@
+发布不到半年！苹果承认13英寸2019款MacBook Pro存在突然关机问题
+
+2019-12-05 15:17·前瞻网
+苹果今天发布了一份新的支持文件，概述了入门级2019年13英寸MacBook Pro遇到意外关机问题时的故障排除步骤。
+这意味着苹果承认，2019年的一些入门级13英寸MacBook Pro电脑出现问题，导致笔记本电脑“不断关机”。这款机型有一个Touch Bar和两个Thunderbolt 3/USB-C接口，苹果公司在今年7月发布了这款电脑。其他型号不应该受到影响。
+据苹果公司称，一些用户发现这款MacBook Pro“在充满电的情况下会随机关机”。MacRumors网站也指出，有许多受影响的用户试图找出问题所在。
+苹果的故障排除步骤涉及确保‌MacBook Pro电池水平低于90%，连接充电器，关掉所有打开的应用程序，并让它处于睡眠状态和充电至少八小时。
+一旦‌MacBook Pro‌充电至少八个小时，用户应确保电脑正在运行最新版本的macOS，如果在以上步骤后仍出现突然关机问题，用户应该联系苹果服务。
+344
+https://m.toutiaocdn.com/i6766850909340172803/?app=news_article&timestamp=1623922571&use_new_style=1&req_id=202106171736110101351632123100DAD6&group_id=6766850909340172803&share_token=FE28EDAB-08F2-4FE7-820C-690F9FA1FE97&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1

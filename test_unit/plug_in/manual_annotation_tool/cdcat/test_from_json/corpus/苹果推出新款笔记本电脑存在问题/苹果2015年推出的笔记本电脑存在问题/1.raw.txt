@@ -1,0 +1,11 @@
+2015款MacBook难装Win7
+
+2015-03-23 05:22·中关村在线
+2015-03-23 05:22:00 作者：尹芹
+中关村在线消息：虽然微软的Windows 7受到众多用户好评，但显然他们仍希望用户能尝试更新的操作系统。而与微软竞争的苹果近日似乎也帮了它一把，其最新发布的2015款MacBook Air和Macbook Pro想要运行Windows 7恐怕不容易。
+据苹果发布的最新Boot Camp支持文档显示，2015款MacBook Air以及13英寸Macbook Pro机型已经停止对Windows 7以下系统的Boot Camp支持。因此购买新机型的用户如果想通过Boot Camp双系统启动，只能运行Windows 8及更高版本的Windows。
+果新款MacBook停止对Windows 7 Boot Camp支持（图片来自cnbeta）
+此外，苹果还停止了2013年款Mac Pro的Windows 7 Boot Camp支持，不过2014年款的Mac和MacBook产品线还能继续维持对Windows 7的安装支持。
+而使用这些机型的用户如果仍想运行Windows 7系统，可以通过VMware Fusion和Parallels这样的虚拟软件。
+301
+https://m.toutiaocdn.com/i1050332269/?app=news_article&timestamp=1623918336&use_new_style=1&req_id=202106171625350101351682253C053A2F&group_id=4117126512&share_token=9E2103CD-CAC8-41A2-B2B0-938E6001F6EE&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1

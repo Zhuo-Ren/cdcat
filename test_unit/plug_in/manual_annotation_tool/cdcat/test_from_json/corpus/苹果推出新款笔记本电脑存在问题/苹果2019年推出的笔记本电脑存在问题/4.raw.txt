@@ -1,0 +1,9 @@
+苹果证实 2019 款 13 英寸 MacBook Pro 存在无故关机问题
+
+2019-12-05 10:06·动点科技
+苹果日前承认，部分 2019 款入门级 13 英寸 MacBook Pro存在意外关机问题。涉及型号为今年 7 月发布的配备 Touch Bar 和两个雷雳 3（Thunderbolt 3）接口的入门款版本。
+针对这一问题，苹果发布了解决方案，首先建议用户将 MacBook Pro 的电量使用至 90％ 以下，连接充电器并完全关闭所有应用程序，接着合上屏幕（触发休眠模式），再之后就是进行连续 8 小时的充电。
+此外，苹果还建议用户安装最新版本的 macOS，看起来系统似乎也可以在一定程度上发挥作用解决问题。
+进行上述操作后如果你的 MacBook Pro 还是会随机关机，那就应该联系苹果技术支持或者前往苹果零售店进行更深一步的检测。
+270
+https://m.toutiaocdn.com/i6766770874159727117/?app=news_article&timestamp=1623922631&use_new_style=1&req_id=202106171737110101351550305D00CB56&group_id=6766770874159727117&share_token=2D246188-C4C8-4CC9-B14C-8C12A14FB6D4&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1

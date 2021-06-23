@@ -1,0 +1,6 @@
+苹果证实2019款13英寸MacBook Pro笔记本存在无故关机问题
+
+2019-12-05 10:26·36氪
+苹果证实2019年款的13英寸MacBook Pro的入门型号存在无故关机的问题，并已经放出了一份支持文档。根据用户之前在MacRumors论坛上的反馈，这款笔记本在电量降至25%至 50%之间的时候，会随机出现自动关机的情况。而且在电脑被关掉后，必须要插上充电器才能重开，单靠有电的电池也没有办法将设备启动。（Engadget中国）
+161
+https://m.toutiaocdn.com/i6766775936110035464/?app=news_article&timestamp=1623922607&use_new_style=1&req_id=202106171736470101351650924400B647&group_id=6766775936110035464&share_token=9E9B9B73-6AE2-4564-8CA7-C103A16AC0D2&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1

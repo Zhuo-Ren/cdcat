@@ -1,0 +1,10 @@
+外媒爆MacBook Pro 2018可能存在严重缺陷
+
+2019-02-11 09:45·中关村在线
+据外媒techpowerup报道，苹果的MacBook Pro 2018版本似乎有着严重的缺陷，这款使用AMD Radeon RX Vega 20显卡的笔记本在视频子系统有着严重的设计缺陷。笔记本长时间待机醒来后，往往会出现严重的屏幕闪烁和画面横线，即使重新启动，问题仍然存在。
+外媒爆MacBook Pro 2018严重缺陷
+据悉发现这个问题的版本是一款15英寸MacBook Pro，配置为英特尔九代酷睿，AMD Vega 20，32 GB内存，1TB SSD版本，而且它被带到Apple Store时，苹果员工听到“待机后显示器损坏”时，立即表示更换它，并且没有进一步的提问，更换过程也没有任何麻烦，意味着至少苹果已经对这个问题有数了
+令人以外的是，这个问题问题也重新出现在更换的MacBook上。两个型号都是在运行MacOS“Mojave”版本10.14.2。
+此消息目前还未官方进行确认，目前也不确定是否是缺陷还是个例。
+325
+https://m.toutiaocdn.com/i6656553008114958860/?app=news_article&timestamp=1623920856&use_new_style=1&req_id=2021061717073601013516508319075001&group_id=6656553008114958860&share_token=125D896C-4E3A-45B3-9B1C-C9B4CE5D3842&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1

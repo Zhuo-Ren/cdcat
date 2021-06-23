@@ -1,0 +1,10 @@
+2018MacBook存在重大缺陷？数据丢失或无法恢复
+
+2018-07-24 01:08·太平洋电脑网
+【PConline 资讯】2018款MacBook已经亮相了一段时间了，虽然还没全面向大众开售，但最近已有不少媒体提前接触到了产品。
+上周，国外媒体iFixit 对2018款 MacBook Pro 进行了拆解评测，其在评测中发现2018款MacBook Pro移除了数据恢复接口，取而代之的可能是为SSD 硬件加密的苹果T2芯片以及不可更换的SSD固态硬盘。
+有分析师认为，像新款MacBook Pro这样的设计，很可能会导致第三方的数据恢复工具进行恢复无法再为它提供恢复功能，如果用户没有正确使用 Time Machine对资料进行备份的话，笔记本主板故障的时候，电脑内所有的资料就有可能就会彻底丢失。
+看样子，苹果的设计初心是为了用户的隐私而考虑的，在取消数据恢复接口后，当笔记本被窃取后，也不会让他人轻松获取我们的资料数据，但是有益的同时也产生了一定的弊处。
+最后，无论什么情况下，也不管大家在用什么电脑，经常备份数据总是非常必要的。
+368
+https://m.toutiaocdn.com/i6581460531280871949/?app=news_article&timestamp=1623920844&use_new_style=1&req_id=202106171707230101351572022E076E21&group_id=6581460531280871949&share_token=6C28D3A2-A62B-4D27-85A1-D731FF31DC56&tt_from=weixin&utm_source=weixin&utm_medium=toutiao_ios&utm_campaign=client_share&wxshare_count=1
