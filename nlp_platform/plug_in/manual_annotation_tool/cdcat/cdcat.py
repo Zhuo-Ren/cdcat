@@ -380,7 +380,10 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        position = corpus.np.str_to_position(request.form.get("position"))
+        import datetime
+        import random
+        # position = corpus.np.str_to_position(request.form.get("position"))
+        position = request.form.get("position")
         if position:  # 使用快捷键，基于一个node创建instance
             # 因为→键的实现改成了模拟多次点击，所以这一段逻辑暂时用不到了。
             node = corpus.np[position]
@@ -394,11 +397,13 @@ def cdcat(corpus: Corpus) -> None:
         else:  # 单纯创建一个instance
             logging.debug("addInstance_empty->：")
             # 创建instance
-            instance = corpus.ip.add_instance()
+            new_instance = Instance(info=None, pool=None)
+            corpus.ip.add(new_instance)
             # 创建instancelink
-            corpus.ip.groups[2][0][2].insert(0, instance)
-        logging.debug("addInstance->：" + str(["success", instance.readable()]))
-        return jsonify(["success", instance.readable()])
+            # corpus.ip.groups[2][0][2].insert(0, new_instance)
+
+        logging.debug("addInstance->：" + str(["success", new_instance.to_info()]))
+        return jsonify(["success", new_instance.to_info()])
 
     @app.route('/getInstance', methods=["POST"])
     def getInstance():
