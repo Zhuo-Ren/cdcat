@@ -275,7 +275,7 @@ def cdcat(corpus: Corpus) -> None:
             # 将mention制作成Node并放入corpus.np里
             new_node = Node(info=info)
             corpus.np.add(new_node)
-            new_node_info = corpus.np.to_info()
+            new_node_info = new_node.to_info()
             new_node_info.update({"test": None})
             logging.debug("addNode<-：" + str(["success", new_node_info]))
             return jsonify(["success", new_node_info])

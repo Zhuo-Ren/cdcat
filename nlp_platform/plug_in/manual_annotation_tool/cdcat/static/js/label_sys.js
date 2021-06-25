@@ -77,9 +77,9 @@ function generateRadioLabelObj(labelDict, labelValue) {
             }
         valueObj.change(function() {
             if ($("#nodeInfoWindow")[0].contains(this)){
-                let position = $("#positionValue").text();
+                let id = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
-                let r = setNode(position, {[labelDict["key"]]: value});
+                let r = setNode(id, {[labelDict["key"]]: value});
                 if (r[0] != "success"){
                     alert(langDict[r[1]]);
                     return;
@@ -90,7 +90,7 @@ function generateRadioLabelObj(labelDict, labelValue) {
                     instanceInfoWindow_refresh();
                 }
             }else if($("#instanceInfoWindow")[0].contains(this)){
-                let id = $("#idValue").text();
+                let id = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text();
                 let value = $("#" + labelDict["key"] + "Value :checked").attr("value");
                 // ajax to background
                 let r = setInstance(id, {[labelDict["key"]]: value});
@@ -305,9 +305,9 @@ function generateTextInputLabelObj(labelDict, labelValue){
             valueObj.change(function() {
                 // if the changed label belongs to a node
                 if ($("#nodeInfoWindow")[0].contains(this)){
-                    let position = $("#positionValue").text();
+                    let id = $("#nodeInfo-selectedNode div[name='labelInfo-id'] #idValue").text();
                     let value = $("#" + labelDict["key"] + "Value")[0].value;
-                    let r = setNode(position, {[labelDict["key"]]: value});
+                    let r = setNode(id, {[labelDict["key"]]: value});
                     if (r[0] != "success"){
                         alert(langDict[r[1]]);
                         return;
