@@ -380,28 +380,10 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
-        import datetime
-        import random
-        # position = corpus.np.str_to_position(request.form.get("position"))
-        position = request.form.get("position")
-        if position:  # 使用快捷键，基于一个node创建instance
-            # 因为→键的实现改成了模拟多次点击，所以这一段逻辑暂时用不到了。
-            node = corpus.np[position]
-            logging.debug("addInstance_node->：position=" + str(position))
-            instance = corpus.ip.add_instance({"desc": node.text()})
-            if "mention_list" not in instance.labels:
-                from nlp_platform.center.labeltypes import labeltypes
-                instance.labels["mention_list"] = labeltypes["nodelist"](owner=instance.labels, key="mention_list")
-            instance.labels["mention_list"].value.append([node])
-            node.add_label({"instance": instance})
-        else:  # 单纯创建一个instance
-            logging.debug("addInstance_empty->：")
-            # 创建instance
-            new_instance = Instance(info=None, pool=None)
-            corpus.ip.add(new_instance)
-            # 创建instancelink
-            # corpus.ip.groups[2][0][2].insert(0, new_instance)
-
+        logging.debug("addInstance_empty->：")
+        # 创建instance
+        new_instance = Instance(info=None, pool=None)
+        corpus.ip.add(new_instance)
         logging.debug("addInstance->：" + str(["success", new_instance.to_info()]))
         return jsonify(["success", new_instance.to_info()])
 
