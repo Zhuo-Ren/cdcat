@@ -261,9 +261,12 @@ def cdcat(corpus: Corpus) -> None:
         # param normalization
         try:
             from nlp_platform.center.node import Node
-            # 获得选中mention的首末position以及file_path
-            children_node_position_first = children_node_position_list[0][0]
-            children_node_position_last = children_node_position_list[-1][-1]
+            # 获得选中mention的首末node
+            children_node_first = children_node_position_list[0]
+            children_node_last = children_node_position_list[-1]
+            # 获取首末position以及file_path
+            children_node_position_first = children_node_first.split("-")[0]
+            children_node_position_last = children_node_last.split("-")[-1]
             file_path = request.form.get("file_path")
             # children_node_position_list = [i.split("-") for i in children_node_position_list]
             # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]

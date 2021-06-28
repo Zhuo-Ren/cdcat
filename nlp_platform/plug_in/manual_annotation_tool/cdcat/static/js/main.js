@@ -282,7 +282,6 @@ function PythonStyleToJsStyle(data){
          * @param scroll
          */
         function majorTextWindow_updateText(data, scroll) {
-            console.log(data)
             let majorTextWindow = $("#textTab1");
             majorTextWindow.empty();
             // add html element for each char.
