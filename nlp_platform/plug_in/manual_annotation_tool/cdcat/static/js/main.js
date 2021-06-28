@@ -282,18 +282,31 @@ function PythonStyleToJsStyle(data){
          * @param scroll
          */
         function majorTextWindow_updateText(data, scroll) {
+            console.log(data)
             let majorTextWindow = $("#textTab1");
             majorTextWindow.empty();
             // add html element for each char.
             for (i = 0; i < data.length; i++) {
                 let elementText = "";
-                elementText += "<div " +
+                if (data[i]["char"] != " "){
+                    elementText += "<div " +
                     "id=" + data[i]["id"] +
                     " " +
                     "desc=" + data[i]["char"]+
                     " " +
                     "class='char'" +
                     ">";
+                }
+                if (data[i]["char"] === " "){
+                    elementText += "<div " +
+                    "id=" + data[i]["id"] +
+                    " " +
+                    "desc=' '"
+                    +
+                    "class='char'" +
+                    ">";
+                    elementText += "<div>&nbsp</div>";
+                }
                 if (data[i]["char"] === "\n") {
                     elementText += "<div>\\n</div> ";
                     elementText += "</div>";
@@ -302,9 +315,6 @@ function PythonStyleToJsStyle(data){
                     elementText += "<div>\\r</div>";
                     elementText += "</div>";
                     elementText += "<br style='clear:both;'>";
-                } else if (data[i]["char"] === " ") {
-                    elementText += "<div>&nbsp; <div>";
-                    elementText += "</div>";
                 } else {
                     elementText += "<div>" + data[i]["char"] + "</div>";
                     elementText += "</div>";
