@@ -1,16 +1,56 @@
 import os
+from nlp_platform.center.config import Config
 
-# center config
-center_config_dir = "config_label.json"
-# load center config
+# 读取核心配置load center config
+center_config_dir = "config_label.json"  # 修改此处配置
 cur_file_path = os.path.abspath(__file__)
 cur_folder_path = os.path.dirname(cur_file_path)
 center_config_dir = os.path.join(cur_folder_path, center_config_dir)
-from nlp_platform.center.config import Config
 Config.load_config(config_name="center_config", config_dir=center_config_dir)
 
-# create corpus
 from nlp_platform.center.corpus import Corpus
+from nlp_platform.center.instance import Instance
+
+#################################
+### instance ####################
+#################################
+print("#"*50+"\ninstance\n"+"#"*50)
+# init(使用默认值进行初始化)
+print("init(使用默认值进行初始化)")
+i1 = Instance()
+print(f"  i1.pool={i1.pool}")
+print(f"  i1['id']['value']={i1['id']['value']}")
+print(f"  i1['desc']['value']={i1['desc']['value']}")
+print(f"  i1['type']['value']={i1['type']['value']}")
+# init(使用给定信息进行初始化)
+print("init(使用给定信息进行初始化)")
+info = {
+   "id": "1",
+    "desc": "2",
+    "type": "event"
+}
+c = Corpus()
+i2 = Instance(info=info, pool=c.ip)
+print(f"  i2.pool={i2.pool}")
+print(f"  i2['id']['value']={i2['id']['value']}")
+print(f"  i2['desc']['value']={i2['desc']['value']}")
+print(f"  i2['type']['value']={i2['type']['value']}")
+# property
+print(f"i1.pool={i1.pool}")
+# label(get label obj)
+print(f"i1['id']={i1['id']}")
+print(f"i1['desc']={i1['desc']}")
+print(f"i1['type']={i1['type']}")
+# label(get label value)
+print(f"i1['id']['value']={i1['id']['value']}")
+print(f"i1['desc']['value']={i1['desc']['value']}")
+print(f"i1['type']['value']={i1['type']['value']}")
+# label(set label value)
+i1["desc"]["value"] = "10日"
+i1["type"]["value"] = "entity"
+#
+
+# create corpus
 c = Corpus()
 
 raw = {
@@ -30,12 +70,6 @@ raw = {
 from nlp_platform.center.raw import Raw
 c.raw = Raw(raw)
 
-from nlp_platform.center.instance import Instance
-i1 = Instance(pool=c.ip)
-i1["desc"]["value"] = "10日"
-i1["type"]["value"] = "entity"
-i1["mentions"]["value"] = ["n:folder1/text1.raw.txt:0-3",
-                           "n:text2.raw.txt:0-2"]
 i2 = Instance()
 c.ip.add(i2)
 i2["desc"]["value"] = "埃航"

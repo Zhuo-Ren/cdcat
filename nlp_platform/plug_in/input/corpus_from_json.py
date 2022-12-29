@@ -4,7 +4,7 @@ from nlp_platform.plug_in.input.instances_from_json import instances_from_json
 from nlp_platform.plug_in.input.nodes_from_json import nodes_from_json
 
 
-def from_files(dir: str):
+def corpus_from_json(dir: str):
     # param check: file_dir
     if not isinstance(dir, str):
         raise TypeError

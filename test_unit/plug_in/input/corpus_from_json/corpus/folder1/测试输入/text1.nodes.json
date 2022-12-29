@@ -1,0 +1,16 @@
+{
+    "n:folder1/测试输入/text1.raw.txt:0-3": {
+        "id": "n:folder1/测试输入/text1.raw.txt:0-3",
+        "type": "entity",
+        "refer": [
+            "i:2021060117214701701"
+        ]
+    },
+    "n:folder1/测试输入//floer12text1.raw.txt:4-6": {
+        "id": "n:folder1/测试输入/text1.raw.txt:4-6",
+        "type": "entity",
+        "refer": [
+            "i:2021060117214701877"
+        ]
+    }
+}
