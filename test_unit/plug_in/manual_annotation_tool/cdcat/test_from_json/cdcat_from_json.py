@@ -17,3 +17,4 @@ c = from_files(dir="./corpus")
 from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
 cdcat(c)
 
+

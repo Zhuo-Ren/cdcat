@@ -37,7 +37,7 @@ class Node(dict):
         }
     """
 
-    def __init__(self, info: Dict = None):
+    def __init__(self, info: Dict = None,pool=None):
         super().__init__()
 
         # param check: info
@@ -56,13 +56,21 @@ class Node(dict):
             label_config["PRELIMINARY_CODE"] = self.config["PRELIMINARY_CODE"]
             self[label_key] = label_types[label_config["type"]](config=label_config, owner=self)
 
+        # self["id"]赋值
+        if "id" in info:
+            self["id"]["value"] = info["id"]
+
+        # self.pool赋值
+        from nlp_platform.center.nodepool import NodePool
+        if isinstance(pool, NodePool):
+            pool.add(self)
 
         for key, value in info.items():
-            if key == "refer":
-                pass
-            else:
-                self[key]["value"] = value
-
+            # if key == "refer":
+            #     pass
+            # else:
+            #     self[key]["value"] = value
+            self[key]["value"] = value
     @property
     def text(self):
         return self.pool.corpus.raw[self["id"]["value"]]
@@ -84,6 +92,8 @@ class Node(dict):
         for label_key in self:
             if label_key is not "text":
                 r.update(self[label_key].to_info())
+            else:
+                pass
         if text:
             r.update({"text": self.text})
         return r

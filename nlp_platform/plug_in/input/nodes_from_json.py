@@ -22,8 +22,11 @@ def from_multiple_files(dir: str, corpus, raw):
                 with open(os.path.join(dir, f'{key[:-8]}.nodes.json'), 'r', encoding='utf-8') as f:
                     nodes_info = json.load(f)
                     for node_info in nodes_info.values():
-                        node = Node(info=node_info)
+                        # node = Node(info=node_info)
+                        node = Node(info=node_info,pool=corpus.np)
                         corpus.np.add(node)
+                        # node = Node(info=node_info, pool=corpus.np)
+                        # corpus.np.add(node)
             except IOError:
                 pass
         elif os.path.isdir(os.path.join(dir, key)): # 碰到的是一个文件夹

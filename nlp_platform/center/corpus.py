@@ -1,10 +1,13 @@
 class Corpus(object):
+    #raw
     def __init__(self):
         from nlp_platform.center.tablepool import TablePool
         from nlp_platform.center.nodepool import NodePool
         from nlp_platform.center.instancepool import InstancePool
         from nlp_platform.center.raw import Raw
+        from nlp_platform.center.token import Token
         self.raw = Raw()
+        # self.token=Token()
         self._tp = TablePool(corpus=self)
         self._np = NodePool(corpus=self)
         self._ip = InstancePool(corpus=self)

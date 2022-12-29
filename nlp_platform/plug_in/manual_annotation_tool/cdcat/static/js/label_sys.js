@@ -406,9 +406,9 @@ function generateObjListLabelObj(labelDict, labelValue){
                                         // if given a value, display the value
                                         if (curItem != undefined) {
                                             if (curItem["text"]==""){
-                                                inputText = '　';
+                                                inputText = "";
                                             }else{
-                                                inputText =  curItem["text"];
+                                                inputText=get_curve_node_text(curItem);
                                             }
                                             nodeId = curItem["id"];
                                         }
@@ -426,6 +426,18 @@ function generateObjListLabelObj(labelDict, labelValue){
                             // delNodeButtonObj <button>
                             {
                                 let delNodeButtonObj = $("<button class='circleButton'>x</button>");
+                                let nodeId = undefined;
+                                {
+                                    // if given a value, display the value
+                                    if (curItem != undefined) {
+                                        nodeId = curItem["id"];
+                                    }
+                                    // if no value given
+                                    else{
+                                        nodeId = ""
+                                    }
+                                }
+                                delNodeButtonObj.attr("id","del_node_"+nodeId.split(":")[2]);
                                 insideObj.append(delNodeButtonObj);
                                 // add click event
                                     delNodeButtonObj.click(function(){
@@ -469,10 +481,28 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             alert(langDict[r[1]]);
                                             return;
                                         }else{
+
+                                            let nodepre=curId.split(":")[0]+":"+curId.split(":")[1]+":";
+                                            let nodeID1=curId.split(":")[2];
+                                            let nodeID2=delNodeButtonObj.prev().attr("name").split(":")[2];
+                                            let delnode=undefined;
+                                            for(const k in node_label_list)
+                                            {
+                                                delnode=nodepre+nodeID1+"-"+nodeID2;
+                                                if(delnode==node_label_list[k]) {
+                                                     delNode(delnode);
+                                                }
+                                                delnode=nodepre+nodeID2+"-"+nodeID1;
+                                                if(delnode==node_label_list[k])
+                                                     delNode(delnode);
+                                            }
+                                            TextWindow_initNodes();
+                                            // majorTextWindow_redrawSvg();
                                             // refresh nodeInfoWindow
                                             nodeInfoWindow_refresh();
                                             // refresh instanceInfoWindow
                                             instanceInfoWindow_refresh();
+
                                         }
                                     });
                             }
@@ -528,6 +558,18 @@ function generateObjListLabelObj(labelDict, labelValue){
                             // delInstanceButtonObj <button>
                             {
                                 let delInstanceButtonObj = $("<button class='circleButton'>x</button>");
+                                let intstanceId = undefined;
+                                {
+                                    // if given a value, display the value
+                                    if (curItem != undefined) {
+                                        intstanceId = curItem["id"].split(":")[1];
+                                    }
+                                    // if no value given
+                                    else{
+                                        intstanceId = ""
+                                    }
+                                }
+                                delInstanceButtonObj.attr("id","del_instance_"+intstanceId);
                                 insideObj.append(delInstanceButtonObj);
                                 // add click event
                                     delInstanceButtonObj.click(function(){
@@ -571,10 +613,13 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             alert(langDict[r[1]]);
                                             return;
                                         }else{
+                                             // majorTextWindow_redrawSvg();
                                             // refresh nodeInfoWindow
                                             nodeInfoWindow_refresh();
+
                                             // refresh instanceInfoWindow
                                             instanceInfoWindow_refresh();
+
                                         }
                                     });
                             }
@@ -799,6 +844,10 @@ function generateObjListLabelObj(labelDict, labelValue){
                         r = setInstance(curId,newValueDict);
                     }
                     // GUI update
+                    if(r===undefined)
+                    {
+                        return;
+                    }
                     if (r[0] != "success"){
                         alert(langDict[r[1]]);
                         return;

@@ -14,11 +14,11 @@
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "self['owner']['id']['value']"
             },
-            "type": {
+            "mention_type": {
                 "type": "SimpleLabel",
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "'none'",
-                "value_optional": ["none", "entity", "event"]
+                "value_optional": ["none", "HUM"]
             },
             "mentions": {
                 "type": "RelationLabel",
@@ -37,32 +37,26 @@
                 "value_type_hint": "node_id_check(value)",
                 "value_init": "'n:InitId:0-0'"
             },
-            "type": {
+            "mention_type": {
                 "type": "SimpleLabel",
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "'none'",
-                "value_optional": ["none", "entity", "desc"]
+                "value_optional": ["none", "HUM"]
+            },
+            "text": {
+                "required": "True",
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "'none'"
+            },
+            "token_id": {
+                "required": "True",
+                "type": "SimpleLabel",
+                "value_init": "'none'"
             },
             "refer": {
                 "type": "RelationLabel",
                 "table_name": "mention_to_instance",
-                "index_self": "0",
-                "index_value": "1"
-            },
-            "domain": {
-                "type": "SimpleLabel",
-                "value_type_hint": "isinstance(value, str)",
-                "value_init": "'real'",
-                "value_optional": ["real", "other"]
-            },
-            "timestamp": {
-                "type": "SimpleLabel",
-                "value_type_hint": "isinstance(value, str)",
-                "value_init": "''"
-            },
-            "source": {
-                "type": "RelationLabel",
-                "table_name": "mention_to_source",
                 "index_self": "0",
                 "index_value": "1"
             }
@@ -71,12 +65,12 @@
     "Relation": {
         "mention_to_instance": {
             "type": "DRT",
-            "max_o_degree": "1",
+            "max_o_degree": "3",
             "max_i_degree": "None"
         },
         "mention_to_source": {
             "type": "DRT",
-            "max_o_degree": "1",
+            "max_o_degree": "3",
             "max_i_degree": "None"
         }
     }

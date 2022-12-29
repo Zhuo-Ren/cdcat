@@ -45,7 +45,7 @@ class NodePool(dict):
         """
 
     def to_info(self):
-        info_dict = {}
+        info_dict ={}
         for key in self:
             info_dict.update({key: self[key].to_info()})
         return info_dict

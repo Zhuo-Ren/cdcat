@@ -62,7 +62,7 @@ def cdcat(corpus: Corpus) -> None:
                 "getText<-：" + "(false)" + "：" + "ajax param 'textNodeId' should be in str form")
             return jsonify("ajax param 'textNodeId' should be in str form.")
         try:
-            text_raw = corpus.raw[text_node_position]
+            text_raw = corpus.raw[text_node_position]#
         except:
             raise RuntimeError(
                 "the positin str given by ajax param 'textNodeId' can not convert into a position obj.")
@@ -261,25 +261,28 @@ def cdcat(corpus: Corpus) -> None:
         # param normalization
         try:
             from nlp_platform.center.node import Node
-            # 获得选中mention的首末node
-            children_node_first = children_node_position_list[0]
-            children_node_last = children_node_position_list[-1]
-            # 获取首末position以及file_path
-            children_node_position_first = children_node_first.split("-")[0]
-            children_node_position_last = children_node_last.split("-")[-1]
+            # 获得选中mention的首末position以及file_path
             file_path = request.form.get("file_path")
-            # children_node_position_list = [i.split("-") for i in children_node_position_list]
+            children_node_position_list = [i.split("-") for i in children_node_position_list]
+            children_node_position_first = children_node_position_list[0][0]
+            children_node_position_last = children_node_position_list[-1][-1]
+            position = children_node_position_first + "-" + children_node_position_last
+            # 下面代码有问题，children_node_position_list是嵌套列表
             # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
             # children_node_list = [corpus.np(i) for i in children_node_position_list]
-            position = children_node_position_first + "-" + children_node_position_last
             # 将position整理成node_id的形式
             node_id = "n:" + file_path + ":" + position
             info = {"id": node_id}
             # 将mention制作成Node并放入corpus.np里
+            text = corpus.raw[node_id]
+            token_id=corpus.raw.to_info(node_id)
+            info.update({"text": text})
+            info.update({"token_id": token_id})
             new_node = Node(info=info)
             corpus.np.add(new_node)
             new_node_info = new_node.to_info()
             new_node_info.update({"test": None})
+            # new_node_info.update({"text": text})
             logging.debug("addNode<-：" + str(["success", new_node_info]))
             return jsonify(["success", new_node_info])
         except:
@@ -289,31 +292,79 @@ def cdcat(corpus: Corpus) -> None:
                 "addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
 
-        """except:
+        # except:
+        #     raise RuntimeError(
+        #         "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+        #     logging.debug(
+        #         "addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
+        #     logging.debug("addNode<-：" + "(failed):" + " ''")
+        #     return ""
+        # logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
+        # # create new node
+        # try:
+        #     new_node = corpus.np.add_parent({}, children_node_list)
+        # except RuntimeError:
+        #     logging.debug("addNode<-Error：" + "can not create the new node.")
+        #     logging.debug("addNode<-：" + "(failed):" + " ''")
+        #     return ""
+        # if new_node is None:
+        #     logging.debug("addNode<-Error：" + "can not create the new node.")
+        #     logging.debug("addNode<-：" + "(failed):" + " ''")
+        #     return ""
+        # # ajax out
+        # else:
+        #     new_node_info = new_node.readable()
+        #     new_node_info.update({"test": None})
+        #     logging.debug("addNode<-：" + str(["success", new_node_info]))
+        #     return jsonify(["success", new_node_info])
+
+    @app.route('/addCurveNode', methods=["POST"])
+    def addCurveNode():
+        try:
+            curve_id = request.form.get("curve_id")
+            logging.debug("addCurveNode->：curve_id=" + str(curve_id))
+        except:
+            raise RuntimeError("lose the param 'childrenNodePositionList'")
+            logging.debug("addCurveNode--:Error: " + "lose the param 'childrenNodePositionList'")
+            logging.debug("addCurveNode<-：" + "(failed):" + " ''")
+            return ""
+            # param normalization
+        try:
+            from nlp_platform.center.node import Node
+            # 获得选中mention的首末position以及file_path
+            file_path = request.form.get("file_path")
+            a_z=request.form.get("a_z")
+            b_z=request.form.get("b_z")
+            # children_node_position_list = [i.split("-") for i in children_node_position_list]
+            # children_node_position_first = children_node_position_list[0][0]
+            # children_node_position_last = children_node_position_list[-1][-1]
+            # position = children_node_position_first + "-" + children_node_position_last
+            # 下面代码有问题，children_node_position_list是嵌套列表
+            # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
+            # children_node_list = [corpus.np(i) for i in children_node_position_list]
+            # 将position整理成node_id的形式
+            node_id = "n:" + file_path + ":" + curve_id
+            info = {"id": node_id}
+            # 将mention制作成Node并放入corpus.np里
+            text = "curve node"
+            token_id = a_z+","+b_z
+            info.update({"text": text})
+            info.update({"token_id": token_id})
+            new_node = Node(info=info)
+            corpus.np.add(new_node)
+            # new_node.text=text
+            # corpus.np[node_id].text=text
+            new_node_info = new_node.to_info()
+            new_node_info.update({"test": None})
+            # new_node_info["text"]= text
+            logging.debug("addNode<-：" + str(["success", new_node_info]))
+            return jsonify(["success", new_node_info])
+        except:
             raise RuntimeError(
                 "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
             logging.debug(
                 "addNode--:Error: " + "Can not get target node based on a certain position given by param 'childrenNodePositionList'.")
             logging.debug("addNode<-：" + "(failed):" + " ''")
-            return ""
-        logging.debug("addNode--：children_node_text=" + str([i.text() for i in children_node_list]))
-        # create new node
-        try:
-            new_node = corpus.np.add_parent({}, children_node_list)
-        except RuntimeError:
-            logging.debug("addNode<-Error：" + "can not create the new node.")
-            logging.debug("addNode<-：" + "(failed):" + " ''")
-            return ""
-        if new_node is None:
-            logging.debug("addNode<-Error：" + "can not create the new node.")
-            logging.debug("addNode<-：" + "(failed):" + " ''")
-            return ""
-        # ajax out
-        else:
-            new_node_info = new_node.readable()
-            new_node_info.update({"test": None})
-            logging.debug("addNode<-：" + str(["success", new_node_info]))
-            return jsonify(["success", new_node_info])"""
 
     @app.route('/getNode', methods=["POST"])
     def getNode():
@@ -379,7 +430,19 @@ def cdcat(corpus: Corpus) -> None:
 
     @app.route('/delNode', methods=["POST"])
     def delNode():
-        pass
+        node_id = request.form.get("node_id")
+        logging.debug("delNode->：position=" + str(node_id))
+        corpus.np.pop(node_id)
+        return jsonify(["success", node_id])
+
+    @app.route('/getNodepool', methods=["POST"])
+    def getNodepool():
+        #
+        nodepool=corpus.np
+        if nodepool is not None:
+            return jsonify(["success",nodepool.to_info()])
+        else:
+            return jsonify("nodepool is void")
 
     @app.route('/addInstance', methods=["POST"])
     def addInstance():
@@ -443,6 +506,15 @@ def cdcat(corpus: Corpus) -> None:
         # del instancelink
         corpus.ip.del_instancelink(instance)
         return jsonify(["success"])
+
+    @app.route('/getInstancepool', methods=["POST"])
+    def getInstancepool():
+        #
+        Instancepool = corpus.ip
+        if Instancepool is not None:
+            return jsonify(["success", Instancepool.to_info()])
+        else:
+            return jsonify("nodepool is void")
 
     @app.route('/save', methods=["POST"])
     def save():

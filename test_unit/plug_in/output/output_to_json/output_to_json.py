@@ -138,9 +138,9 @@ n14["type"]["value"] = "event"
 
 from nlp_platform.plug_in.output.to_files import save
 # # windows
-# save(dir=".\corpus", corpus=c)
+save(dir=".\corpus", corpus=c)
 
 # mac
-save(dir="./corpus", corpus=c)
+#save(dir="./corpus", corpus=c)
 
 print(1)

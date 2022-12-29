@@ -1,6 +1,7 @@
 {
     "no mention selected.": "未选中指称。",
     "create a node for current mention.": "为当前指称创建节点",
+    "create a void node for current mention.": "创建空节点",
     "major text window": "主文档窗口",
     "minor text window": "辅文档窗口",
     "can not add node based on current mention.": "当前指称不能被创建为节点。",
