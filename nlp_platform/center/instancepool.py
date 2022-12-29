@@ -16,7 +16,7 @@ class InstancePool(dict):
         if not isinstance(info, dict):
             raise TypeError("param label_dict should be None or a dict.")
 
-        # public: groups
+        # self.groups初始化
         self.groups = [
             "group", None, [
                 ["instances", "fixed", []],

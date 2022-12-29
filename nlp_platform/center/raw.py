@@ -65,7 +65,7 @@ class Raw(dict):
         else:
             return super().__getitem__(key)
 
-    def to_info(self,key):
+    def to_info(self, key):
         def dict_get(obj_dict, objkey, default):
             tmp = obj_dict
             if '/' not in objkey:
