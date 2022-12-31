@@ -31,6 +31,6 @@ class TestNode:
         cur_folder_path = os.path.dirname(cur_file_path)
         corpus_path = os.path.join(cur_folder_path, corpus_path)
         #
-        c = corpus_from_json(dir=corpus_path)
+        c = corpus_from_json(path=corpus_path)
         #
         assert True  # 不报错就算成功
