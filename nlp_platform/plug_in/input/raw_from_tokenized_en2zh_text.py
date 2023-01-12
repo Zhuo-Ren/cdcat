@@ -11,6 +11,8 @@ def raw_from_tokenized_en2zh_text(
     """
     Extract pure text from a tokenized en2zh corpus and return a Raw_obj represent it.
 
+    就是抽取指定文本，并删除所有“|”（分词标记）。
+
     Example: <ref20221230213431>
 
     :param path: Path to a corpus (a txt file or a folder that contains txt

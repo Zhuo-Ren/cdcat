@@ -10,6 +10,8 @@ def raw_from_pure_text(
     """
         Extract pure text from a pure text corpus and return a Raw_obj which represent it.
 
+        就是抽取指定文本。
+
         Example: <to20221230212011>
 
         :param path: Path to a corpus (a txt file or a folder that contains txt

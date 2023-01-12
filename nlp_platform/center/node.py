@@ -71,7 +71,6 @@ class Node(dict):
         if not isinstance(info, dict):
             raise TypeError("param label_dict should be None or a dict.")
 
-
         # self[label] init
         from nlp_platform.center.labeltypes import label_types
         for label_key, label_config in self.config["LABELS"].items():

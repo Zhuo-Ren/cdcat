@@ -1,18 +1,6 @@
 class Raw(dict):
     #字典的子类，存储文件路径与文件名
     def __getitem__(self, key):
-        # 原dict_get函数，在整个语料库中搜索目标文件，语料库内不同目录下文件名必须不同，否则会出错
-        # def dict_get(obj_dict, objkey, default):
-        #     tmp = obj_dict
-        #     for k, v in tmp.items():
-        #         if k == objkey:
-        #             return v
-        #         else:
-        #             if type(v) is dict:
-        #                 ret = dict_get(v, objkey, default)
-        #                 if ret is not default:
-        #                     return ret
-        #     return default
         def dict_get(obj_dict, objkey, default):
             tmp = obj_dict
             if '/' not in objkey:
@@ -39,8 +27,8 @@ class Raw(dict):
             search_file = search_path.split('/')[-1]
             obj_dict = self
             # print(search_path)
-            search_middle_path=search_path.split('/')
-            search_middle_path_len=len(search_middle_path)
+            search_middle_path = search_path.split('/')
+            search_middle_path_len = len(search_middle_path)
             ret = dict_get(obj_dict, search_path, None)
             if int(index_list[0]) < len(ret) and int(index_list[1]) < len(ret) + 1:
                 for i in range(int(index_list[0]), int(index_list[1])):
