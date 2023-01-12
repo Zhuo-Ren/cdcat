@@ -98,15 +98,16 @@
             let catalogueInfo = getCatalogue();
             catalogueWindow_updateContent(catalogueInfo);
             // #textWindow--Load node list
-            {#TextWindow_initNodes();#}
-            //初始化color_tree
-            add_color_list();
+            {#majorTextWindow_initNodes();#}
+
             // #nodeInfoWindow--Load node labels
             nodeInfoWindow_addLabels();
             nodeInfoWindow_showNoSelect();
 
             // #instanceSelectWindow--Load instances
             instanceSelectWindow_showInstancePool();
+            //初始化color_tree,colorMap
+            instanceSelectWindow_initColor();
 
             // #instanceInfoWindow--Load instance labels
             instanceInfoWindow_addLabels();
@@ -115,13 +116,44 @@
 
         <!-- add event -->
         {
+            let prelist=[]
             // textWindow: 选中一段文本
-            $(".textTab").mouseup(function () {
-                textMouseup();
-            });
+           {# $(".textTab").mouseup(function () {#}
+           {#     textMouseup();#}
+
+            $(".textTab").mouseup(function(event) {
+                // 当按下了 Ctrl 键和鼠标点击时，
+                if (event.ctrlKey) {
+                    let l=majorTextWindow_getSelectedIndexFromGui();
+                    for(let k =0;k<l.length;k++) {
+                        prelist.push(l[k]);
+                    }
+                    SelectedElementIndexList=prelist;
+                    textMouseup();
+                }else {
+                    prelist=[];
+                    SelectedElementIndexList=majorTextWindow_getSelectedIndexFromGui();
+                    textMouseup();
+                }
+             });
+
+             {#document.addEventListener('keypress', function(event){#}
+             {#   // 当按下了 Ctrl 键和鼠标点击时，#}
+             {#    if(event.ctrlKey) {#}
+             {#        document.addEventListener('mousedown',function(){#}
+             {#            let l = majorTextWindow_getSelectedIndexFromGui();#}
+             {#            for (const k in l) {#}
+             {#                prelist.push(k);#}
+             {#            }#}
+             {#            SelectedElementIndexList = prelist;#}
+             {#            textMouseup();#}
+             {#            console.log(prelist);#}
+             {#        });#}
+             {#    }#}
+
 
             $(".textTab").click(function (e) {
-               textClick(e);
+               svgClick(e);
             });
 
             // nodeInfoWindow: 单击“添加标注对象”按钮
@@ -134,7 +166,7 @@
             });
             // nodeInfoWindow：单击“x”按钮
             $("#nodeInfo-del").click(function(){
-                nodeInfodelClick();
+                delNodeButtonClick();
             });
 
             // instanceSelectWindow: 单击“+”按钮

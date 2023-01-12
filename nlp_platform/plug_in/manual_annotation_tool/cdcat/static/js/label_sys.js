@@ -326,8 +326,7 @@ function generateTextInputLabelObj(labelDict, labelValue){
 //                    console.log($("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text())
                     let id = $("#instanceInfo-selectedInstance div[name='labelInfo-id'] #idValue").text();
                     let value = $("#" + labelDict["key"] + "Value")[0].value;
-                    console.log(id)
-                    console.log(value)
+
                     // ajax to background
                     let r = setInstance(id, {[labelDict["key"]]: value});
                     if (r[0] != "success"){
@@ -408,7 +407,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             if (curItem["text"]==""){
                                                 inputText = "";
                                             }else{
-                                                inputText=get_curve_node_text(curItem);
+                                                inputText=getCurveNodeText(curItem);
                                             }
                                             nodeId = curItem["id"];
                                         }
@@ -481,23 +480,29 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             alert(langDict[r[1]]);
                                             return;
                                         }else{
-
                                             let nodepre=curId.split(":")[0]+":"+curId.split(":")[1]+":";
                                             let nodeID1=curId.split(":")[2];
                                             let nodeID2=delNodeButtonObj.prev().attr("name").split(":")[2];
+
                                             let delnode=undefined;
                                             for(const k in node_label_list)
                                             {
+                                                if(node_label_list[k].split("-").length<4)
+                                                    continue;
+                                                let node_list=getFromNodeAndToNode(node_label_list[k])
+                                                let [from_node,to_node]=[node_list[0],node_list[1]];
+                                                console.log(node_label_list[k],node_list);
+                                                let cur_node=nodepre+from_node.split(":")[2]+"-"+to_node.split(":")[2];
                                                 delnode=nodepre+nodeID1+"-"+nodeID2;
-                                                if(delnode==node_label_list[k]) {
-                                                     delNode(delnode);
+                                                if(delnode==cur_node) {
+                                                     delNode(node_label_list[k]);
                                                 }
                                                 delnode=nodepre+nodeID2+"-"+nodeID1;
-                                                if(delnode==node_label_list[k])
-                                                     delNode(delnode);
+                                                if(delnode==cur_node)
+                                                     delNode(node_label_list[k]);
                                             }
-                                            TextWindow_initNodes();
-                                            // majorTextWindow_redrawSvg();
+                                            majorTextWindow_initNodes();
+                                            // majorTextWindow_updateSvg();
                                             // refresh nodeInfoWindow
                                             nodeInfoWindow_refresh();
                                             // refresh instanceInfoWindow
@@ -613,7 +618,7 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             alert(langDict[r[1]]);
                                             return;
                                         }else{
-                                             // majorTextWindow_redrawSvg();
+                                             // majorTextWindow_updateSvg();
                                             // refresh nodeInfoWindow
                                             nodeInfoWindow_refresh();
 
