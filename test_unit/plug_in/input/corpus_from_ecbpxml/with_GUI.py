@@ -17,13 +17,13 @@ def test_nodes_from_ecbpxml():
     import_config()
     #
     c = corpus_from_ecbpxml(
-        ecbp_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\corpus\ECBplus",
-        csv_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\corpus\ECBplus_coreference_sentences.csv"
+        ecbp_path=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\corpus\ECBplus",
+        csv_path=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\corpus\ECBplus_coreference_sentences.csv"
     )
     # show
     from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
     cdcat(c,
-          path_to_label_config=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\config_cdcat_label.json",
-          path_to_core_config=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\config_cdcat_core.json")
+          path_to_label_config=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\config_cdcat_label.json",
+          path_to_core_config=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\nodes_from_ecbpxml\config_cdcat_core.json")
 
 test_nodes_from_ecbpxml()
