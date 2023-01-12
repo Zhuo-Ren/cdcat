@@ -204,6 +204,15 @@ class ListLabel(Label):
 #                 raise TypeError("Value of this label do not match the options.")
 #         self["value"] = value
 
+class ReportList(List):
+    def __add__(self, other):
+        raise RuntimeError(
+            "获取得到的Relation Label的值只是一个查询结果，修改它没有任何意义，请使用__setitem__修改，例如a_mention['a_label']['value']=XXX是有效的，而a_mention['a_label']['value'].add(XXX)是无效的。")
+
+    def append(self, other):
+        raise RuntimeError(
+            "获取得到的Relation Label的值只是一个查询结果，修改它没有任何意义，请使用__setitem__修改，例如a_mention['a_label']['value']=XXX是有效的，而a_mention['a_label']['value'].add(XXX)是无效的。")
+
 
 class RelationLabel(Label):
     """
@@ -272,17 +281,16 @@ class RelationLabel(Label):
                         elif self["index_self"] == "1":
                             r = t[None, self_id["value"]]
                     except KeyError:
-                        return []
+                        return ReportList()
                 # 无向图
                 else:
                     try:
                         r = t[self_id["value"]]
                     except KeyError:
-                        return []
-            r_relations = r.to_dict()
-
+                        return ReportList()
             # 把relation转成对应的node或instance
             r_obj_list = []
+            r_relations = r.to_dict()
             for cur_relation in r_relations:
                 # 有向图
                 if "index_self" in self:
@@ -310,11 +318,11 @@ class RelationLabel(Label):
                     #
                     r_obj_list.append(other_id)
             #
-            return r_obj_list
+            return ReportList(r_obj_list)
         else:
             return super().__getitem__(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: List):
         if key == "value":
             c = self["owner"].pool.corpus
             t = c.tp[self["table_name"]]
@@ -369,7 +377,7 @@ class RelationLabel(Label):
                             return None
                 # 添加新的
                 for i in value:
-                    self.__setitem__(key=key, value=i)
+                    self.__setitem__(key=key, value=i) ##
         else:
             super().__setitem__(key, value)
 
