@@ -1,6 +1,3 @@
-import nlp_platform.center.config_log
-
-
 class Config:
     _config_dict = {}
 
