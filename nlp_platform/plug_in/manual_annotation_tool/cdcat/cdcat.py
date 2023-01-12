@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify
-#
+import json
+import sys
+import os
 import logging
 #
 from nlp_platform.center.nodepool import NodePool
@@ -9,34 +11,49 @@ from nlp_platform.center.corpus import Corpus
 from nlp_platform.center.raw import Raw
 from nlp_platform.center.node import Node
 
-def cdcat(corpus: Corpus) -> None:
+def cdcat(
+        corpus: Corpus,
+        path_to_core_config=None,
+        path_to_lang_config=None,
+        path_to_label_config=None
+) -> None:
     """
     This is a manual annotation tool for cross-document coreference.
 
-    :param node_pool: nodes info in the form of *center.ntree*.
-    :param instance_pool: instances info in the form of *center.instances*.
+    :param corpus:
+    :param path_to_core_config:
+    :param path_to_lang_config:
+    :param path_to_label_config:
+    :return:
     """
     # app init
     app = Flask(__name__)
     from datetime import timedelta
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
 
+    # load core config
+    if path_to_core_config is None:
+        cur_file_path = os.path.abspath(sys.argv[0])
+        cur_folder_path = os.path.dirname(cur_file_path)
+        path_to_core_config = os.path.join(cur_folder_path, "config_cdcat_core.json")
+    with open(path_to_core_config, 'r', encoding='utf8') as f:
+        config_core = json.load(f)
+        if "save_to" not in config_core:
+            config_core["save_to"] = "./corpus"
     # load config_cdcat_label.json
-    import json
-    import sys
-    import os
-    cur_file_path = os.path.abspath(sys.argv[0])
-    cur_folder_path = os.path.dirname(cur_file_path)
-    config_label_file_path = os.path.join(cur_folder_path, "config_cdcat_label.json")
-    with open(config_label_file_path, 'r', encoding='utf8') as f:
+    if path_to_label_config is None:
+        cur_file_path = os.path.abspath(sys.argv[0])
+        cur_folder_path = os.path.dirname(cur_file_path)
+        path_to_label_config = os.path.join(cur_folder_path, "config_cdcat_label.json")
+    with open(path_to_label_config, 'r', encoding='utf8') as f:
         config_label = json.load(f)
     # load config_lang.json
-    cur_file_path = os.path.abspath(__file__)
-    cur_folder_path = os.path.dirname(cur_file_path)
-    config_lang_file_path = os.path.join(cur_folder_path, "config_lang.json")
-    with open(config_lang_file_path, 'r', encoding='utf8') as f:
+    if path_to_lang_config is None:
+        cur_file_path = os.path.abspath(__file__)
+        cur_folder_path = os.path.dirname(cur_file_path)
+        path_to_lang_config = os.path.join(cur_folder_path, "config_lang.json")
+    with open(path_to_lang_config, 'r', encoding='utf8') as f:
         config_lang = json.load(f)
-
 
     @app.route('/')
     def init():
