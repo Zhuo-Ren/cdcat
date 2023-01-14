@@ -1,4 +1,4 @@
 {
   "save_to": "E:/ProgramCode/cdcat/test_unit/corpus",
-  "reg_ex_of_raw_text": ""
+  "suffix_of_doc_in_raw": "ecb"
 }

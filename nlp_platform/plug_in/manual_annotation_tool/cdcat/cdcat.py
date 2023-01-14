@@ -138,7 +138,7 @@ def cdcat(
                 content.append("raw")
             path = str()
             for key, value in raw.items():
-                if re.search("raw.txt", key, flags=0):
+                if re.search(config_core["suffix_of_doc_in_raw"], key, flags=0):
                     path = ""
                     for p in path_list:
                         path += "%s/" % p
