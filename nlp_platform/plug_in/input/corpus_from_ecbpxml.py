@@ -9,10 +9,6 @@ if TYPE_CHECKING:
     from nlp_platform.center.corpus import Corpus
 
 
-# 配置logging
-
-
-
 class MentionData(object):
     '''
     An helper class for a mid-representation of a mention when reading the corpus.
@@ -794,9 +790,9 @@ def read_corpora(
     train_topics = [i for i in range(1, 36) if
                     i not in dev_topics]  # train topics 1-35 , test topics 36-45
     test_topics = list(set(topic_list) - set(train_topics) - set(dev_topics))
-    print('train_topics:', train_topics)
-    print('dev_topics:', dev_topics)
-    print('test_topics:', test_topics)
+    # print('train_topics:', train_topics)
+    # print('dev_topics:', dev_topics)
+    # print('test_topics:', test_topics)
 
     # 3. split train/dec/test file
     # classify all the ecb/ecb+ docs into train/dev/test set in sorted order.
@@ -1057,33 +1053,13 @@ def info_from_ecbpxml(
     return [token_tree, all_mentions]
 
 
-def corpus_from_ecbpxml(
-        ecbp_path: str = r"data\raw\ECBplus",
-        csv_path: str = r"data\raw\ECBplus_coreference_sentences.csv"
-) -> Corpus:
-    """
-    读取ecb+语料库，生成Corpus对象。
-
-    ecb+语料库中涉及离散指称。
-    例如“turn it off”中的“turn off”被标注为一个mention。
-    但是Corpus对象暂时还不支持（主要是Raw.__getitem__不支持）。
-    所以在把ecb+语料存到Corpus对象时，进行了简化。
-    即对离散指称，只保留其第一个连续部分，即“turn”。
-
-    本方法涉及后缀转换，例如ecb+中的1_ecb.xml对应1_ecb.raw.txt。
-
-    :param ecbp_path: ecb+语料根文件夹路径。
-    :param csv_path: ecb+语料中ECBplus_coreference_sentences.csv文件的路径。
-    :return: 基于ecb+语料库构建的Corpus obj。
-    """
+def info_to_corpus(token_tree: Dict, mention_list: List) -> Corpus:
     from nlp_platform.center.raw import Raw
     from nlp_platform.center.node import Node
     from nlp_platform.center.nodepool import NodePool
     from nlp_platform.center.instance import Instance
     from nlp_platform.center.instancepool import InstancePool
     from nlp_platform.center.corpus import Corpus
-    #
-    [token_tree, mention_list] = info_from_ecbpxml(ecbp_path=ecbp_path, csv_path=csv_path)
     # 对每个token，基于句级index，生成文档级index
     for topic_id in token_tree.keys():
         for doc_id in token_tree[topic_id].keys():
@@ -1098,7 +1074,7 @@ def corpus_from_ecbpxml(
                     ]
                     last = last+1+cur_token["token_len"]
                     del cur_token
-                del t_id
+                    del t_id
                 del cur_sentence
             del sentence_id
             del last
@@ -1112,7 +1088,7 @@ def corpus_from_ecbpxml(
         if topic_id not in raw:
             raw[topic_id] = {}
         for doc_id in token_tree[topic_id].keys():
-            doc_id_raw_txt = doc_id + ".raw.txt"
+            doc_id_raw_txt = doc_id  ### + ".raw.txt"
             if doc_id not in raw[topic_id]:
                 raw[topic_id][doc_id_raw_txt] = ""
             doc_text = []
@@ -1177,7 +1153,7 @@ def corpus_from_ecbpxml(
         if ";" in token_index_str:  # 简化离散指称（就是对3-5;7-8仅保留第一个组3-5）
             token_index_str = re.match("^[^;]*(?=;)", token_index_str).group()
         # node
-        n_id = f"n:{topic_id}/{doc_id+'.raw.txt'}:{token_index_str}"
+        n_id = f"n:{topic_id}/{doc_id}:{token_index_str}"  ###  n_id = f"n:{topic_id}/{doc_id+'.raw.txt'}:{token_index_str}"
         cur_node = Node(info={"id": n_id})
         if raw[n_id] != cur_mention.tokens_str:
             pass  # value error是因为n_id支持了离散指称，但是node.__get_item__()还不支持。
@@ -1191,5 +1167,29 @@ def corpus_from_ecbpxml(
             cur_instance["mentions"]["value"] = t
             del cur_instance
         del cur_mention, n_id
+    return c
+
+
+def corpus_from_ecbpxml(
+        ecbp_path: str = r"data\raw\ECBplus",
+        csv_path: str = r"data\raw\ECBplus_coreference_sentences.csv"
+) -> Corpus:
+    """
+    读取ecb+语料库，生成Corpus对象。
+
+    ecb+语料库中涉及离散指称。
+    例如“turn it off”中的“turn off”被标注为一个mention。
+    但是Corpus对象暂时还不支持（主要是Raw.__getitem__不支持）。
+    所以在把ecb+语料存到Corpus对象时，进行了简化。
+    即对离散指称，只保留其第一个连续部分，即“turn”。
+
+    本方法涉及后缀转换，例如ecb+中的1_ecb.xml对应为1_ecb。
+
+    :param ecbp_path: ecb+语料根文件夹路径。
+    :param csv_path: ecb+语料中ECBplus_coreference_sentences.csv文件的路径。
+    :return: 基于ecb+语料库构建的Corpus obj。
+    """
+    [token_tree, mention_list] = info_from_ecbpxml(ecbp_path=ecbp_path, csv_path=csv_path)
+    c = info_to_corpus(token_tree, mention_list)
     return c
 
