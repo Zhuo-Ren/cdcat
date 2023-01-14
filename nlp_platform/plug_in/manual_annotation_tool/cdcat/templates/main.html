@@ -117,18 +117,14 @@
         <!-- add event -->
         {
             let prelist=[]
-            // textWindow: 选中一段文本
-           {# $(".textTab").mouseup(function () {#}
-           {#     textMouseup();#}
-
             $(".textTab").mouseup(function(event) {
                 // 当按下了 Ctrl 键和鼠标点击时，
                 if (event.ctrlKey) {
                     let l=majorTextWindow_getSelectedIndexFromGui();
                     for(let k =0;k<l.length;k++) {
-                        prelist.push(l[k]);
+                        SelectedElementIndexList.push(l[k]);
                     }
-                    SelectedElementIndexList=prelist;
+
                     textMouseup();
                 }else {
                     prelist=[];
@@ -136,21 +132,6 @@
                     textMouseup();
                 }
              });
-
-             {#document.addEventListener('keypress', function(event){#}
-             {#   // 当按下了 Ctrl 键和鼠标点击时，#}
-             {#    if(event.ctrlKey) {#}
-             {#        document.addEventListener('mousedown',function(){#}
-             {#            let l = majorTextWindow_getSelectedIndexFromGui();#}
-             {#            for (const k in l) {#}
-             {#                prelist.push(k);#}
-             {#            }#}
-             {#            SelectedElementIndexList = prelist;#}
-             {#            textMouseup();#}
-             {#            console.log(prelist);#}
-             {#        });#}
-             {#    }#}
-
 
             $(".textTab").click(function (e) {
                svgClick(e);

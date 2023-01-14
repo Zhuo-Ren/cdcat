@@ -280,25 +280,67 @@ def cdcat(
             from nlp_platform.center.node import Node
             # 获得选中mention的首末position以及file_path
             file_path = request.form.get("file_path")
+            info = {}
+            # if isinstance(children_node_position_list[0] , str):
+            #     children_node_position_list = [i.split("-") for i in children_node_position_list]
+            #     children_node_position_first = children_node_position_list[0][0]
+            #     children_node_position_last = children_node_position_list[-1][-1]
+            #     position = children_node_position_first + "-" + children_node_position_last
+            #     # 下面代码有问题，children_node_position_list是嵌套列表
+            #     # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
+            #     # children_node_list = [corpus.np(i) for i in children_node_position_list]
+            #     # 将position整理成node_id的形式
+            #     node_id = "n:" + file_path + ":" + position
+            #     info = {"id": node_id}
+            #     # 将mention制作成Node并放入corpus.np里
+            #     text = corpus.raw[node_id]
+            #     token_id=corpus.raw.to_info(node_id)
+            #     info.update({"text": text})
+            #     info.update({"token_id": token_id})
+            # else:
+            #     children_node_index_list=[]
+            #     node_list=[]
+            #     text = ""
+            #     node_id = "n:" + file_path + ":"
+            #     for i in children_node_position_list:
+            #         for j in i:
+            #             children_node_index_list.append(j.split("-"));
+            #         node_list.append(children_node_position_list[0][0])
+            #         node_list.append(children_node_position_list[-1][-1])
+            #         temp_node_id="n:" + file_path + ":"+ node_list.append(children_node_position_list[0][0])+"-"+children_node_position_list[-1][-1]
+            #         text = text+corpus.raw[temp_node_id]
+            #     position="-".join(node_list)
+            #     node_id = "n:" + file_path + ":" + position
+            #     info.update({"text": text})
             children_node_position_list = [i.split("-") for i in children_node_position_list]
-            children_node_position_first = children_node_position_list[0][0]
-            children_node_position_last = children_node_position_list[-1][-1]
-            position = children_node_position_first + "-" + children_node_position_last
-            # 下面代码有问题，children_node_position_list是嵌套列表
-            # children_node_position_list = [[int(j) for j in i] for i in children_node_position_list]
-            # children_node_list = [corpus.np(i) for i in children_node_position_list]
+            position = children_node_position_list[0][0]
+            for i in range(0, len(children_node_position_list) - 1):
+                if int(children_node_position_list[i][0]) + 1 != int(children_node_position_list[i + 1][0]):
+                    position += "-" + children_node_position_list[i][-1] + "-" + children_node_position_list[i + 1][0]
+            position += "-" + children_node_position_list[-1][-1]
+            text = ""
+            token_id = []
+            position_list = position.split("-")
+            for i in range(0, len(position_list), 2):
+                if i < len(position_list) - 2:
+                    text += corpus.raw["n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]] + " "
+                else:
+                    text += corpus.raw["n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]]
+                token_id.append(
+                    corpus.raw.to_info("n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]))
+
             # 将position整理成node_id的形式
             node_id = "n:" + file_path + ":" + position
             info = {"id": node_id}
             # 将mention制作成Node并放入corpus.np里
-            text = corpus.raw[node_id]
-            token_id=corpus.raw.to_info(node_id)
+            # text = corpus.raw[node_id]
+            # token_id=corpus.raw.to_info(node_id)
             info.update({"text": text})
-            info.update({"token_id": token_id})
+            # info.update({"token_id": token_id})
             new_node = Node(info=info)
             corpus.np.add(new_node)
             new_node_info = new_node.to_info()
-            new_node_info.update({"test": None})
+
             # new_node_info.update({"text": text})
             logging.debug("addNode<-：" + str(["success", new_node_info]))
             return jsonify(["success", new_node_info])

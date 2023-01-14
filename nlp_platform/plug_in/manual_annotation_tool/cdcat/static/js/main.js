@@ -2,7 +2,7 @@
 // var selectedElements = 0;
 // var selectedIndex = undefined;
 var svgNS = 'http://www.w3.org/2000/svg';
-var SelectedElementIndexList  = undefined;
+var SelectedElementIndexList  = [];
 // var selectedElementsBefore= undefined;
 var wrap_list=[];
 var void_list=[];
@@ -442,11 +442,10 @@ function PythonStyleToJsStyle(data){
             let file_id = $("#textTab1").attr("name");
             let div_a,div_b;
             let div_list=majorTextWindow_getNodeElementlist(node_id);
-            let svg = $(document.createElementNS(svgNS, 'svg'));
-            let path = $(document.createElementNS(svgNS, 'path'));
+
             let min_x=2000,min_y=2000,max_x=0,max_y=0,x=0,y=0;
             let width,height;
-            let d_sum= "";
+            let d_sum= [];
              //计算svg元素的
              for(let i=0;i<div_list.length;i++) {
                 let a_x=parseInt($('#'+div_list[i]).offset().left);
@@ -459,7 +458,7 @@ function PythonStyleToJsStyle(data){
              x =min_x;
              y = min_y;
             width = Math.abs( max_x- min_x);
-            height = Math.abs( max_y- min_y)+18;
+            height = Math.abs( max_y- min_y);
             for(let i=0;i<div_list.length;i+=2) {
                 let d = undefined
                 div_a = '#'+div_list[i];
@@ -475,9 +474,9 @@ function PythonStyleToJsStyle(data){
                     //如果在前面
                     if (a_x == x) {
                         if (width < 4)
-                            d = "M 0 2 " + "L " + String(parseInt(w)) + " " + String(2);
+                            d = "M 0 2 " + "l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M 0 2 " + "L " + String(parseInt(w) - 2) + " " + String(2);
+                            d = "M 0 2 " + "l " + String(parseInt(w) - 2) + " " + String(0);
                     } else {
                         if (width < 4)
                             d = "M " + String(width - w) + " 2 " + "l " + String(parseInt(w)) + " " + String(0);
@@ -488,18 +487,18 @@ function PythonStyleToJsStyle(data){
                     //如果在前面
                     if (a_x == x) {
                         if (width < 4)
-                            d = "M 0 " + String(h + 2) + " L " + String(parseInt(w)) + " " + String(h + 2);
+                            d = "M 0 " + String(height+2) + " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M 0 " + String(h + 2) + " L " + String(parseInt(w) - 2) + " " + String(h + 2);
+                            d = "M 0 " + String(height+2) + " l " + String(parseInt(w) - 2) + " " + String(0);
                     } else {
                         if (width < 4)
-                            d = "M " + String(width - w) +  " " + String(h + 2) + " l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) +  " " + String(height+2) + " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M " + String(width - w )  +  " " + String(h + 2)+" l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w )  +  " " + String(height+2 )+" l " + String(parseInt(w)) + " " + String(0);
                     }
 
                 }
-                d_sum+=d;
+                d_sum.push(d);
             }
             {
                 let d=undefined;
@@ -515,70 +514,315 @@ function PythonStyleToJsStyle(data){
                 //贝塞尔曲线控制点，svg位置的相对坐标
                 let control_x = undefined;
                 let control_y = undefined;
-                if(height==0) {
-                    if(width>24) {
-                        control_x = width / 2;
-                        control_y = height + 24;
+                if(h==0) {
+                    if(w>24) {
+                        control_x = w / 2;
+                        control_y = h + 24;
                     }else {
-                        control_x = width / 2;
-                        control_y = height + 14;
+                        control_x = w / 2;
+                        control_y = h + 14;
                     }
                 }
                 else
                 {
                     //当a在b的左下角
                     if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)){
-                          let mid_x = width / 2;
-                         let mid_y = height / 2;
+                        let mid_x = w / 2;
+                        let mid_y = h / 2;
 
-                        let arc = Math.atan(height / width);
-                        let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
-                        let h = 0.25*l;
-                        control_x = mid_x + h * Math.sin(arc);
-                        control_y = mid_y + h * Math.cos(arc);
+                        let arc = Math.atan(h / w);
+                        let l = parseInt(Math.pow(Math.pow(w, 2) + Math.pow(h, 2), 0.5));
+                        let l_h = 0.25*l;
+                        control_x = mid_x + l_h * Math.sin(arc);
+                        control_y = mid_y + l_h * Math.cos(arc);
                     }
                     else {
-                        let mid_x = width / 2;
-                        let mid_y = height / 2;
-                        let arc = Math.atan(height / width);
-                        let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
-                        let h = 0.25*l;
-                        control_x = mid_x - h * Math.sin(arc);
-                        control_y = mid_y + h * Math.cos(arc);
+                        let mid_x = w / 2;
+                        let mid_y = h / 2;
+                        let arc = Math.atan(h / w);
+                        let l = parseInt(Math.pow(Math.pow(w, 2) + Math.pow(h, 2), 0.5));
+                        let  l_h = 0.25*l;
+                        control_x = mid_x -  l_h * Math.sin(arc);
+                        control_y = mid_y +  l_h * Math.cos(arc);
                     }
                 }
+                height=height+18;
+                if (control_y>height)
+                    height=control_y;
+
+                console.log(a_x,a_y,control_x,control_y,width,height,x,y);
                  //如果a的位置在b的左下角或b在a的左下角
                 // if(a_x<b_x)//当a在b的左下角
                 if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)) {
-                    d = "M " + String(a_x-x-2)+" " + String(h) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String( 0);
-                    // if (control_x>width)
-                    // {
-                    //      d = "M "+String(a_x-x)+" " + String(h) + " Q " + String(control_x) + " " + String(control_y) + " " + String(w) + " 0";
-                    //      width=control_x;
-                    // }else {
-                    //     d = "M "+String(a_x-x)+" "  + String(h) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " 0";
-                    // }
+                    // d = "M " + String(b_x-x-2)+" " + String(h) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String( -h);
+                    if (control_x>width)
+                    {
+                         d = "M "+String(b_x-x-2)+" " + String(h) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h);
+                         width=control_x;
+                    }else {
+                        d = "M "+String(b_x-x-2)+ " " + String(h) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h);
+                    }
                 }
                 else {
-                    d = "M " +  String(a_x-x-2)+" "+String(0) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String(h);
-                    // if(control_x<0)
-                    // {
-                    //      d = "M " +  String(-control_x)+" 0"+ " Q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h);
-                    //      x = x +control_x;
-                    //      width=width-control_x;
-                    // }
-                    // else {
-                    //     d = "M 0 " + String(a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h);
-                    // }
+                    // d = "M " +  String(a_x-x-2)+" "+String(0) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String(h);
+                    if(control_x<0 && -control_x>a_x-x)
+                    {
+                         d = "M " +  String(-control_x)+" 0"+ " q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h);
+                         x = x +(control_x+a_x-x);
+                         width=width-(control_x+a_x-x);
+                    }
+                    else {
+                        d = "M " + String(a_x-x-2) + " 2"+" q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h);
+                    }
                 }
 
-                d_sum+=d;
+                d_sum.push(d);
             }
-            console.log(d_sum);
-            x =min_x-$(textTab1).offset().left+11;
-            y = min_y-$(textTab1).offset().top+8;
 
-            path.attr("d", d_sum);
+
+            x =x-$(textTab1).offset().left+11;
+            y = y-$(textTab1).offset().top+8;
+            let svg_id=node_id.split(":")[2]+"_0";
+            let svg = $(document.createElementNS(svgNS, 'svg'));
+            for(const k in d_sum) {
+                let path = $(document.createElementNS(svgNS, 'path'));
+                path.attr("d", d_sum[k]);
+                path.attr("stroke-width", "2");
+                if(d_sum[k].indexOf('q')!=-1 || d_sum[k].indexOf('Q')!=-1)
+                    path.attr("stroke-dasharray", "10,5");
+                path.attr("visibility", "visible");
+                path.attr("fill", "none");
+                path.click(function () {
+                    let slotNum = $(".slot").length;
+                    if (slotNum == 0) {
+                        // 重新加载文本
+                        getText(
+                            majorTextWindow_getCurArticleNodePosition(),
+                            function (returnData, status, requireData) {
+                                majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
+                                majorTextWindow_updateText(returnData, 0);
+                                majorTextWindow_show(returnData);
+                            }
+                        );
+                        nodeInfoWindow_showSvgNode(node_id);
+                        // majorTextWindow_updateSvg();
+                        //点击curve颜色改为红色
+                        majorTextWindow_changeSvgColor(svg_id, "red");
+                        cur_Node = node_id;
+                        cur_Node_Z = 0;
+                    }
+                });
+                svg.append(path);
+            }
+            svg.attr("stroke", color);
+            svg.attr("id", svg_id);
+            svg.attr("z",0);
+            svg.attr("class",doc_id);
+
+            //抗锯齿
+            // svg.css("shape-rendering","optimizeSpeed")
+            svg.css("shape-rendering","geometricPrecision")
+            // 当svg中的某个元素可见，并且当其fill 不是none 时，指针在fill区域，该事件能够被捕捉到，当其 troke不是none时，stroke目标事件能够被捕捉到，visibility为hidden事件不可捕获。
+            svg.css("pointer-events","visiblePainted")
+            svg.css("visibility","hidden");
+            svg.css("position", "absolute")
+            svg.css("top", y);
+            svg.css("left", x);
+
+            svg.css("width", width+4);
+            svg.css("height", height);
+             //根据控制点位置决定svg高度
+            // if (control_y>height)
+            //     svg.css("height", control_y);
+            // else
+            //     svg.css("height", height);
+            //
+            svg.css("z-index", 150);
+
+            $(textTab1).append(svg);
+
+        }
+
+          /**
+         Setting curve for nodes
+         @param div_a:div元素。for example：#1-2
+         @param a_z: 0 or 1。for example:node1与另一个节点有重叠时，则为1
+         @param node1:id靠前的节点id。for example: n:doc:14-20,
+         */
+        function addCurve( id, color,a_z=0,b_z=0,node1=" ",node2=" "){
+
+            let file_id = $("#textTab1").attr("name");
+            // let have=0;
+            let node_id="n:"+file_id+":"+node1.split(":")[2]+"_"+String(a_z)+"-"+node2.split(":")[2]+"_"+String(b_z);
+
+            // for(const k in node_label_list) {
+            //     if (node_id == node_label_list[k])
+            //         have = 1;
+            // }
+            // if(have==0) {
+            //     //当前节点id的形式必须为1-2-3-4的数字递增形式
+            //     // console.log(id, file_id,node1,node2,a_z,b_z);
+            //     let r = addNodeByCurve(file_id,node1,node2,a_z,b_z);
+            //     node_id = r[1]["id"];
+            //     node_label_list.push(node_id);
+            // }
+
+
+            let a_x=0,b_x=0,a_y=0,b_y=0;
+            let div_a,div_b;
+
+            let from_node_z = getNodeOverlapLeval(node1);
+            let to_node_z = getNodeOverlapLeval(node2);
+
+
+            let node_list1=node1.split("-");
+            let node_list2=node2.split("-");
+            let node1_len=node_list1.length;
+            let node2_len=node_list2.length;
+
+
+            let div_list_a=majorTextWindow_getNodeElementlist(node1);
+            let div_list_b=majorTextWindow_getNodeElementlist(node2);
+            div_a=div_list_a[0];
+            div_b=div_list_b[0];
+
+
+            a_z=parseInt(a_z);
+            b_z=parseInt(b_z);
+            a_z+=from_node_z;
+            b_z+=to_node_z;
+             // console.log(node_id,node1,node2,from_node_z,to_node_z);
+
+            // 暂时这样
+            if(parseInt(div_a.split('-')[1])>parseInt(div_b.split('-')[1]))
+            {
+                [div_a,div_b]=[div_b,div_a];
+                [a_z,b_z]=[b_z,a_z];
+            }
+
+            if(div_a[0]!='#')
+                div_a="#"+div_a;
+            if(div_b[0]!='#')
+                div_b="#"+div_b;
+
+            //如若是curve node则起点或终点更改为曲线中点
+            if(node1_len>2)
+            {
+                let curve=$("#"+node1);
+                a_x=parseInt(Number(curve.attr("mid_x"))+0.5);
+                a_y=parseInt(Number(curve.attr("mid_y"))+0.5);
+            }else
+            {
+                //计算a,b相对于textTab1的偏移坐标
+                a_x = $(div_a).offset().left-$(textTab1).offset().left+12;
+                a_y = $(div_a).offset().top + $(div_a).height()-$(textTab1).offset().top+8;
+
+            }
+
+            if(node2_len>2)
+            {
+                let curve=$("#"+node2);
+                b_x=parseInt(Number(curve.attr("mid_x"))+0.5);
+                b_y=parseInt(Number(curve.attr("mid_y"))+0.5);
+            }else {
+                b_x = $(div_b).offset().left-$(textTab1).offset().left+12;
+                b_y = $(div_b).offset().top + $(div_b).height()-$(textTab1).offset().top+8;
+              }
+
+
+            let svg = $(document.createElementNS(svgNS, 'svg'));
+            let path = $(document.createElementNS(svgNS, 'path'));
+
+            //计算svg的位置相关属性
+            let x = Math.min(a_x, b_x);
+            let y = Math.min(a_y, b_y);
+
+            //width+3与后面的下划线连接
+            let width = Math.abs(a_x-b_x)+3;
+            let height = Math.abs(a_y-b_y);
+
+            //贝塞尔曲线控制点，svg位置的相对坐标
+            let control_x = undefined;
+            let control_y = undefined;
+            if(height==0) {
+                if(width>24) {
+                    control_x = width / 2;
+                    control_y = height + 24;
+                }else {
+                    control_x = width / 2;
+                    control_y = height + 14;
+                }
+            }
+            else
+            {
+                //当a在b的左下角
+                if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)){
+                    let mid_x = width / 2;
+                    let mid_y = height / 2;
+                    let arc = Math.atan(height / width);
+                    let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
+                    let h = 0.25*l;
+                    control_x = mid_x + h * Math.sin(arc);
+                    control_y = mid_y + h * Math.cos(arc);
+                }
+                else {
+                    let mid_x = width / 2;
+                    let mid_y = height / 2;
+                    let arc = Math.atan(height / width);
+                    let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
+                    let h = 0.25*l;
+                    control_x = mid_x - h * Math.sin(arc);
+                    control_y = mid_y + h * Math.cos(arc);
+                }
+            }
+            //path是带一个控制点的贝塞尔曲线，计算t=0.5时的点作为曲线中点
+            //转化为绝对坐标
+            let svg_mid_x=x+control_x;
+            let svg_mid_y=y+control_y;
+
+            //a与控制点的中点
+            let a_svgmid_mid_x=(a_x+svg_mid_x)/2;
+            let a_svgmid_mid_y=(a_y+a_z+svg_mid_y)/2;
+
+            //b与控制点的中点
+            let b_svgmid_mid_x=(b_x+svg_mid_x)/2;
+            let b_svgmid_mid_y=(b_y+b_z+svg_mid_y)/2;
+
+            //path中点
+            let path_mid_x=(a_svgmid_mid_x+b_svgmid_mid_x)/2;
+            let path_mid_y=(a_svgmid_mid_y+b_svgmid_mid_y)/2;
+            let d= undefined;
+
+            //如果a的位置在b的左下角或b在a的左下角
+            // if(a_x<b_x)//当a在b的左下角
+            if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)) {
+                let temp=a_z;
+                a_z=b_z;
+                b_z=temp;
+
+                // d = "M " + "0 " + String(height + a_z * 7) + " Q " + String(width / 2) + " " + String(height + 24) + " " + String(width) + " " + String( b_z * 7);
+                if (control_x>width)
+                {
+                     d = "M 0 " + String(height + a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String( b_z * 7);
+                     width=control_x;
+                }else {
+                    d = "M 0 " + String(height + a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String(b_z * 7);
+                }
+            }
+            else {
+                // d = "M 0 " + String(a_z * 7) + " Q " + String(width / 2) + " " + String(height + 24) + " " + String(width) + " " + String(height + b_z * 7);
+                if(control_x<0)
+                {
+                     d = "M " +  String(-control_x)+" "+ String(a_z * 7) + " Q " + "0" + " " + String(control_y) + " " + String(width-control_x) + " " + String(height + b_z * 7);
+                     x = x +control_x;
+                     width=width-control_x;
+                }
+                else {
+                    d = "M 0 " + String(a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String(height + b_z * 7);
+                }
+            }//
+
+            path.attr("d", d);
             path.attr("stroke-width", "2");
             path.attr("visibility","visible");
             path.attr("fill", "none");
@@ -598,15 +842,17 @@ function PythonStyleToJsStyle(data){
                      nodeInfoWindow_showSvgNode(node_id);
                      // majorTextWindow_updateSvg();
                      //点击curve颜色改为红色
-                     majorTextWindow_changeSvgColor(node_id, "red");
+                     majorTextWindow_changeSvgColor(id, "red");
                      cur_Node = node_id;
                      cur_Node_Z=0;
                  }
             });
             svg.attr("stroke", color);
-            svg.attr("id", node_id);
+            svg.attr("id", id);
             svg.attr("z",0);
             svg.attr("class",doc_id);
+            svg.attr("mid_x",path_mid_x);
+            svg.attr("mid_y",path_mid_y);
 
             //抗锯齿
             // svg.css("shape-rendering","optimizeSpeed")
@@ -619,18 +865,17 @@ function PythonStyleToJsStyle(data){
             svg.css("top", y+1);
             svg.css("left", x);
             //根据控制点位置决定svg高度
-            // if (control_y>height)
-            //     svg.css("height", control_y+Math.abs(a_z*6-b_z*6));
-            // else
-            //     svg.css("height", height+Math.abs(a_z*6-b_z*6));
+            if (control_y>height)
+                svg.css("height", control_y+Math.abs(a_z*6-b_z*6));
+            else
+                svg.css("height", height+Math.abs(a_z*6-b_z*6));
             svg.css("width", width+4);
-            svg.css("height", height);
             //
-            svg.css("z-index", 150);
+            svg.css("z-index", 148);
             svg.append(path);
             $(textTab1).append(svg);
-
         }
+
         /**
             Set the svg element with the specified id to the specified stroke
           @param: id:选中svg的id
@@ -733,6 +978,8 @@ function PythonStyleToJsStyle(data){
         function getNodeOverlapLeval(nodeID)
         {
             let z=0;
+            let node_id=nodeID;
+            let node_type=getNodeType(node_id);
             let node_pre=nodeID.split(":")[0]+":"+nodeID.split(":")[1]+":";
             //node_list为node_label_list副本
             let node_list=node_label_list;
@@ -921,248 +1168,14 @@ function PythonStyleToJsStyle(data){
         }
 
         /**
-         Setting curve for nodes
-         @param div_a:div元素。for example：#1-2
-         @param a_z: 0 or 1。for example:node1与另一个节点有重叠时，则为1
-         @param node1:id靠前的节点id。for example: n:doc:14-20,
-         */
-        function addCurve( id, color,a_z=0,b_z=0,node1=" ",node2=" "){
-
-            let file_id = $("#textTab1").attr("name");
-            // let have=0;
-            let node_id="n:"+file_id+":"+node1.split(":")[2]+"_"+String(a_z)+"-"+node2.split(":")[2]+"_"+String(b_z);
-
-            // for(const k in node_label_list) {
-            //     if (node_id == node_label_list[k])
-            //         have = 1;
-            // }
-            // if(have==0) {
-            //     //当前节点id的形式必须为1-2-3-4的数字递增形式
-            //     // console.log(id, file_id,node1,node2,a_z,b_z);
-            //     let r = addNodeByCurve(file_id,node1,node2,a_z,b_z);
-            //     node_id = r[1]["id"];
-            //     node_label_list.push(node_id);
-            // }
-
-
-            let a_x=0,b_x=0,a_y=0,b_y=0;
-            let div_a,div_b;
-
-            let from_node_z = getNodeOverlapLeval(node1);
-            let to_node_z = getNodeOverlapLeval(node2);
-
-
-            let node_list1=node1.split("-");
-            let node_list2=node2.split("-");
-            let node1_len=node_list1.length;
-            let node2_len=node_list2.length;
-
-
-            let div_list_a=majorTextWindow_getNodeElementlist(node1);
-            let div_list_b=majorTextWindow_getNodeElementlist(node2);
-            div_a=div_list_a[0];
-            div_b=div_list_b[0];
-
-
-            a_z=parseInt(a_z);
-            b_z=parseInt(b_z);
-            a_z+=from_node_z;
-            b_z+=to_node_z;
-             // console.log(node_id,node1,node2,from_node_z,to_node_z);
-
-            // 暂时这样
-            if(parseInt(div_a.split('-')[1])>parseInt(div_b.split('-')[1]))
-            {
-                [div_a,div_b]=[div_b,div_a];
-                [a_z,b_z]=[b_z,a_z];
-            }
-
-            if(div_a[0]!='#')
-                div_a="#"+div_a;
-            if(div_b[0]!='#')
-                div_b="#"+div_b;
-
-            //如若是curve node则起点或终点更改为曲线中点
-            if(node1_len>2)
-            {
-                let curve=$("#"+node1);
-                a_x=parseInt(Number(curve.attr("mid_x"))+0.5);
-                a_y=parseInt(Number(curve.attr("mid_y"))+0.5);
-            }else
-            {
-                //计算a,b相对于textTab1的偏移坐标
-                a_x = $(div_a).offset().left-$(textTab1).offset().left+12;
-                a_y = $(div_a).offset().top + $(div_a).height()-$(textTab1).offset().top+8;
-
-            }
-
-            if(node2_len>2)
-            {
-                let curve=$("#"+node2);
-                b_x=parseInt(Number(curve.attr("mid_x"))+0.5);
-                b_y=parseInt(Number(curve.attr("mid_y"))+0.5);
-            }else {
-                b_x = $(div_b).offset().left-$(textTab1).offset().left+12;
-                b_y = $(div_b).offset().top + $(div_b).height()-$(textTab1).offset().top+8;
-              }
-
-
-            let svg = $(document.createElementNS(svgNS, 'svg'));
-            let path = $(document.createElementNS(svgNS, 'path'));
-
-            //计算svg的位置相关属性
-            let x = Math.min(a_x, b_x);
-            let y = Math.min(a_y, b_y);
-
-            //width+3与后面的下划线连接
-            let width = Math.abs(a_x-b_x)+3;
-            let height = Math.abs(a_y-b_y);
-
-            //贝塞尔曲线控制点，svg位置的相对坐标
-            let control_x = undefined;
-            let control_y = undefined;
-            if(height==0) {
-                if(width>24) {
-                    control_x = width / 2;
-                    control_y = height + 24;
-                }else {
-                    control_x = width / 2;
-                    control_y = height + 14;
-                }
-            }
-            else
-            {
-                //当a在b的左下角
-                if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)){
-                    let mid_x = width / 2;
-                    let mid_y = height / 2;
-                    let arc = Math.atan(height / width);
-                    let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
-                    let h = 0.25*l;
-                    control_x = mid_x + h * Math.sin(arc);
-                    control_y = mid_y + h * Math.cos(arc);
-                }
-                else {
-                    let mid_x = width / 2;
-                    let mid_y = height / 2;
-                    let arc = Math.atan(height / width);
-                    let l = parseInt(Math.pow(Math.pow(width, 2) + Math.pow(height, 2), 0.5));
-                    let h = 0.25*l;
-                    control_x = mid_x - h * Math.sin(arc);
-                    control_y = mid_y + h * Math.cos(arc);
-                }
-            }
-
-
-            //path是带一个控制点的贝塞尔曲线，计算t=0.5时的点作为曲线中点
-            //转化为绝对坐标
-            let svg_mid_x=x+control_x;
-            let svg_mid_y=y+control_y;
-
-            //a与控制点的中点
-            let a_svgmid_mid_x=(a_x+svg_mid_x)/2;
-            let a_svgmid_mid_y=(a_y+a_z+svg_mid_y)/2;
-
-            //b与控制点的中点
-            let b_svgmid_mid_x=(b_x+svg_mid_x)/2;
-            let b_svgmid_mid_y=(b_y+b_z+svg_mid_y)/2;
-
-            //path中点
-            let path_mid_x=(a_svgmid_mid_x+b_svgmid_mid_x)/2;
-            let path_mid_y=(a_svgmid_mid_y+b_svgmid_mid_y)/2;
-            let d= undefined;
-
-            //如果a的位置在b的左下角或b在a的左下角
-            // if(a_x<b_x)//当a在b的左下角
-            if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)) {
-                let temp=a_z;
-                a_z=b_z;
-                b_z=temp;
-
-                // d = "M " + "0 " + String(height + a_z * 7) + " Q " + String(width / 2) + " " + String(height + 24) + " " + String(width) + " " + String( b_z * 7);
-                if (control_x>width)
-                {
-                     d = "M 0 " + String(height + a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String( b_z * 7);
-                     width=control_x;
-                }else {
-                    d = "M 0 " + String(height + a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String(b_z * 7);
-                }
-            }
-            else {
-                // d = "M 0 " + String(a_z * 7) + " Q " + String(width / 2) + " " + String(height + 24) + " " + String(width) + " " + String(height + b_z * 7);
-                if(control_x<0)
-                {
-                     d = "M " +  String(-control_x)+" "+ String(a_z * 7) + " Q " + "0" + " " + String(control_y) + " " + String(width-control_x) + " " + String(height + b_z * 7);
-                     x = x +control_x;
-                     width=width-control_x;
-                }
-                else {
-
-                    d = "M 0 " + String(a_z * 7) + " Q " + String(control_x) + " " + String(control_y) + " " + String(width) + " " + String(height + b_z * 7);
-                }
-            }//
-
-            path.attr("d", d);
-            path.attr("stroke-width", "2");
-            path.attr("visibility","visible");
-            path.attr("fill", "none");
-            path.click(function ()
-            {
-                 let slotNum = $(".slot").length;
-                 if (slotNum == 0) {
-                     // 重新加载文本
-                     getText(
-                         majorTextWindow_getCurArticleNodePosition(),
-                         function (returnData, status, requireData) {
-                             majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
-                             majorTextWindow_updateText(returnData, 0);
-                             majorTextWindow_show(returnData);
-                         }
-                     );
-                     nodeInfoWindow_showSvgNode(node_id);
-                     // majorTextWindow_updateSvg();
-                     //点击curve颜色改为红色
-                     majorTextWindow_changeSvgColor(id, "red");
-                     cur_Node = node_id;
-                     cur_Node_Z=0;
-                 }
-            });
-            svg.attr("stroke", color);
-            svg.attr("id", id);
-            svg.attr("z",0);
-            svg.attr("class",doc_id);
-            svg.attr("mid_x",path_mid_x);
-            svg.attr("mid_y",path_mid_y);
-
-            //抗锯齿
-            // svg.css("shape-rendering","optimizeSpeed")
-            svg.css("shape-rendering","geometricPrecision")
-            // 当svg中的某个元素可见，并且当其fill 不是none 时，指针在fill区域，该事件能够被捕捉到，当其 troke不是none时，stroke目标事件能够被捕捉到，visibility为hidden事件不可捕获。
-            svg.css("pointer-events","visiblePainted")
-            svg.css("visibility","hidden");
-            svg.css("position", "absolute")
-            //y+1与下划线连接
-            svg.css("top", y+1);
-            svg.css("left", x);
-            //根据控制点位置决定svg高度
-            if (control_y>height)
-                svg.css("height", control_y+Math.abs(a_z*6-b_z*6));
-            else
-                svg.css("height", height+Math.abs(a_z*6-b_z*6));
-            svg.css("width", width+4);
-            //
-            svg.css("z-index", 148);
-            svg.append(path);
-            $(textTab1).append(svg);
-        }
-
-        /**
          According to the curve node ID returns the head node and tail node of the curve
          @param nodeID
          @return {array} [from_node,to_node]
          */
         function getFromNodeAndToNode(nodeID)
         {
+            let node_id=nodeID;
+            let node_type=getNodeType(node_id);
             nodeID = nodeID.split(":");
             let node_pre=nodeID[0]+":"+nodeID[1]+":";
             nodeID = nodeID[nodeID.length - 1];
@@ -1172,88 +1185,81 @@ function PythonStyleToJsStyle(data){
             let to_node="";
             let node_list=[];
             //获取普通节点的头尾div
-            if(nodeID_len<4) {
+            if(node_type!=3) {
                return node_list;
             }
             //curve节点的头尾div
-            else if(nodeID_len==4){
-
-                 from_node=nodeID[0]+"-"+nodeID[1].split('_')[0];
-                 to_node=nodeID[2]+"-"+nodeID[3].split('_')[0];
-            }
-            //获取连接curve节点与普通节点的curve头尾div与头尾id
-             else if(nodeID_len==6){
-                //通过遍历节点列表找到头尾节点
-                let temp_curve_node_id="";
-                for(let i=0;i<4;i++)
-                {
-                    temp_curve_node_id=temp_curve_node_id+nodeID[i];
-                    if(i<3)
-                        temp_curve_node_id=temp_curve_node_id+"-";
+            else {
+                if (nodeID_len == 4) {
+                    from_node = nodeID[0] + "-" + nodeID[1].split('_')[0];
+                    to_node = nodeID[2] + "-" + nodeID[3].split('_')[0];
                 }
-                for(let i=0;i<node_label_list.length;i++)
-                {
-                    if(temp_curve_node_id==node_label_list[i].split(":")[2]) {
-                        from_node = temp_curve_node_id;
-                        to_node=nodeID[4]+"-"+nodeID[5];
+                //获取连接curve节点与普通节点的curve头尾div与头尾id
+                else if (nodeID_len == 6) {
+                    //通过遍历节点列表找到头尾节点
+                    let temp_curve_node_id = "";
+                    for (let i = 0; i < 4; i++) {
+                        temp_curve_node_id = temp_curve_node_id + nodeID[i].split('_')[0];
+                        if (i < 3)
+                            temp_curve_node_id = temp_curve_node_id + "-";
+                    }
+                    for (let i = 0; i < node_label_list.length; i++) {
+                        if (temp_curve_node_id == node_label_list[i].split(":")[2]) {
+                            from_node = temp_curve_node_id;
+                            to_node = nodeID[4] + "-" + nodeID[5].split('_')[0];
+                        }
+                    }
+                    if (from_node.search("-") == -1) {
+                        from_node = nodeID[0] + "-" + nodeID[1].split('_')[0];
+                        to_node = nodeID[2] + "-" + nodeID[3].split('_')[0] + "-" + nodeID[4] + "-" + nodeID[5].split('_')[0];
                     }
                 }
-                if(from_node.search("-")==-1)
-                {
-                     from_node = nodeID[0]+"-"+nodeID[1].split('_')[0];
-                     to_node=nodeID[2]+"-"+nodeID[3]+"-"+nodeID[4]+"-"+nodeID[5];
-                }
-            }
-             //
-             else if(nodeID_len==8){
-                let temp_curve_node_id1="";
-                let temp_curve_node_id2="";
-                for(let i=0;i<6;i++)
-                {
-                    temp_curve_node_id1=temp_curve_node_id1+nodeID[i];
-                    temp_curve_node_id2=temp_curve_node_id2+nodeID[i+2];
-                    if(i<5) {
-                        temp_curve_node_id1 = temp_curve_node_id1 + "-";
-                        temp_curve_node_id2 = temp_curve_node_id2 + "-";
+                //
+                else if (nodeID_len == 8) {
+                    let temp_curve_node_id1 = "";
+                    let temp_curve_node_id2 = "";
+                    for (let i = 0; i < 6; i++) {
+                        temp_curve_node_id1 = temp_curve_node_id1 + nodeID[i];
+                        temp_curve_node_id2 = temp_curve_node_id2 + nodeID[i + 2];
+                        if (i < 5) {
+                            temp_curve_node_id1 = temp_curve_node_id1 + "-";
+                            temp_curve_node_id2 = temp_curve_node_id2 + "-";
+                        }
                     }
-                }
-                for(let i=0;i<node_label_list.length;i++)
-                {
-                    if(temp_curve_node_id1==node_label_list[i].split(":")[2]) {
-                        from_node = temp_curve_node_id1;
-                        to_node=nodeID[6]+"-"+nodeID[7].split('_')[0];
+                    for (let i = 0; i < node_label_list.length; i++) {
+                        if (temp_curve_node_id1 == node_label_list[i].split(":")[2]) {
+                            from_node = temp_curve_node_id1;
+                            to_node = nodeID[6] + "-" + nodeID[7].split('_')[0];
+                        }
+                        if (temp_curve_node_id2 == node_label_list[i].split(":")[2]) {
+                            from_node = nodeID[0] + "-" + nodeID[1].split('_')[0];
+                            to_node = temp_curve_node_id2;
+                        }
                     }
-                    if(temp_curve_node_id2==node_label_list[i].split(":")[2]) {
-                        from_node = nodeID[0]+"-"+nodeID[1].split('_')[0];
-                        to_node=temp_curve_node_id2;
+                    if (from_node.search("-") == -1 && to_node.search("-") == -1) {
+                        from_node = nodeID[0] + "-" + nodeID[1] + "-" + nodeID[2] + "-" + nodeID[3];
+                        to_node = nodeID[4] + "-" + nodeID[5] + "-" + nodeID[6] + "-" + nodeID[7];
                     }
-                }
-                if(from_node.search("-")==-1 && to_node.search("-")==-1)
-                {
-                    from_node = nodeID[0]+"-"+nodeID[1]+"-"+nodeID[2]+"-"+nodeID[3];
-                    to_node = nodeID[4]+"-"+nodeID[5]+"-"+nodeID[6]+"-"+nodeID[7];
-                }
-            }else {
-                let temp_curve_node_id1 = "";
-                let temp_curve_node_id2 = "";
-                for(let i=0;i<nodeID.length-2;i++)
-                {
-                    temp_curve_node_id1=temp_curve_node_id1+nodeID[i];
-                    temp_curve_node_id2=temp_curve_node_id2+nodeID[i+2];
-                    if(i<nodeID.length-3) {
-                        temp_curve_node_id1 = temp_curve_node_id1 + "-";
-                        temp_curve_node_id2 = temp_curve_node_id2 + "-";
+                } else {
+                    let temp_curve_node_id1 = "";
+                    let temp_curve_node_id2 = "";
+                    for (let i = 0; i < nodeID.length - 2; i++) {
+                        temp_curve_node_id1 = temp_curve_node_id1 + nodeID[i];
+                        temp_curve_node_id2 = temp_curve_node_id2 + nodeID[i + 2];
+                        if (i < nodeID.length - 3) {
+                            temp_curve_node_id1 = temp_curve_node_id1 + "-";
+                            temp_curve_node_id2 = temp_curve_node_id2 + "-";
+                        }
                     }
-                }
-                for(let i=0;i<node_label_list.length;i++)
-                {
-                    if(temp_curve_node_id1==node_label_list[i].split(":")[2]) {
-                        from_node = temp_curve_node_id1;
-                        to_node=nodeID[nodeID.length-2]+"-"+nodeID[nodeID.length-1].split('_')[0];
-                    }
-                    if(temp_curve_node_id2==node_label_list[i].split(":")[2]) {
-                        from_node = nodeID[0]+"-"+nodeID[1].split('_');
-                        to_node=temp_curve_node_id2;
+                    for (let i = 0; i < node_label_list.length; i++) {
+                        if (temp_curve_node_id1 == node_label_list[i].split(":")[2]) {
+                            from_node = temp_curve_node_id1;
+                            to_node = nodeID[nodeID.length - 2] + "-" + nodeID[nodeID.length - 1].split('_')[0];
+                        }
+                        if (temp_curve_node_id2 == node_label_list[i].split(":")[2]) {
+                            from_node = nodeID[0] + "-" + nodeID[1].split('_');
+                            to_node = temp_curve_node_id2;
+                        }
                     }
                 }
             }
@@ -1307,7 +1313,7 @@ function PythonStyleToJsStyle(data){
          */
         function getNodeType(node_id)
         {
-             let nodeID=node_id;
+            let nodeID=node_id;
             nodeID = nodeID.split(":");
             nodeID = nodeID[nodeID.length - 1];
             nodeID = nodeID.split("-");
@@ -1316,7 +1322,7 @@ function PythonStyleToJsStyle(data){
             {
                 if(nodeID[0]==nodeID[1])
                     return 0;
-                 else
+                else
                     return 1;
             }
              //如果不是普通节点
@@ -1329,8 +1335,7 @@ function PythonStyleToJsStyle(data){
         }
         /**
            For one node draw svg
-           @param nodeInfo： A node info dict.
-           @param {int} nodeupdate： 0 or 1, 如是在redraw_svg中调用为0，还如是在update_refer中调用为1
+           @param nodeInfo： node info dict.
          */
         function majorTextWindow_updateNodeSvg(nodeInfo, nodeupdate = 0) {
             // get the label data ready
@@ -1494,15 +1499,17 @@ function PythonStyleToJsStyle(data){
                      let node_list=getFromNodeAndToNode(node_id);
                      from_node=node_list[0];
                      to_node=node_list[1];
+                     let from_node_type=getNodeType(from_node);
+                     let to_node_type=getNodeType(to_node);
                      node_color="black";
-                     if(from_node.split('-').length < 4)
+                     if(from_node_type!=3)
                      {
                          let temp_string = node_id.split(from_node)[1];
                          a_z=parseInt(temp_string[1]);
                      }else {
                          a_z=0;
                      }
-                     if(to_node.split('-').length < 4)
+                     if(to_node_type!=3)
                      {
                          let temp_string = node_id.split(to_node.split(":")[2])[1];
                          b_z=parseInt(temp_string[1]);
@@ -1553,188 +1560,8 @@ function PythonStyleToJsStyle(data){
                          }
                      }
                     break;
-
             }
 
-            // if(nodeID_len<4)
-            // {
-            //     from_node=nodeInfo["id"];
-            //     let elelmet_list=majorTextWindow_getNodeElementlist(node_id);
-            //     curID_head=elelmet_list[0];
-            //     curID_tail=elelmet_list[1];
-            // }
-            //  //如果不是普通节点
-            // else {
-            //      let node_list=getFromNodeAndToNode(node_id);
-            //      from_node=node_list[0];
-            //      to_node=node_list[1];
-            //      if(from_node.split('-').length < 4)
-            //      {
-            //          let temp_string = node_id.split(from_node)[1];
-            //          a_z=parseInt(temp_string[1]);
-            //      }else {
-            //          a_z=0;
-            //      }
-            //      if(to_node.split('-').length < 4)
-            //      {
-            //          let temp_string = node_id.split(to_node.split(":")[2])[1];
-            //          b_z=parseInt(temp_string[1]);
-            //      }else {
-            //          b_z=0;
-            //      }
-            // }
-
-            //接下来先处理无refer的节点，在处理有refer的节点
-            //对于无refer节点
-            // if (newValue.length === 0) {
-                // //对于普通节点
-                // if (nodeID_len < 4) {
-                //     if (document.getElementById(cursvgID + "_0") === null && nodeID[0] != nodeID[1]) {
-                //         addunderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
-                //     }
-                // }
-                // //对于curve节点
-                // else {
-                //     if (document.getElementById(cursvgID) != null) {
-                //         $("#" + cursvgID).remove();
-                //     }
-                //     addCurve(cursvgID, "black", a_z, b_z, from_node, to_node);
-                // }
-            // }
-            //对于refer节点
-            // else {
-            //     let instance_sum = 0;
-            //     for (let cur_now_id = 0; cur_now_id < newValue.length; cur_now_id++) {
-            //         let newID = newValue[cur_now_id];
-            //
-            //         if (newID[0] == "i") {
-            //             //颜色映射
-            //             // <script src="http://d3js.org/d3.v5.min.js"></script>
-            //             //color = d3.scaleDiverging(d3.interpolateRainbow)//设置颜色函数，将rgb值根据节点数目进行映射
-            //             //         .domain([0, nodes.length - 1])
-            //             refer_tos.push(newID);
-            //             if (!colorMap.hasOwnProperty(newID)) {
-            //                 //随机颜色分配
-            //                 // let r = parseInt(Math.random() * 255);
-            //                 // let g = parseInt(Math.random() * 255);
-            //                 // let b = parseInt(Math.random() * 255);
-            //                 // let curcolor = "rgb(" + String(r) + "," + String(g) + "," + String(b) + ")";
-            //                 let curcolor = color_tree[color_index++];
-            //                 // color_index = color_index % 255;
-            //                 colorMap[newID] = curcolor;
-            //             }
-            //             // majorTextWindow_changeSvgColor(cursvgID + "_0", colorMap[refer_to]);
-            //             //如果节点下划线不存在，则添加，否则设置其为实例应有的颜色
-            //             instance_sum = instance_sum + 1;
-            //         }
-            //     }
-            //     //如果该node没有指向instance
-            //     if (refer_tos.length == 0) {
-            //         //如果是普通节点
-            //         if (nodeID_len < 4 && nodeID[0] != nodeID[1]) {
-            //             if (document.getElementById(cursvgID + "_" + 0) === null)
-            //                 addunderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
-            //         }
-            //         //如果是曲线节点
-            //         if (nodeID_len >= 4) {
-            //             if (document.getElementById(cursvgID) != null) {
-            //                 $("#" + cursvgID).remove();
-            //             }
-            //             addCurve(cursvgID, "black", a_z, b_z, from_node, to_node);
-            //         }
-            //     }
-            //     //如果node指向了instance,修改其下划线颜色
-            //     for (const k in refer_tos) {
-            //         let refer_to = refer_tos[k];
-            //         if (nodeID_len < 4 && nodeID[0] != nodeID[1]) {
-            //             if (colorMap.hasOwnProperty(refer_to)) {
-            //                 if (document.getElementById(cursvgID + "_" + k) === null)
-            //                     addunderline(curID_head, curID_tail, cursvgID + "_" + k, colorMap[refer_to], parseInt(k));
-            //                 else
-            //                     majorTextWindow_changeSvgColor(cursvgID + "_" + k, colorMap[refer_to]);
-            //             } else {
-            //                 if (document.getElementById(cursvgID + "_" + k) === null)
-            //                     addunderline(curID_head, curID_tail, cursvgID + "_" + k, "black",  parseInt(k));
-            //             }
-            //         } else if (nodeID_len < 4 && nodeID[0] == nodeID[1]) {
-            //             if (document.getElementById(cursvgID + "_" + k) != null)
-            //                 majorTextWindow_changeSvgColor(cursvgID + "_" + k, colorMap[refer_to]);
-            //         }
-            //         //如果是曲线节点
-            //         else {
-            //             if (document.getElementById(cursvgID) != null)
-            //                 $("#" + cursvgID).remove();
-            //             if (colorMap.hasOwnProperty(refer_to)) {
-            //                 addCurve(cursvgID, colorMap[refer_to], a_z, b_z, from_node, to_node);
-            //             } else {
-            //                 addCurve(cursvgID, "black", a_z, b_z, from_node, to_node);
-            //             }
-            //         }
-            //     }
-
-            //     //在标注时执行，因为全局变量cur_node_z只对当前节点有效，在初始化运行时不执行,
-            //
-            //     //处理节点间curve关系
-            //     // let [temp_a, temp_b, temp_c, temp_d] = [cursvgID, cur_Node_Z, curID_head, node_z];
-            //     for (let cur_now_id = 0; cur_now_id < newValue.length; cur_now_id++) {
-            //         // [cursvgID, cur_Node_Z, curID_head, node_z] = [temp_a, temp_b, temp_c, temp_d];
-            //         let newID = newValue[cur_now_id];
-            //         let new_node_id=newValue[cur_now_id];
-            //
-            //         if (newID[0] == "i") {
-            //             continue;
-            //         }
-            //
-            //         newID = newID.split(":");
-            //         newID = newID[newID.length - 1];
-            //         let newsvgID = newID;
-            //         newID = newID.split("-");
-            //         let newID_len = newID.length;
-            //         //newID是当前节点指向的节点
-            //
-            //
-            //         //添加节点间连线
-            //         //svg_id为curve的id
-            //         let svg_id;
-            //
-            //         svg_id = cursvgID + "-" + newsvgID;
-            //
-            //         if (nodeupdate == 1) {
-            //             //如果指向自己
-            //             if (cursvgID == newsvgID) {
-            //                 // if (document.getElementById(newsvgID + "_1") != null)
-            //                 //     addunderline(curID_head, curID_tail, cursvgID + "_1", "black", 1);
-            //                 //
-            //                 //  addCurve(curID_head, newID_head, svg_id, "black", 0, 1, cursvgID, newsvgID);
-            //             } else {
-            //                 if (document.getElementById(svg_id) === null) {
-            //
-            //                     // $("#"+svg_id).remove();
-            //                     addCurve(svg_id, "black", cur_Node_Z, new_Node_Z, node_id, new_node_id);
-            //                 }
-            //             }
-            //
-            //
-            //         } else {
-            //             //如果指向自己
-            //             if (cursvgID == newsvgID) {
-            //                 // if (document.getElementById(newsvgID + "_1") != null)
-            //                 //     addunderline(curID_head, curID_tail, cursvgID + "_1", "black", 1);
-            //                 //
-            //                 //  addCurve(curID_head, newID_head, svg_id, "black", 0, 1, cursvgID, newsvgID);
-            //             } else {
-            //                 // if (document.getElementById(svg_id) === null) {
-            //                 //     // $("#"+svg_id).remove();
-            //                 //     if (a_z < node_z)
-            //                 //         a_z = node_z + a_z;
-            //                 //     if (b_z < new_node_z)
-            //                 //         b_z = new_node_z + b_z;
-            //                 //     addCurve(curID_head, newID_head, svg_id, "black", a_z, b_z, cursvgID, newsvgID);
-            //                 // }
-            //             }
-            //         }
-            //     }
-            // }
         }
 
         /**
@@ -1924,16 +1751,18 @@ function PythonStyleToJsStyle(data){
 
         //获取curve node的text，形式为Hello⊕world
         function getCurveNodeText(curItem) {
+            let node_id=curItem["id"];
+            let node_type=getNodeType(node_id);
             let nodeID = curItem["id"].split(":");
             let node_id_pre = "";
             let Text="";
-            for (let noed_id_compoment = 0; noed_id_compoment < [nodeID.length - 1]; noed_id_compoment++) {
+            for (let noed_id_compoment = 0; noed_id_compoment < nodeID.length - 1; noed_id_compoment++) {
                 node_id_pre = node_id_pre + nodeID[noed_id_compoment] + ":";
             }
             nodeID = nodeID[nodeID.length - 1];
             let node_element_list = nodeID.split("-");
             //如果是普通节点
-            if (node_element_list.length < 4)
+            if (node_type!=3)
                 Text = curItem["text"];
             //如果是curve node
             else {
@@ -1972,7 +1801,7 @@ function PythonStyleToJsStyle(data){
 
             // majorTextWindow_updateNodeSvg(nodeInfo,1);
             majorTextWindow_updateSvg();
-            if(nodeInfo["id"].split("-").length>2)
+            if(getNodeType(nodeInfo["id"])==3)
             {
                 nodeInfo["text"]="curve node";
                 nodeInfo["token_id"]="0";
@@ -2133,7 +1962,16 @@ function PythonStyleToJsStyle(data){
             color_list = [];
             //当前所要选取的color_tree id
             // color_index=0;
-            let ip_list=getInstancepool();
+            let ip_list=[];
+            let instance_list=[];
+            let r= getInstancepool();
+            if(r[0]=="success")
+            {
+                instance_list=r[1];
+                for (const key in instance_list) {
+                    ip_list.push(key);
+                }
+            }
             let len = ip_list.length + 255;
             //采用二分法在rgb颜色空间均匀选取颜色
             let right = 191;
@@ -3175,13 +3013,7 @@ function PythonStyleToJsStyle(data){
                     InstanceInfo = data;
                 }
             );
-            if(InstanceInfo[0]=="success") {
-               InstanceInfo = InstanceInfo[1];
-                for (const key in InstanceInfo) {
-                    InstanceList.push(key);
-                }
-            }
-            return InstanceList;
+            return InstanceInfo;
         }
 
         function save() {
@@ -3252,19 +3084,21 @@ function PythonStyleToJsStyle(data){
                     for (let i = 0; i < w.length; i++) {
                         index_list[i] = $(w[i]).attr("name")
                     }
-                    for (let i = 0; i < index_list.length; i++) {
-                        find_element_list[i] = getInstanceById(index_list[i])
-                        //注意find_element_list[i][1]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
-                        if (find_element_list[i][1]["mentions"] != null) {
-                            desc_complex_list[i] = find_element_list[i][1]["mentions"]
+                    let i_p= getInstancepool();
+                    if(i_p[0]=="success")
+                    {
+                       find_element_list=i_p[1];
+                    }
+                    for (const i in find_element_list) {
+                        //注意find_element_list[i]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
+                        if (find_element_list[i]["mentions"] != null) {
+                            desc_complex_list[i] = find_element_list[i]["mentions"]
                         } else {
                             desc_complex_list[i] = ""
                         }
-                        desc_simple_list[i] = find_element_list[i][1]["desc"]
+                        desc_simple_list[i] = find_element_list[i]["desc"]
                     }
-
-
-                    for (i = 0; i < desc_complex_list.length; i++) {
+                    for (let i = 0; i < desc_complex_list.length; i++) {
                         if (desc_complex_list[i].length != 1) {
                             text_pool[i] = new Array();
                             for (k = 0; k < desc_complex_list[i].length; k++) {
@@ -3389,189 +3223,6 @@ function PythonStyleToJsStyle(data){
 
     }
 
-    function textMouseup2(SelectedElementIndexPlusList) {
-        let slotNum = $(".slot").length
-        // just select a mention
-        if (slotNum == 0) {
-            let flag = 0;
-            for (const k in SelectedElementIndexPlusList) {
-                if (SelectedElementIndexPlusList[k] === undefined) {
-                    flag = 1
-                }
-            }
-            if (flag == 0) {
-                {
-                    // 清除上次推荐的instances
-                    $("#rcmWindowOutput").empty();
-                    $("#best_rcmWindowOutput").empty();
-                }
-                SelectedElementIndexList=SelectedElementIndexPlusList;
-                // 如果没选中任何内容
-                if (SelectedElementIndexPlusList === undefined) {
-                    nodeInfoWindow_showNoSelect();
-                }
-                // 如果选中了某些内容
-                else {
-                    // 把选区的index转换成element，因为用起来方便
-                     let selectedElementsNow = [];
-                     for (const k in SelectedElementIndexPlusList) {
-                        selectedElementsNow.push(majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexPlusList[k]));
-                    }
-                    // // 请求注释信息，并显示
-                    // let r = getNodeByChildren(
-                    //     selectedElementsNow[0].attr("id"),
-                    //     selectedElementsNow[selectedElementsNow.length - 1].attr("id"),
-                    //     $("#textTab1").attr("name")
-                    // );
-                    // // 基于选中内容推荐instances
-                    // let w = $(".instances_li")
-                    // let index_list = []
-                    // let find_element_list = []
-                    // let desc_simple_list = []
-                    // let desc_complex_list = []
-                    // let text_pool = []
-                    // let str_text_pool = []
-                    // for (let i = 0; i < w.length; i++) {
-                    //     index_list[i] = $(w[i]).attr("name")
-                    // }
-                    // for (let i = 0; i < index_list.length; i++) {
-                    //     find_element_list[i] = getInstanceById(index_list[i])
-                    //     //注意find_element_list[i][1]["mention_list"]取得的是里面的字典，有的只有一个，有的好几个
-                    //     if (find_element_list[i][1]["mentions"] != null) {
-                    //         desc_complex_list[i] = find_element_list[i][1]["mentions"]
-                    //     } else {
-                    //         desc_complex_list[i] = ""
-                    //     }
-                    //     desc_simple_list[i] = find_element_list[i][1]["desc"]
-                    // }
-                    //
-                    // for (let i = 0; i < desc_complex_list.length; i++) {
-                    //     if (desc_complex_list[i].length != 1) {
-                    //         text_pool[i] = new Array();
-                    //         for (let k = 0; k < desc_complex_list[i].length; k++) {
-                    //             if (desc_complex_list[i][k] == null) {
-                    //                 text_pool[i][k] = ""
-                    //             } else {
-                    //                 text_pool[i][k] = desc_complex_list[i][k].toString();
-                    //             }
-                    //             text_pool[i] = text_pool[i].concat(desc_simple_list[i]);
-                    //             str_text_pool[i] = text_pool[i].join("");
-                    //         }
-                    //     }
-                    //     if (desc_complex_list[i].length == 1) {
-                    //         text_pool[i] = desc_complex_list[i][0].toString();
-                    //         str_text_pool[i] = text_pool[i];
-                    //     }
-                    // }
-                    // // 区分是否为标注对象
-                    // if (r[0] != "success")
-                    {
-                        //节点不存在的情况下，r返回的列表为{"failed","no such node"};
-                        nodeInfoWindow_showNoNode();
-                        // let mark_mouseip_list = [];
-                        // let mark_merge_list = [];
-                        // for (let i = 0; i < selectedElementsNow.length; i++) {
-                        //     mark_mouseip_list[i] = selectedElementsNow[i].prop("innerText")
-                        // }
-                        // mark_merge_list = mark_mouseip_list.join("")
-                        // for (let i = 0; i < str_text_pool.length; i++) {
-                        //     // console.log(desc_simple_list[i].split(" ").join(""))
-                        //     // console.log(mark_merge_list.split(" ").join(""))
-                        //     if ((desc_simple_list[i] != mark_merge_list) && (desc_simple_list[i].match(mark_merge_list))) {
-                        //         let q = $(w[i]).clone(true);
-                        //         $("#rcmWindowOutput").append(q);
-                        //     } else if (desc_simple_list[i].split(" ").join("") == mark_merge_list.split(" ").join("")) {
-                        //         let q = $(w[i]).clone(true);
-                        //         $("#best_rcmWindowOutput").append(q);
-                        //     }
-                        // }
-                    }
-                    // else
-                    // {
-                    //     //节点存在的情况下，以下功能已实现
-                    //     cur_Node = r[1]["id"];
-                    //     cur_Node_Z = 0;
-                    //
-                    //     // 重新加载文本
-                    //     getText(
-                    //         majorTextWindow_getCurArticleNodePosition(),
-                    //         function (returnData, status, requireData) {
-                    //             majorTextWindow_setCurArticleNodePosition(requireData["textNodeId"]);
-                    //             majorTextWindow_updateText(returnData, 0);
-                    //             majorTextWindow_show(returnData);
-                    //         }
-                    //     );
-                    //     // majorTextWindow_updateSvg();
-                    //     nodeInfoWindow_updateNodeInfo(r[1]);
-                    //     nodeInfoWindow_showNodeInfo();
-                    //     // 高亮选中文本并添加下划线
-                    //     if (SelectedElementIndexList != undefined) {
-                    //         let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-                    //         majorTextWindow_addunderline(selectedElement);
-                    //         majorTextWindow_hightlightElement(selectedElement);
-                    //     }
-                    //     for (let i = 0; i < str_text_pool.length; i++) {
-                    //         if (str_text_pool[i] === undefined)
-                    //             continue;
-                    //         if ((str_text_pool[i].match(r[1]["text"])) && (desc_simple_list[i] != r[1]["text"])) {
-                    //             let q = $(w[i]).clone(true);
-                    //             $("#rcmWindowOutput").append(q);
-                    //         } else if (desc_simple_list[i] == r[1]["text"]) {
-                    //             let q = $(w[i]).clone(true);
-                    //             $("#best_rcmWindowOutput").append(q);
-                    //         }
-                    //     }
-                    //
-                    // }
-                }
-            }
-        }
-        // select a mention, get the corresponding node, and fill current slot with the node.
-        else if (slotNum == 1) {
-            // 获取这次的选区，并更新全局变量
-            let curSelectedIndex = majorTextWindow_getSelectedIndexFromGui();
-            // 如果没选中任何内容
-            if (curSelectedIndex === undefined) {
-                return
-            }
-            // 如果选中了某些内容
-            else {
-                // 尝试获取选区对应的node
-                let selectedElements = majorTextWindow_getSelectedElementFromIndex(curSelectedIndex);
-                let r = getNodeByChildren(
-                    selectedElements[0].attr("id"),
-                    selectedElements[selectedElements.length - 1].attr("id"),
-                    $("#textTab1").attr("name")
-                );
-                // 如果获取到了node，就调用slot元素的处理函数
-                if (r[0] == "success") {
-                    new_Node_Z = 0;
-                    //如果是新标注的则添加curve_node
-                    let file_id = $("#textTab1").attr("name");
-                    let have = 0;
-                    let node_id = "n:" + file_id + ":" + cur_Node.split(":")[2] + "_" + String(cur_Node_Z) + "-" + r[1]["id"].split(":")[2] + "_" + String(new_Node_Z);
-                    for (const k in node_label_list) {
-                        if (node_id == node_label_list[k])
-                            have = 1;
-                    }
-                    if (have == 0) {
-                        //当前节点id的形式必须为1-2-3-4的数字递增形式
-                        // console.log(id, file_id,node1,node2,a_z,b_z);
-                        addNodeByCurve(file_id, cur_Node, r[1]["id"], cur_Node_Z, new_Node_Z);
-                        node_label_list.push(node_id);
-                    }
-                    $(".slot")[0].fillSlot(r[1]["id"]);
-                } else {
-                    alert(langDict[r[1]]);
-                    return;
-                }
-            }
-
-        } else {
-            alert(langDict["Error: More than one slots are to be filled."])
-        }
-
-    }
     // textClick: 点击svg
     function svgClick(e)
     {
@@ -3704,7 +3355,6 @@ function PythonStyleToJsStyle(data){
                     }
                 );
                 // majorTextWindow_updateSvg();
-
                 cur_Node=newNodeInfo["id"];
                 cur_Node_Z=0;
                 // 更新标注信息
@@ -3724,6 +3374,7 @@ function PythonStyleToJsStyle(data){
         else {
             alert(langDict["Can not create node, because no mention is selected."]);
         }
+        SelectedElementIndexList=[];
     }
     // nodeInfoWindow: 单击“添加空节点”按钮
     function addVoidNodeButtonClick(){
@@ -3785,6 +3436,7 @@ function PythonStyleToJsStyle(data){
         else {
             alert(langDict["Can not create node, because no mention is selected."]);
         }
+        SelectedElementIndexList=[];
     }
      // nodeInfoWindow： 单击“x”按钮 删除节点
     function delNodeButtonClick(){
