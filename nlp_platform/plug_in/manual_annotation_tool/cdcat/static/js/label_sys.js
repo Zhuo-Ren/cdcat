@@ -487,11 +487,10 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             let delnode=undefined;
                                             for(const k in node_label_list)
                                             {
-                                                if(node_label_list[k].split("-").length<4)
+                                                if(getNodeType(node_label_list[k])!=3 || node_label_list[k].split(":")[1]!=doc_id)
                                                     continue;
                                                 let node_list=getFromNodeAndToNode(node_label_list[k])
                                                 let [from_node,to_node]=[node_list[0],node_list[1]];
-                                                console.log(node_label_list[k],node_list);
                                                 let cur_node=nodepre+from_node.split(":")[2]+"-"+to_node.split(":")[2];
                                                 delnode=nodepre+nodeID1+"-"+nodeID2;
                                                 if(delnode==cur_node) {

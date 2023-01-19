@@ -326,9 +326,10 @@ def cdcat(
                     text += corpus.raw["n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]] + " "
                 else:
                     text += corpus.raw["n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]]
-                token_id.append(
-                    corpus.raw.to_info("n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1]))
-
+                temp_token_id = corpus.raw.to_info(
+                    "n:" + file_path + ":" + position_list[i] + "-" + position_list[i + 1])
+                for j in temp_token_id:
+                    token_id.append(j)
             # 将position整理成node_id的形式
             node_id = "n:" + file_path + ":" + position
             info = {"id": node_id}
@@ -392,8 +393,8 @@ def cdcat(
             from nlp_platform.center.node import Node
             # 获得选中mention的首末position以及file_path
             file_path = request.form.get("file_path")
-            a_z=request.form.get("a_z")
-            b_z=request.form.get("b_z")
+            a_z = request.form.get("a_z")
+            b_z = request.form.get("b_z")
             # children_node_position_list = [i.split("-") for i in children_node_position_list]
             # children_node_position_first = children_node_position_list[0][0]
             # children_node_position_last = children_node_position_list[-1][-1]
@@ -406,9 +407,10 @@ def cdcat(
             info = {"id": node_id}
             # 将mention制作成Node并放入corpus.np里
             text = "curve node"
-            token_id = a_z+","+b_z
+            token_id = a_z + "," + b_z
             info.update({"text": text})
-            info.update({"token_id": token_id})
+            # info.update({"token_id": token_id})
+            # info.update({"t_index": token_id})
             new_node = Node(info=info)
             corpus.np.add(new_node)
             # new_node.text=text
@@ -447,7 +449,9 @@ def cdcat(
             node = corpus.np.is_annotated(node_id)
         # return(success)
         if node is not None:
-            anno_info = node.to_info(text=True)
+            anno_info = node.to_info()
+            # if len(anno_info["id"].split("-")) > 2:
+            #     anno_info["text"] = "none"
             logging.debug("getNode<-：" + str(["success", anno_info]))
             return jsonify(["success", anno_info])
         # return(failed)
@@ -573,7 +577,7 @@ def cdcat(
         if Instancepool is not None:
             return jsonify(["success", Instancepool.to_info()])
         else:
-            return jsonify("nodepool is void")
+            return jsonify("Instancepool is void")
 
     @app.route('/save', methods=["POST"])
     def save():

@@ -116,18 +116,17 @@
 
         <!-- add event -->
         {
-            let prelist=[]
             $(".textTab").mouseup(function(event) {
                 // 当按下了 Ctrl 键和鼠标点击时，
                 if (event.ctrlKey) {
                     let l=majorTextWindow_getSelectedIndexFromGui();
+                    if(SelectedElementIndexList===undefined)
+                        SelectedElementIndexList=[];
                     for(let k =0;k<l.length;k++) {
                         SelectedElementIndexList.push(l[k]);
                     }
-
                     textMouseup();
                 }else {
-                    prelist=[];
                     SelectedElementIndexList=majorTextWindow_getSelectedIndexFromGui();
                     textMouseup();
                 }

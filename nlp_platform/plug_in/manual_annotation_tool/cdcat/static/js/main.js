@@ -156,7 +156,7 @@ function PythonStyleToJsStyle(data){
         {
             node_label_list=[];
             void_list=[];
-            wrap_list=[];
+            // wrap_list=[];
             //获取所有node的id
             let node= getNodepool();
             //根据节点id长度排序，排列结果形如[1-2,3-4,1-2-3-4]
@@ -353,19 +353,39 @@ function PythonStyleToJsStyle(data){
          *
          * @param elementList
          */
-        function majorTextWindow_hightlightElement(elementList) {
-            for (var i = 0; i < elementList.length; i++) {
-                // console.log(elementList[i][0]);
-                elementList[i][0].style = "color:rgb(255,255,255);background-color:red; opacity:0.4";
+        function majorTextWindow_hightlightElement(elementList)
+        {
+            //处理需要换行的节点的情况
+            let flag=0;
+            for(let k=0; k< SelectedElementIndexList.length-1;k++)
+            {
+                if(SelectedElementIndexList[k+1]!=SelectedElementIndexList[k]+1)
+                    flag=1;
+            }
+            if(flag==0 && elementList[0].offset().top != elementList[elementList.length-1].offset().top)
+            {
+                majorTextWindow_initNodes();
+                majorTextWindow_updateSvg();
+                for(const k in SelectedElementIndexList)
+                {
+                    SelectedElementIndexList[k]=SelectedElementIndexList[k]+2;
+                }
+                let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                for (var i = 0; i < selectedElement.length; i++) {
+                     selectedElement[i][0].style = "color:rgb(255,255,255);background-color:red; opacity:0.4";
+                }
+            }else {
+                for (var i = 0; i < elementList.length; i++) {
+                    elementList[i][0].style = "color:rgb(255,255,255);background-color:red; opacity:0.4";
+                }
             }
         }
-
 
         /**
          Draw a line between two div elements with the given id
          @param {z} ["int"] Underline hierarchy
          */
-        function addunderline(a,b,id,color,z=0,node_id="")
+        function addUnderline(a,b,id,color,z=0,node_id="")
         {
             if(a[0]!='#')
                 a="#"+a;
@@ -890,7 +910,7 @@ function PythonStyleToJsStyle(data){
             Set the svg element with the specified id to the specified stroke
            @param: elementList
          */
-        function majorTextWindow_addunderline(elementList){
+        function majorTextWindow_addUnderline(elementList){
             // elementList[i][0].style = "text-decoration: underline;text-decoration-color: red";
             //处理换行节点
             if(elementList[0].offset().top != elementList[elementList.length-1].offset().top)
@@ -909,14 +929,20 @@ function PythonStyleToJsStyle(data){
                         majorTextWindow_show(returnData);
                         }
                     );
-                majorTextWindow_updateSvg();
+                majorTextWindow_updateSvg()
                 for(const k in SelectedElementIndexList)
                     {
                         SelectedElementIndexList[k]=SelectedElementIndexList[k]+2;
                     }
-                    let selectedElement1 = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-                    majorTextWindow_hightlightElement(selectedElement1);
-            }
+                    let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
+                    for (var i = 0; i < selectedElement.length; i++) {
+                         selectedElement[i][0].style = "color:rgb(255,255,255);background-color:red; opacity:0.4";
+                    }
+                }else {
+                    for (var i = 0; i < elementList.length; i++) {
+                        elementList[i][0].style = "color:rgb(255,255,255);background-color:red; opacity:0.4";
+                    }
+                }
             //处理重合节点
             let node_z=0;
             let cur_head=elementList[0].attr("id").split("-")[0];
@@ -965,11 +991,9 @@ function PythonStyleToJsStyle(data){
             }
             let svgid=elementList[0].attr("id").split("-")[0]+"-"+elementList[elementList.length-1].attr("id").split("-")[1];
             if (document.getElementById(svgid + "_0") === null){
-                addunderline(elementList[0].attr("id"),elementList[elementList.length-1].attr("id"),svgid+"_0","black",node_z);
+                addUnderline(elementList[0].attr("id"),elementList[elementList.length-1].attr("id"),svgid+"_0","black",node_z);
             }
-
         }
-
          /**
           Return the node z-index according to the node overlap relationship
           @param {} nodeID
@@ -1107,7 +1131,7 @@ function PythonStyleToJsStyle(data){
             let width = 8;
             let height = 18;
             // d = "M 0 0 L 0 10 L 8 10 L 8 0 L 0 0";
-            d = "M 0 0 L 0 17 L 6 17 L 6 0 L 0 0";
+            let d = "M 1 1 L 1 17 L 6 17 L 6 1 L 1 1";
             path.attr("d", d);
             // path.attr("stroke", color);
             path.attr("stroke-width", "1");
@@ -1199,7 +1223,7 @@ function PythonStyleToJsStyle(data){
                     //通过遍历节点列表找到头尾节点
                     let temp_curve_node_id = "";
                     for (let i = 0; i < 4; i++) {
-                        temp_curve_node_id = temp_curve_node_id + nodeID[i].split('_')[0];
+                        temp_curve_node_id = temp_curve_node_id + nodeID[i];
                         if (i < 3)
                             temp_curve_node_id = temp_curve_node_id + "-";
                     }
@@ -1211,7 +1235,7 @@ function PythonStyleToJsStyle(data){
                     }
                     if (from_node.search("-") == -1) {
                         from_node = nodeID[0] + "-" + nodeID[1].split('_')[0];
-                        to_node = nodeID[2] + "-" + nodeID[3].split('_')[0] + "-" + nodeID[4] + "-" + nodeID[5].split('_')[0];
+                        to_node = nodeID[2] + "-" + nodeID[3]+ "-" + nodeID[4] + "-" + nodeID[5];
                     }
                 }
                 //
@@ -1410,7 +1434,7 @@ function PythonStyleToJsStyle(data){
                     //对于无refer节点
                     if (newValue.length === 0) {
                         if (document.getElementById(cursvgID + "_0") === null) {
-                            addunderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
+                            addUnderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
                         }
                     }
                     //对于refer节点
@@ -1439,7 +1463,7 @@ function PythonStyleToJsStyle(data){
                         //如果该node没有指向instance
                         if (refer_tos.length == 0) {
                             if (document.getElementById(cursvgID + "_" + 0) === null)
-                                addunderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
+                                addUnderline(curID_head, curID_tail, cursvgID + "_0", "black", 0);
                         }
                         //如果node指向了instance,修改其下划线颜色
                         for (const k in refer_tos) {
@@ -1448,7 +1472,7 @@ function PythonStyleToJsStyle(data){
                                 node_color = colorMap[refer_to];
                             }
                             if (document.getElementById(cursvgID + "_" + k) === null)
-                                addunderline(curID_head, curID_tail, cursvgID + "_" + k, node_color, parseInt(k));
+                                addUnderline(curID_head, curID_tail, cursvgID + "_" + k, node_color, parseInt(k));
                         }
                     }
                     break;
@@ -1798,7 +1822,6 @@ function PythonStyleToJsStyle(data){
          *   Also,{"label_key": undefined} means annotators never label the label.
          */
         function nodeInfoWindow_updateNodeInfo(nodeInfo) {
-
             // majorTextWindow_updateNodeSvg(nodeInfo,1);
             majorTextWindow_updateSvg();
             if(getNodeType(nodeInfo["id"])==3)
@@ -1820,8 +1843,6 @@ function PythonStyleToJsStyle(data){
                 // replace the old label obj
                 $("#nodeInfo-selectedNode div[name='labelInfo-" + curLabelConfig["key"] + "']").replaceWith(labelObj);
             }
-
-
         }
 
         function nodeInfoWindow_refresh() {
@@ -2881,11 +2902,12 @@ function PythonStyleToJsStyle(data){
         function addNodeByCurve(file_path,from_node,to_node,a_z,b_z)
         {
             let r = undefined
+            let curve_id=from_node.split(":")[2]+"_"+String(a_z)+"-"+to_node.split(":")[2]+"_"+String(b_z);
             $("body").css("pointer-events", "none");
             $.post(
                 "/addCurveNode",
                 {
-                    curve_id: from_node.split(":")[2]+"_"+String(a_z)+"-"+to_node.split(":")[2]+"_"+String(b_z),
+                    curve_id: curve_id,
                     file_path: file_path,
                     a_z:a_z,
                     b_z:b_z
@@ -2917,8 +2939,8 @@ function PythonStyleToJsStyle(data){
             );
             if(NodepoolInfo[0]=="success") {
                 NodepoolInfo = NodepoolInfo[1];
-                for (const key in NodepoolInfo) {
-                    NodeList.push(key);
+                for (const k in NodepoolInfo) {
+                    NodeList.push(k);
                 }
             }
             return NodeList;
@@ -3157,7 +3179,7 @@ function PythonStyleToJsStyle(data){
                         // 高亮选中文本并添加下划线
                         if (SelectedElementIndexList != undefined) {
                             let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-                            majorTextWindow_addunderline(selectedElement);
+                            // majorTextWindow_addUnderline(selectedElement);
                             majorTextWindow_hightlightElement(selectedElement);
                         }
                         for (let i = 0; i < str_text_pool.length; i++) {
@@ -3343,7 +3365,7 @@ function PythonStyleToJsStyle(data){
                 alert(langDict[r[1]])
             } else {
                 let newNodeInfo = r[1]
-                //加入节点列表
+
                 node_label_list.push(newNodeInfo["id"]);
                 // 重新加载文本,因为要清除之前的选中效果
                 getText(
@@ -3354,19 +3376,23 @@ function PythonStyleToJsStyle(data){
                         majorTextWindow_show(returnData);
                     }
                 );
-                // majorTextWindow_updateSvg();
                 cur_Node=newNodeInfo["id"];
                 cur_Node_Z=0;
+                 //更新节点列表
+                 // majorTextWindow_initNodes();
                 // 更新标注信息
                 nodeInfoWindow_updateNodeInfo(newNodeInfo);
                 // 显示标注信息
                 nodeInfoWindow_showNodeInfo(newNodeInfo);
+
                 // 高亮选中文本并添加下划线
                 if (SelectedElementIndexList != undefined) {
                     let selectedElement = majorTextWindow_getSelectedElementFromIndex(SelectedElementIndexList);
-                    majorTextWindow_hightlightElement(selectedElement);
                     //需要判断是否有跨行节点
-                    // majorTextWindow_addunderline(selectedElement);
+                    // majorTextWindow_addUnderline(selectedElement);
+                    majorTextWindow_hightlightElement(selectedElement);
+
+
                 }
             }
         }
@@ -3411,7 +3437,6 @@ function PythonStyleToJsStyle(data){
                 alert(langDict[r[1]])
             } else {
                 let newNodeInfo = r[1]
-
                 //加入节点列表
                 node_label_list.push(newNodeInfo["id"]);
                 cur_Node=newNodeInfo["id"];
@@ -3425,10 +3450,8 @@ function PythonStyleToJsStyle(data){
                     let selectedElement =[];
                     selectedElement.push($("#"+selectedElementPosition+"-"+selectedElementPosition));
                     let selected_margin=selectedElementPosition+"-"+selectedElementPosition;
-
                     majorTextWindow_hightlightElement(selectedElement)
                     // majorTextWindow_addmargin(selectedElement);
-                    // majorTextWindow_addunderline(selectedElement);
                 }
             }
         }
@@ -3442,24 +3465,14 @@ function PythonStyleToJsStyle(data){
     function delNodeButtonClick(){
         if(cur_Node===undefined)
             return;
+        let node_id=cur_Node;
+        let node_type=getNodeType(node_id);
         //如果是curve node要删除该节点,并删除from node 的refer
-        if(cur_Node.split("-").length>=4)
+        if(node_type==3)
         {
             let label=getFromNodeAndToNode(cur_Node);
             let [from_node,to_node]=[label[0],label[1]];
             let r=undefined;
-            // r=getNodeById(to_node);
-            // if(r[[0]=="success"]) {
-            //     let cur_noed_refers = r[1]["refer"];
-            //     for(const k in cur_noed_refers)
-            //     {
-            //         if(cur_noed_refers==from_node)
-            //         {
-            //             [from_node,to_node]=[to_node,from_node];
-            //             break;
-            //         }
-            //     }
-            // }
              r=getNodeById(from_node);
              //调用nodeinfo_window refer #del_node按钮
              nodeInfoWindow_updateNodeInfo(r[1]);
