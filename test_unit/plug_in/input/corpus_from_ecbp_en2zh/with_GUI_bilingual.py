@@ -19,7 +19,8 @@ def test_corpus_from_ecbp_en2zh():
     #
     c = corpus_from_ecbp_en2zh(
         ecbp_en2zh_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplusEnZh",
-        csv_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplus_coreference_sentences.csv"
+        csv_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplus_coreference_sentences.csv",
+        mapping_pkl_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\save.pkl"
     )
     # show
     from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
