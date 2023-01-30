@@ -53,8 +53,10 @@ def info_to_corpus(token_tree: Dict, mention_list: List) -> Corpus:
                     end = last
                     cur_token["doc_level_index"] = [start, end]
                     # check
+                    """ 为了运行速度暂时封印
                     if cur_token["token_text"] != raw[topic_id][doc_id][start:end]:
                         raise RuntimeError
+                    """
                     #
                     del cur_token
                     del cur_token_id
@@ -101,20 +103,19 @@ def info_to_corpus(token_tree: Dict, mention_list: List) -> Corpus:
             end = token_tree[topic_id][doc_id][sentence_index][cur_group[1]]['doc_level_index'][1]
             token_index_str.append(f"{start}-{end}")
             del start, end, cur_group
-        token_index_str = ";".join(token_index_str)
+        token_index_str = "-".join(token_index_str)
         del token_id_group, token_id_list
-        if ";" in token_index_str:  # 简化离散指称（就是对3-5;7-8仅保留第一个组3-5）
-            token_index_str = re.match("^[^;]*(?=;)", token_index_str).group()
         # node
         n_id = f"n:{topic_id}/{doc_id}:{token_index_str}"  ###  n_id = f"n:{topic_id}/{doc_id+'.raw.txt'}:{token_index_str}"
         cur_node = Node(info={"id": n_id})
         if raw[n_id] != cur_mention.tokens_str:
-            pass  # value error是因为n_id支持了离散指称，但是node.__getitem__()还不支持。
+            print(f"离散指称：{raw[n_id]}")  # value error是因为n_id支持了离散指称，但是node.__getitem__()还不支持。
         c.np.add(cur_node)
         del topic_id, doc_id, sentence_index, cur_node, token_index_str
         # instance
         if cur_mention.coref_chain[:9] != "Singleton":
             cur_instance = Instance(info={"id": "i:"+cur_mention.coref_chain}, pool=c.ip)
+            cur_instance["desc"]["value"] = cur_instance["id"]["value"]
             t = list(cur_instance["mentions"]["value"])  # Relation Label的value是ReportList类型，此类型不支持修改。所以这里先给搞成一般List。
             t.append(n_id)
             cur_instance["mentions"]["value"] = t
