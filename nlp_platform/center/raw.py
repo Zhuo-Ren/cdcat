@@ -24,11 +24,8 @@ class Raw(dict):
             search_path = key.split(':')[1]
             search_index = key.split(':')[2]
             index_list = search_index.split('-')
-            search_file = search_path.split('/')[-1]
             obj_dict = self
             # print(search_path)
-            search_middle_path = search_path.split('/')
-            search_middle_path_len = len(search_middle_path)
             ret = dict_get(obj_dict, search_path, None)
             if int(index_list[0]) < len(ret) and int(index_list[1]) < len(ret) + 1:
                 for i in range(int(index_list[0]), int(index_list[1])):
@@ -36,9 +33,8 @@ class Raw(dict):
                 search_content = ''.join(search_content)
                 return search_content
             else:
-                print("索引范围不正确")
-                return KeyError
-        elif '/' in key:
+                raise RuntimeError("索引范围不正确")  # return KeyError
+        elif '/' in key:  # 例如 1/10ecb
             l = key.split('/')
             a = self
             for i in l:

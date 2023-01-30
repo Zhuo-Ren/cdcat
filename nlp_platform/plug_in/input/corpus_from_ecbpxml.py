@@ -13,8 +13,11 @@ class MentionData(object):
     '''
     An helper class for a mid-representation of a mention when reading the corpus.
     '''
-    def __init__(self, doc_id, sent_id, tokens_numbers, tokens_str, coref_chain, mention_type='ACT',
-                 is_continuous=True, is_singleton=False, score=float(-1)):
+    def __init__(
+            self,
+            doc_id, sent_id, tokens_numbers, tokens_str, coref_chain, mention_type='ACT',
+            is_continuous=True, is_singleton=False, score=float(-1)
+    ):
         '''
 
         :param doc_id: the mention's document ID
