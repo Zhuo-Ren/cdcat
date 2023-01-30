@@ -129,10 +129,9 @@ class Node(dict):
     def to_info(self, text=False):
         r = {}
         for label_key in self:
-            if label_key is not "text":
+            if label_key != "text":
                 r.update(self[label_key].to_info())
             else:
                 pass
-        if text:
-            r.update({"text": self.text})
+        r.update({"text": self.text})
         return r

@@ -553,9 +553,15 @@ function generateObjListLabelObj(labelDict, labelValue){
                                             alert(langDict["Can not view the info of this instance, because it is a empty instance."]);
                                         }else{
                                             let instanceInfo = getInstanceById(instanceIdStr);
-                                            instanceInfoWindow_showInstanceInfo();
-                                            instanceInfoWindow_updateInstanceInfo(instanceInfo);
-                                            instanceSelectWindow_updateOneInstance(instanceInfo);
+                                            if (instanceInfo[0] != "success"){
+                                                alert("获取instance失败");
+                                            }
+                                            else{
+                                                instanceInfo = instanceInfo[1]
+                                                instanceInfoWindow_showInstanceInfo();
+                                                instanceInfoWindow_updateInstanceInfo(instanceInfo);
+                                                instanceSelectWindow_updateOneInstance(instanceInfo);
+                                            }
                                         }
                                     });
                             }
