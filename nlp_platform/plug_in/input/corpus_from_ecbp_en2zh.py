@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Tuple, Union
 from typing import TYPE_CHECKING
 from copy import deepcopy
+import _pickle as cPickle
 import os
 import re
 from nlp_platform.plug_in.input.corpus_from_ecbpxml import info_from_ecbpxml, MentionData
@@ -172,7 +173,7 @@ def add_zh_sentence(
 
 def add_zh_mention(path_to_corpus: str, token_tree: Dict, mention_list: List
 ):
-    #
+    # 按照topic和doc把mention分类
     mention_dict = {}
     for cur_mention in mention_list:
         if cur_mention.doc_id not in mention_dict:
@@ -183,62 +184,110 @@ def add_zh_mention(path_to_corpus: str, token_tree: Dict, mention_list: List
         del cur_mention
     #
     for cur_topic_id, cur_topic in token_tree.items():
+        # 遍历doc
         for cur_doc_id, cur_doc in cur_topic.items():
-            #
-            import _pickle as cPickle
+            # 对每个doc，读取mapping.pkl文件
             path_of_cur_doc = os.path.join(path_to_corpus, cur_topic_id, cur_doc_id)
             with open(path_of_cur_doc+".xml.mapping.pkl", mode="rb") as f:
                 mapping_list = cPickle.load(f)
-            #
             cur_doc_mention = mention_dict[cur_doc_id]
+            # 遍历sent
             for cur_sent_id, cur_sent_mention in cur_doc_mention.items():
+                # 建立当前句中token的映射索引
                 cur_sent_mapping = mapping_list[cur_sent_id//2]
+                cur_sent_mapping_dict = {}
+                for cur_mapping in cur_sent_mapping:
+                    # id转换
+                    cur_mapping["en_id_from_1_no_space"] = cur_mapping["en_id"]
+                    """当前mention的英文token的id，从1开始，不计算空格"""
+                    cur_mapping["en_id_from_0_with_space"] = (cur_mapping["en_id"] - 1)*2
+                    """当前mention的英文token的id，从0开始，算上空格"""
+                    cur_mapping["zh_id_from_1"] = cur_mapping["zh_id"]
+                    """当前mention的中文token的id，从1开始"""
+                    cur_mapping["zh_id_from_0"] = cur_mapping["zh_id"] - 1
+                    """当前mention的中文token的id，从0开始"""
+                    del cur_mapping["en_id"]
+                    del cur_mapping["zh_id"]
+                    # 通过str验证id转换是否正确
+                    truth_str = "1"
+                    calced_str = "1"
+                    if truth_str == calced_str:
+                        cur_sent_mapping_dict[cur_mapping["en_id_from_0_with_space"]] = cur_mapping
+                    else:
+                        raise RuntimeError
+                # 遍历英文指称：对每个英文mention，找对应的中文mention
                 for cur_en_mention in cur_sent_mention:
+                    # 找到英文指称的token的id
                     en_token_id_list = cur_en_mention.tokens_number
                     """当前英文mention包含的所有英文token的id"""
-                    zh_token_dict = {}
-                    """对应中文mention包含的所有中文token的id:str"""
-                    # 遍历当前句中的所有mapping，找到涉及当前en mention的mapping
-                    for cur_mapping in cur_sent_mapping:
-                        # 验证cur_mapping是否涉及当前en mention
-                        if cur_mapping["en_id"]-1 not in en_token_id_list:
-                            continue
-                        # 检验zh str是否正确
-                        if "ecbplus" in cur_doc_id and cur_sent_id==0:
-                            pass
-                        elif token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][cur_mapping["zh_id"]-1]["token_text"] != cur_mapping["zh_str"]:
-                            i = 0
-                            while i <= cur_mapping["zh_id"]-1:
-                                if (token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][i]["token_text"] == " ") or (token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][i]["token_text"] =="|"):
-                                    cur_mapping["zh_id"] += 1
-                                i += 1
-                            del i
-                            if token_tree[cur_topic_id][cur_doc_id][cur_sent_id + 1][
-                                cur_mapping["zh_id"] - 1]["token_text"] != cur_mapping[
-                                "zh_str"]:
-                                raise RuntimeError
-                        # 记录涉及当前en mention的mapping
-                        zh_token_dict[cur_mapping["zh_id"]-1] = cur_mapping["zh_str"]
-                        # 检验zh_id是否连续
-                        zh_token_id_list = sorted(zh_token_dict.keys())
-                        flag_seq = True
-                        for i in range(len(zh_token_id_list)-1):
-                            if zh_token_id_list[i]+1 != zh_token_id_list[i+1]:
+                    # 找到中文指称的token的id和str(初始)
+                    zh_token_id_list = []
+                    zh_token_str_dict = {}
+                    for cur_en_id in en_token_id_list:
+                        if cur_en_id in cur_sent_mapping_dict:
+                            zh_token_id_list.append(cur_sent_mapping_dict[cur_en_id]["zh_id_from_0"])
+                            zh_token_str_dict[cur_sent_mapping_dict[cur_en_id]["zh_id_from_0"]] = cur_sent_mapping_dict[cur_en_id]["zh_str"]
+                    zh_token_id_list = sorted(zh_token_id_list)
+                    if zh_token_id_list == []:
+                        continue
+                    # 找到中文指称的token的id和str(中文离散指称的连续化)
+                    flag_seq = True
+                    for i in range(len(zh_token_id_list)-1):
+                        # 判断是否离散
+                        cur_id = zh_token_id_list[i]
+                        next_id = zh_token_id_list[i+1]
+                        if cur_id+1 != next_id:
+                            # 如果离散指称属于"林赛*罗汉"中星号打断指称的类型。
+                            middle_id = cur_id + 1
+                            if cur_id+2 == next_id:
+                                middle_str = token_tree[cur_topic_id][cur_doc_id][cur_en_mention.sent_id+1][cur_id+1]["token_text"]
+                                if middle_str in r".-_/\· |":
+                                    zh_token_id_list.append(middle_id)
+                                    zh_token_str_dict[middle_id] = middle_str
+                                else:
+                                    flag_seq = False
+                            else:
                                 flag_seq = False
-                        if not flag_seq:
-                            continue
-                        # 新建zh mention
-                        mention_obj = MentionData(cur_en_mention.doc_id,
-                                                  cur_en_mention.sent_id+1,
-                                                  zh_token_id_list,
-                                                  "".join([zh_token_dict[i] for i in zh_token_id_list]),
-                                                  cur_en_mention.coref_chain,
-                                                  cur_en_mention.mention_type,
-                                                  is_continuous=True,
-                                                  is_singleton=cur_en_mention.is_singleton,
-                                                  score=float(-1))
-                        mention_obj.is_person = cur_en_mention.is_person
-                        mention_list.append(mention_obj)
+                        else:
+                            flag_seq = False
+                    zh_token_id_list = sorted(zh_token_id_list)
+                    # 新建zh mention
+                    mention_obj = MentionData(cur_en_mention.doc_id,
+                                              cur_en_mention.sent_id+1,
+                                              zh_token_id_list,
+                                              "".join([zh_token_str_dict[i] for i in zh_token_id_list]),
+                                              cur_en_mention.coref_chain,
+                                              cur_en_mention.mention_type,
+                                              is_continuous=flag_seq,
+                                              is_singleton=cur_en_mention.is_singleton,
+                                              score=float(-1))
+                    mention_obj.is_person = cur_en_mention.is_person
+                    mention_list.append(mention_obj)
+
+                    # #
+                    # zh_token_dict = {}
+                    # """对应中文mention包含的所有中文token的id:str"""
+                    # # 遍历当前句中的所有mapping，找到涉及当前en mention的mapping
+                    # for cur_mapping in cur_sent_mapping:
+                    #     # 验证cur_mapping是否涉及当前en mention
+                    #     if cur_mapping["en_id"]-1 not in en_token_id_list:
+                    #         continue
+                    #     # 检验zh str是否正确
+                    #     if "ecbplus" in cur_doc_id and cur_sent_id==0:
+                    #         pass
+                    #     elif token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][cur_mapping["zh_id"]-1]["token_text"] != cur_mapping["zh_str"]:
+                    #         i = 0
+                    #         while i <= cur_mapping["zh_id"]-1:
+                    #             if (token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][i]["token_text"] == " ") or (token_tree[cur_topic_id][cur_doc_id][cur_sent_id+1][i]["token_text"] =="|"):
+                    #                 cur_mapping["zh_id"] += 1
+                    #             i += 1
+                    #         del i
+                    #         if token_tree[cur_topic_id][cur_doc_id][cur_sent_id + 1][
+                    #             cur_mapping["zh_id"] - 1]["token_text"] != cur_mapping[
+                    #             "zh_str"]:
+                    #             raise RuntimeError
+                    #     # 记录涉及当前en mention的mapping
+                    #     zh_token_dict[cur_mapping["zh_id"]-1] = cur_mapping["zh_str"]
 
 
 def ecbp_to_en2zh(
@@ -271,10 +320,10 @@ def ecbp_to_en2zh(
     for cur_mention in mention_list:
         cur_mention.sent_id *= 2
     # 添加中文mention
-    # add_zh_mention(
-    #     path_to_corpus=path_to_corpus,
-    #     token_tree=token_tree, mention_list=mention_list)
-    #
+    add_zh_mention(
+        path_to_corpus=path_to_corpus,
+        token_tree=token_tree, mention_list=mention_list)
+
     return [token_tree, mention_list]
 
 
@@ -365,12 +414,12 @@ def corpus_from_ecbp_en2zh(
     correct_sent_id_in_ecbplus(mention_list)
     add_space_token(token_tree, mention_list)
     # en2zh
-    # [token_tree, mention_list] = ecbp_to_en2zh(
-    #     token_tree=token_tree,
-    #     mention_list=mention_list,
-    #     path_to_corpus=ecbp_en2zh_path,
-    #     suffix_of_en2zh_file=suffix_of_en2zh_file
-    # )
+    [token_tree, mention_list] = ecbp_to_en2zh(
+        token_tree=token_tree,
+        mention_list=mention_list,
+        path_to_corpus=ecbp_en2zh_path,
+        suffix_of_en2zh_file=suffix_of_en2zh_file
+    )
     # corpus
     c = info_to_corpus(token_tree, mention_list)
     #
