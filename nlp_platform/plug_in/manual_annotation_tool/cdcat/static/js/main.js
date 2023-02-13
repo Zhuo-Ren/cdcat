@@ -391,12 +391,10 @@ function PythonStyleToJsStyle(data){
                 a="#"+a;
             if(b[0]!='#')
                 b="#"+b;
-
             z=parseInt(z);
             let file_id = $("#textTab1").attr("name");
             node_id="n:"+file_id+":"+id.split("_")[0];
             let node_z=parseInt(getNodeOverlapLeval(node_id));
-
             let svg = $(document.createElementNS(svgNS, 'svg'));
             let path = $(document.createElementNS(svgNS, 'path'));
             let a_x=parseInt($(a).offset().left);
@@ -461,6 +459,7 @@ function PythonStyleToJsStyle(data){
 
             let file_id = $("#textTab1").attr("name");
             let div_a,div_b;
+            let node_pre=node_id.split(":")[0]+":"+node_id.split(":")[1]+":";
             let div_list=majorTextWindow_getNodeElementlist(node_id);
 
             let min_x=2000,min_y=2000,max_x=0,max_y=0,x=0,y=0;
@@ -479,10 +478,13 @@ function PythonStyleToJsStyle(data){
              y = min_y;
             width = Math.abs( max_x- min_x);
             height = Math.abs( max_y- min_y);
+            let node_z_list=[];
             for(let i=0;i<div_list.length;i+=2) {
                 let d = undefined
                 div_a = '#'+div_list[i];
                 div_b = '#'+div_list[i + 1];
+                let temp_node=node_pre+String(div_list[i].split('-')[0])+"-"+String(div_list[i+1].split('-')[1]);
+                node_z_list.push(parseInt(getNodeOverlapLeval(temp_node)));
                 let a_x = parseInt($(div_a).offset().left);
                 let a_y = parseInt($(div_a).offset().top + $(div_a).height());
                 let b_x = parseInt($(div_b).offset().left + $(div_b).width());
@@ -494,27 +496,27 @@ function PythonStyleToJsStyle(data){
                     //如果在前面
                     if (a_x == x) {
                         if (width < 4)
-                            d = "M 0 2 " + "l " + String(parseInt(w)) + " " + String(0);
+                            d = "M 0 " + String(node_z_list[0]*7)+" l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M 0 2 " + "l " + String(parseInt(w) - 2) + " " + String(0);
+                            d = "M 0 " + String(node_z_list[0]*7)+" l " + String(parseInt(w) - 2) + " " + String(0);
                     } else {
                         if (width < 4)
-                            d = "M " + String(width - w) + " 2 " + "l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) + " "+ String(node_z_list[0]*7)+ " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M " + String(width - w) + " 2 " + "l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) + " " + String(node_z_list[0]*7)+" l " + String(parseInt(w)) + " " + String(0);
                     }
                 } else {
                     //如果在前面
                     if (a_x == x) {
                         if (width < 4)
-                            d = "M 0 " + String(height+2) + " l " + String(parseInt(w)) + " " + String(0);
+                            d = "M 0 " + String(height+2+node_z_list[1]*7) + " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M 0 " + String(height+2) + " l " + String(parseInt(w) - 2) + " " + String(0);
+                            d = "M 0 " + String(height+2+node_z_list[1]*7) + " l " + String(parseInt(w) - 2) + " " + String(0);
                     } else {
                         if (width < 4)
-                            d = "M " + String(width - w) +  " " + String(height+2) + " l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) +  " " + String(height+2+node_z_list[1]*7) + " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M " + String(width - w )  +  " " + String(height+2 )+" l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w )  +  " " + String(height+2 +node_z_list[1]*7)+" l " + String(parseInt(w)) + " " + String(0);
                     }
 
                 }
@@ -570,29 +572,29 @@ function PythonStyleToJsStyle(data){
                 if (control_y>height)
                     height=control_y;
 
-                console.log(a_x,a_y,control_x,control_y,width,height,x,y);
+                // console.log(a_x,a_y,control_x,control_y,width,height,x,y);
                  //如果a的位置在b的左下角或b在a的左下角
                 // if(a_x<b_x)//当a在b的左下角
                 if((a_x<b_x && a_y>b_y)||(a_x>b_x && a_y<b_y)) {
                     // d = "M " + String(b_x-x-2)+" " + String(h) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String( -h);
                     if (control_x>width)
                     {
-                         d = "M "+String(b_x-x-2)+" " + String(h) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h);
+                         d = "M "+String(b_x-x-2)+" " + String(h+node_z_list[1]*7) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
                          width=control_x;
                     }else {
-                        d = "M "+String(b_x-x-2)+ " " + String(h) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h);
+                        d = "M "+String(b_x-x-2)+ " " + String(h+node_z_list[1]*7) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
                     }
                 }
                 else {
                     // d = "M " +  String(a_x-x-2)+" "+String(0) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String(h);
                     if(control_x<0 && -control_x>a_x-x)
                     {
-                         d = "M " +  String(-control_x)+" 0"+ " q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h);
+                         d = "M " +  String(-control_x)+" "+String(node_z_list[0]*7)+ " q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
                          x = x +(control_x+a_x-x);
                          width=width-(control_x+a_x-x);
                     }
                     else {
-                        d = "M " + String(a_x-x-2) + " 2"+" q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h);
+                        d = "M " + String(a_x-x-2) + " "+String(2+node_z_list[0]*7)+" q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
                     }
                 }
 
@@ -650,7 +652,7 @@ function PythonStyleToJsStyle(data){
             svg.css("left", x);
 
             svg.css("width", width+4);
-            svg.css("height", height);
+            svg.css("height", height+8);
              //根据控制点位置决定svg高度
             // if (control_y>height)
             //     svg.css("height", control_y);
@@ -1020,19 +1022,16 @@ function PythonStyleToJsStyle(data){
                 let file_id=node_list[k].split(":")[1];
                 if(doc_id!=file_id)
                     continue;
+                let node_type=getNodeType(node_list[k])
                 let created_node=node_list[k].split(":")[2];
                 created_node=created_node.split("-");
-                if(created_node.length>2)
+                // 如果k是空节点
+                if(node_type==0 || node_type==3 || node_type==2)
                     continue;
                 let created_node_head=created_node[0];
                 let created_node_tail=created_node[1];
                 //如果要添加的节点包含已有的节点
                 if(created_node_head == cur_head && created_node_tail == cur_tail)
-                {
-                    continue;
-                }
-                //如果k是空节点
-                if(created_node_head == created_node_tail)
                 {
                     continue;
                 }
@@ -3310,7 +3309,7 @@ function PythonStyleToJsStyle(data){
                         alert(langDict[r[1]]);
                     }
                 }else {
-                     new_Node_Z=parseInt($("#"+curSelectedelementid).attr("z"));
+                    new_Node_Z=parseInt($("#"+curSelectedelementid).attr("z"));
                     curSelectedelementid=curSelectedelementid.split("_")
                     let curSelectednode = "n:" + file_id + ":" + curSelectedelementid[0];
                     // new_Node_Z=parseInt(curSelectedelementid[1]);
