@@ -40,8 +40,8 @@ def cdcat(
         config_core = json.load(f)
         if "save_to" not in config_core:
             config_core["save_to"] = "./corpus"
-        if "suffix_of_doc_in_raw" not in config_core:
-            config_core["suffix_of_doc_in_raw"] = "ecb"
+        # if "suffix_of_doc_in_raw" not in config_core:
+        #     config_core["suffix_of_doc_in_raw"] = "ecb"
     # load config_cdcat_label.json
     if path_to_label_config is None:
         cur_file_path = os.path.abspath(sys.argv[0])
@@ -584,7 +584,7 @@ def cdcat(
     @app.route('/save', methods=["POST"])
     def save():
         from nlp_platform.plug_in.output.to_files import save
-        save(dir="./corpus", corpus=corpus)
+        save(dir=config_core["save_to"], corpus=corpus)
         return jsonify({"success": True})
 
     app.run(debug=True)

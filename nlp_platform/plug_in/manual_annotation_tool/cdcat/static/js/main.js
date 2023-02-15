@@ -484,7 +484,7 @@ function PythonStyleToJsStyle(data){
                 div_a = '#'+div_list[i];
                 div_b = '#'+div_list[i + 1];
                 let temp_node=node_pre+String(div_list[i].split('-')[0])+"-"+String(div_list[i+1].split('-')[1]);
-                node_z_list.push(parseInt(getNodeOverlapLeval(temp_node)));
+                node_z_list.push(parseInt(getNodeOverlapLeval(temp_node,1)));
                 let a_x = parseInt($(div_a).offset().left);
                 let a_y = parseInt($(div_a).offset().top + $(div_a).height());
                 let b_x = parseInt($(div_b).offset().left + $(div_b).width());
@@ -1001,7 +1001,7 @@ function PythonStyleToJsStyle(data){
           @param {} nodeID
           @return {z} ["int"]
          */
-        function getNodeOverlapLeval(nodeID)
+       function getNodeOverlapLeval(nodeID,f=0)
         {
             let z=0;
             let node_id=nodeID;
@@ -1033,29 +1033,16 @@ function PythonStyleToJsStyle(data){
                 //如果要添加的节点包含已有的节点
                 if(created_node_head == cur_head && created_node_tail == cur_tail)
                 {
+                    if(f==1)
+                        return 1;
                     continue;
                 }
                 //如果要添加的节点包含已有的节点
                 if((parseInt(created_node_head)<=parseInt(cur_head) && parseInt(created_node_tail)>=parseInt(cur_tail))
                     || (parseInt(created_node_head)<=parseInt(cur_tail) && parseInt(created_node_tail)>=parseInt(cur_tail)))
                 {
-                    //  let r=getNodeById(node_pre+node_list[k].split(":")[2]);
-                    // if(r[0]=="success")
-                    // {
-                    //     let refers=r[1]["refer"];
-                    //     for(const d in refers)
-                    //     {
-                    //         // console.log(node_pre+nodeID+"-"+refers[d].split(":")[2])
-                    //         let test=delNode(node_pre+node_list[k].split(":")[2]+"-"+refers[d].split(":")[2])
-                    //
-                    //         majorTextWindow_initNodes();
-                    //     }
-                    // }
-                    // if(node_list[k].match(nodeID)!=null) {
-                    //     for (const id in node_label_list) {
-                    //         delNode(node_list[k]);
-                    //     }
-                    // }
+                     if(f==1)
+                        return 1;
                     continue;
                 }
                 //如果与前面的节点重合
