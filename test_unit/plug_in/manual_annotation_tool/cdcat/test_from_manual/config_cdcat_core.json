@@ -1,5 +1,5 @@
 {
-  "save_to": "E:/ProgramCode/cdcat/test_unit/corpus",
+  "save_to": "E:/隔离/cdcat/test_unit/corpus/ecb_output",
   "reg_ex_of_raw_text": "",
   "suffix_of_doc_in_raw": "ecb"
 }
