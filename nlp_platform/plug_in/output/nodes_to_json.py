@@ -29,7 +29,7 @@ def nodes_to_json(dir, np):
                 index = 0
             cur_folder = os.path.join(dir, part_file_path)
             if os.path.exists(cur_folder) is False:
-                os.mkdir(cur_folder)
+                os.mkdirs(cur_folder)
             cur_doc_id=node_id_mid_slice[index]
             if "raw.txt" in cur_doc_id:
                 cur_doc_id = cur_doc_id[:-8]
