@@ -496,14 +496,14 @@ function PythonStyleToJsStyle(data){
                     //如果在前面
                     if (a_x == x) {
                         if (width < 4)
-                            d = "M 0 " + String(node_z_list[0]*7)+" l " + String(parseInt(w)) + " " + String(0);
+                            d = "M 0 " + String(node_z_list[0]*7+2)+" l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M 0 " + String(node_z_list[0]*7)+" l " + String(parseInt(w) - 2) + " " + String(0);
+                            d = "M 0 " + String(node_z_list[0]*7+2)+" l " + String(parseInt(w) - 2) + " " + String(0);
                     } else {
                         if (width < 4)
-                            d = "M " + String(width - w) + " "+ String(node_z_list[0]*7)+ " l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) + " "+ String(node_z_list[0]*7+2)+ " l " + String(parseInt(w)) + " " + String(0);
                         else
-                            d = "M " + String(width - w) + " " + String(node_z_list[0]*7)+" l " + String(parseInt(w)) + " " + String(0);
+                            d = "M " + String(width - w) + " " + String(node_z_list[0]*7+2)+" l " + String(parseInt(w)) + " " + String(0);
                     }
                 } else {
                     //如果在前面
@@ -579,22 +579,22 @@ function PythonStyleToJsStyle(data){
                     // d = "M " + String(b_x-x-2)+" " + String(h) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String( -h);
                     if (control_x>width)
                     {
-                         d = "M "+String(b_x-x-2)+" " + String(h+node_z_list[1]*7) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
+                         d = "M "+String(b_x-x-2)+" " + String(h+node_z_list[1]*7+2) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
                          width=control_x;
                     }else {
-                        d = "M "+String(b_x-x-2)+ " " + String(h+node_z_list[1]*7) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
+                        d = "M "+String(b_x-x-2)+ " " + String(h+node_z_list[1]*7+2) + " q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(-h+(node_z_list[0]-node_z_list[1])*7);
                     }
                 }
                 else {
                     // d = "M " +  String(a_x-x-2)+" "+String(0) + " q " + String(w / 2) + " " + String(h + 24) + " " + String(w) + " " + String(h);
                     if(control_x<0 && -control_x>a_x-x)
                     {
-                         d = "M " +  String(-control_x)+" "+String(node_z_list[0]*7)+ " q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
+                         d = "M " +  String(-control_x)+" "+String(node_z_list[0]*7+2)+ " q " + "0" + " " + String(control_y) + " " + String(w-control_x) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
                          x = x +(control_x+a_x-x);
                          width=width-(control_x+a_x-x);
                     }
                     else {
-                        d = "M " + String(a_x-x-2) + " "+String(2+node_z_list[0]*7)+" q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
+                        d = "M " + String(a_x-x-2) + " "+String(node_z_list[0]*7+2)+" q " + String(control_x) + " " + String(control_y) + " " + String(w) + " " + String(h+(node_z_list[1]-node_z_list[0])*7);
                     }
                 }
 

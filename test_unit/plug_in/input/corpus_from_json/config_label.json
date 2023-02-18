@@ -29,7 +29,7 @@
         }
     },
     "Node": {
-        "PRELIMINARY_CODE": "import test_unit.center.demo.config_label_preliminary",
+        "PRELIMINARY_CODE": "import test_unit.center.node.config_label_preliminary",
         "LABELS": {
             "id": {
                 "required": "True",
@@ -42,6 +42,11 @@
                 "value_type_hint": "isinstance(value, str)",
                 "value_init": "'none'",
                 "value_optional": ["none", "entity", "event"]
+            },
+            "text": {
+                "type": "SimpleLabel",
+                "value_type_hint": "isinstance(value, str)",
+                "value_init": "''"
             },
             "refer": {
                 "type": "RelationLabel",

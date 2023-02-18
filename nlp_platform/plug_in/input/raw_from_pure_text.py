@@ -53,7 +53,7 @@ def dict_from_pure_text(
                 with open(file_path, 'r', encoding='utf8') as f:
                     text = f.read()
                     text = text.replace("|", "")
-                    raw[file_name] = text
+                    raw[file_name[:-8]] = text
         # if dir
         elif os.path.isdir(cur_path):
             dir_path = cur_path

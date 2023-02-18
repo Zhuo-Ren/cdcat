@@ -7,7 +7,7 @@ class TestNodesFromEcbpXml:
     def import_config(self):
         """ 读取核心配置load center config """
         import os
-        center_config_dir = "config_label.json"
+        center_config_dir = "../corpus_from_json/config_label.json"
         cur_file_path = os.path.abspath(__file__)
         cur_folder_path = os.path.dirname(cur_file_path)
         center_config_dir = os.path.join(cur_folder_path, center_config_dir)

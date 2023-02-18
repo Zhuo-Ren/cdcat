@@ -17,9 +17,11 @@ def nodes_from_json(dir: str, corpus):
 def from_multiple_files(dir: str, corpus, raw):
     from nlp_platform.center.node import Node
     for key, value in raw.items():
-        if re.search("raw.txt", key, flags=0): # 成功定位到需要读取的xx.nodes.json
+        if isinstance(value,str): # 成功定位到需要读取的xx.nodes.json
             try:
-                with open(os.path.join(dir, f'{key[:-8]}.nodes.json'), 'r', encoding='utf-8') as f:
+                if "raw.txt" in key:
+                    key=key[:-8]
+                with open(os.path.join(dir, f'{key}.nodes.json'), 'r', encoding='utf-8') as f:
                     nodes_info = json.load(f)
                     for node_info in nodes_info.values():
                         # node = Node(info=node_info)
