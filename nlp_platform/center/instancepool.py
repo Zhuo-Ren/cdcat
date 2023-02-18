@@ -158,29 +158,29 @@ class InstancePool(dict):
         s1 = ''
         with open('instancepool_test.txt', 'w')as f:
             for c in info_dict:
-                if c is '{':
+                if c == '{':
                     s1 += '\t'
                     f.write('{\n%s' % s1)
-                elif c is '}':
+                elif c == '}':
                     s1 = s1[1:]
                     f.write('\n%s}' % s1)
-                elif c is ' ':
+                elif c == ' ':
                     pass
-                elif c is '[':
+                elif c == '[':
                     s1 += '\t'
                     flag0 = True
                     f.write('[\n')
-                elif c is ']':
+                elif c == ']':
                     flag0 = False
                     f.write('\n%s]' % s1)
                     s1 = s1[1:]
-                elif c is '(':
+                elif c == '(':
                     flag1 = True
                     f.write('%s(' % s1)
-                elif c is ')':
+                elif c == ')':
                     flag1 = False
                     f.write(')')
-                elif c is ',':
+                elif c == ',':
                     if flag0 is True and flag1 is True:
                         f.write(c)
                     elif flag0 is True and flag1 is False:
