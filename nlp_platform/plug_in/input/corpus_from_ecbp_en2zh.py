@@ -114,14 +114,14 @@ def info_to_corpus(token_tree: Dict, mention_list: List) -> Corpus:
         c.np.add(cur_node)
         del topic_id, doc_id, sentence_index, cur_node, token_index_str
         # instance
-        if cur_mention.coref_chain[:9] != "Singleton":
-            cur_instance = Instance(info={"id": "i:"+cur_mention.coref_chain}, pool=c.ip)
-            cur_instance["desc"]["value"] = cur_instance["id"]["value"]
-            t = list(cur_instance["mentions"]["value"])  # Relation Label的value是ReportList类型，此类型不支持修改。所以这里先给搞成一般List。
-            t.append(n_id)
-            cur_instance["mentions"]["value"] = t
-            del cur_instance
+        cur_instance = Instance(info={"id": "i:"+cur_mention.coref_chain}, pool=c.ip)
+        cur_instance["desc"]["value"] = cur_instance["id"]["value"]
+        t = list(cur_instance["mentions"]["value"])  # Relation Label的value是ReportList类型，此类型不支持修改。所以这里先给搞成一般List。
+        t.append(n_id)
+        cur_instance["mentions"]["value"] = t
+        del cur_instance
         del cur_mention, n_id
+    c._ip.groups[2][0][2] = list(set(c._ip.groups[2][0][2]))
     return c
 
 
