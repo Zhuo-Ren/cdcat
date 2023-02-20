@@ -1,3 +1,6 @@
+import sys
+root_path = r"E:\ProgramCode\cdcat"
+sys.path.append(root_path)
 import nlp_platform.center.config_log
 import logging
 from nlp_platform.plug_in.input.corpus_from_ecbp_en2zh import corpus_from_ecbp_en2zh
@@ -18,14 +21,14 @@ def test_corpus_from_ecbp_en2zh():
     import_config()
     #
     c = corpus_from_ecbp_en2zh(
-        ecbp_en2zh_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplusEnZh",
-        csv_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplus_coreference_sentences.csv",
-        mapping_pkl_path=r"E:\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\save.pkl"
+        ecbp_en2zh_path=root_path + r"\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplusEnZh",
+        csv_path=root_path + r"\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\ECBplus_coreference_sentences.csv",
+        mapping_pkl_path=root_path + r"\test_unit\plug_in\input\corpus_from_ecbp_en2zh\corpus\save.pkl"
     )
     # show
     from nlp_platform.plug_in.manual_annotation_tool.cdcat.cdcat import cdcat
     cdcat(c,
-          path_to_label_config=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\config_cdcat_label.json",
-          path_to_core_config=r"E:\\ProgramCode\cdcat\test_unit\plug_in\input\corpus_from_ecbp_en2zh\config_cdcat_core.json")
+          path_to_label_config=root_path + r"\test_unit\plug_in\input\corpus_from_ecbp_en2zh\config_cdcat_label.json",
+          path_to_core_config=root_path + r"\test_unit\plug_in\input\corpus_from_ecbp_en2zh\config_cdcat_core.json")
 
 test_corpus_from_ecbp_en2zh()
